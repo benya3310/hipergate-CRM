@@ -61,7 +61,7 @@ import com.knowgate.cache.DistributedCachePeer;
 /**
  * <p>Display static tables as HTML elements like &lt;SELECT&gt;.</p>
  * This class is a singleton memory cache for frecuently accessed static tables.
- * @version 4.0
+ * @version 7.0
  */
 
 public class DBLanguages {
@@ -978,6 +978,109 @@ public class DBLanguages {
   // ----------------------------------------------------------
 
   /**
+   * <p>Add a lookup value for a given section</p>
+   * This methods checks whether the lookup value exists and, if not, then inserts it.<br>
+   * If lookup value already exists then it is not updated.
+   * @param oConn JDCConnection
+   * @param sLookupTableName String Name of Lookup Table
+   * @param sGuOwner String GUID of Owner WorkArea
+   * @param sIdSection String Lookup Section name
+   * @param sVlLookUp String Lookup Internal Value
+   * @param oTranslatMap HashMap with one entry for each language.
+   * Language codes must be those from id_language column of k_lu_languages table.
+   * @return boolean <b>true</b> if value was added, <b>false</b> if it already existed
+   * @throws SQLException
+   * @since 7.0
+   */
+
+  public static boolean addLookup (Connection oConn, String sLookupTableName,
+                                   String sGuOwner, String sIdSection, boolean bActive,
+                                   String sVlLookUp, String sTpLookUp, String sTxComments,
+                                   HashMap<String,String> oTranslatMap)
+    throws SQLException {
+
+    if (DebugFile.trace) {
+      DebugFile.writeln("Begin DBLanguages.addLookup([Connection], " + sLookupTableName + "," + sGuOwner + "," + sIdSection + "," + sVlLookUp + ", [HashMap])");
+      DebugFile.incIdent();
+      DebugFile.writeln("Connection.prepareStatement(SELECT NULL FROM "+sLookupTableName+" WHERE "+DB.gu_owner+"='"+sGuOwner+"' AND "+DB.id_section+"='"+sIdSection+"' AND "+DB.vl_lookup+"='"+sVlLookUp+"')");
+    }
+                                               	
+    ResultSet oRSet;
+    PreparedStatement oStmt = oConn.prepareStatement("SELECT NULL FROM "+sLookupTableName+" WHERE "+DB.gu_owner+"=? AND "+DB.id_section+"=? AND "+DB.vl_lookup+"=?",
+                                                     ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+    oStmt.setString(1, sGuOwner);
+    oStmt.setString(2, sIdSection);
+    oStmt.setString(3, sVlLookUp);
+    oRSet = oStmt.executeQuery();
+    boolean bAlreadyExists = oRSet.next();
+    oRSet.close();
+    oStmt.close();
+
+    if (!bAlreadyExists) {
+      if (DebugFile.trace) DebugFile.writeln("lookup does not already exists");
+      
+      HashMap<String,String> oTrColumnMap = new HashMap<String,String>(197);
+      oStmt = oConn.prepareStatement("SELECT * FROM "+sLookupTableName+" WHERE 1=0");
+      oRSet = oStmt.executeQuery();
+      ResultSetMetaData oMDat = oRSet.getMetaData();
+      for (int c=1; c<oMDat.getColumnCount(); c++) {
+      	oTrColumnMap.put(oMDat.getColumnName(c).toLowerCase(),oMDat.getColumnName(c).toLowerCase());
+      }
+      oRSet.close();
+      oStmt.close();
+
+      int iQuestMarks = 1;
+      String sSQL = "INSERT INTO "+sLookupTableName+"("+DB.gu_owner+","+DB.id_section+","+DB.pg_lookup+","+DB.vl_lookup+","+DB.bo_active+","+DB.tp_lookup+","+DB.tx_comments;
+      Iterator oKeys = oTranslatMap.keySet().iterator();
+      while (oKeys.hasNext()) {
+      	String sColName = DB.tr_+oKeys.next();
+      	if (oTrColumnMap.containsKey(sColName.toLowerCase())) {
+          sSQL += ","+sColName;
+          iQuestMarks++;
+      	}
+      } // wend
+
+      sSQL += ") VALUES (?,?,?,?,?,?,?";
+      for (int q=1; q<iQuestMarks; q++) sSQL += ",?";
+      sSQL += ")";
+      if (DebugFile.trace) DebugFile.writeln("Connection.prepareStatement("+sSQL+")");
+      oStmt = oConn.prepareStatement(sSQL);
+      int iParam = 1;
+      oStmt.setString(iParam++, sGuOwner);
+      oStmt.setString(iParam++, sIdSection);
+      oStmt.setShort(iParam++, (short) (bActive ? 1 : 0));
+      if (null==sTpLookUp)
+        oStmt.setNull(iParam++, Types.VARCHAR);
+      else
+        oStmt.setString(iParam++, sTpLookUp);
+      if (null==sTxComments)
+        oStmt.setNull(iParam++, Types.VARCHAR);
+      else
+        oStmt.setString(iParam++, sTxComments);
+      oStmt.setInt(iParam++, nextLookuUpProgressive(oConn, sLookupTableName, sGuOwner, sIdSection));
+      oStmt.setString(iParam++, sVlLookUp);
+      oKeys = oTranslatMap.keySet().iterator();
+      while (oKeys.hasNext()) {
+      	String sColLang = (String) oKeys.next();
+      	if (oTrColumnMap.containsKey((DB.tr_+sColLang).toLowerCase()))
+          oStmt.setObject(iParam++, oTranslatMap.get(sColLang), Types.VARCHAR);
+      } // wend
+      if (DebugFile.trace) DebugFile.writeln("PreparedStatement.executeUpdate()");
+      oStmt.executeUpdate();
+      oStmt.close();
+    } // fi
+
+    if (DebugFile.trace) {
+      DebugFile.decIdent();
+      DebugFile.writeln("End DBLanguages.addLookup() : " + String.valueOf(!bAlreadyExists));
+    }
+
+    return !bAlreadyExists;
+  } // addLookup
+
+  // ----------------------------------------------------------
+
+  /**
    * <p>Add or update a lookup value for a given section</p>
    * This methods checks whether the lookup value exists and, if not, then inserts it.<br>
    * If lookup value already exists then it is updated.
@@ -1004,6 +1107,63 @@ public class DBLanguages {
     }
 
     if (!addLookup(oConn, sLookupTableName, sGuOwner, sIdSection, sVlLookUp, oTranslations)) {
+      String sSQL = "";
+      Iterator oKeys = oTranslations.keySet().iterator();
+      while (oKeys.hasNext()) {
+        sSQL += (sSQL.length()>0 ? "," : "")+DB.tr_+oKeys.next()+"=?";
+      } // wend
+      sSQL += " WHERE "+DB.gu_owner+"=? AND "+DB.id_section+"=? AND "+DB.vl_lookup+"=?";
+      if (DebugFile.trace)
+        DebugFile.writeln("Connection.prepareStatement(UPDATE "+sLookupTableName+" SET "+sSQL+")");
+      PreparedStatement oStmt = oConn.prepareStatement("UPDATE "+sLookupTableName+" SET "+sSQL);
+      oKeys = oTranslations.keySet().iterator();
+      int iParam = 1;
+      while (oKeys.hasNext()) {
+        oStmt.setObject(iParam++, oTranslations.get(oKeys.next()), Types.VARCHAR);
+      } // wend
+      oStmt.setString(iParam++, sGuOwner);
+      oStmt.setString(iParam++, sIdSection);
+      oStmt.setString(iParam++, sVlLookUp);
+      oStmt.executeUpdate();
+      oStmt.close();
+    }
+
+    if (DebugFile.trace) {
+      DebugFile.decIdent();
+      DebugFile.writeln("End DBLanguages.storeLookup()");
+    }
+  } // storeLookup
+
+  // ----------------------------------------------------------
+
+  /**
+   * <p>Add or update a lookup value for a given section</p>
+   * This methods checks whether the lookup value exists and, if not, then inserts it.<br>
+   * If lookup value already exists then it is updated.
+   * @param oConn JDCConnection
+   * @param sLookupTableName String Name of Lookup Table
+   * @param sGuOwner String GUID of Owner WorkArea
+   * @param sIdSection String Lookup Section name
+   * @param sVlLookUp String Lookup Internal Value
+   * @param oTranslations HashMap with one entry for each language.
+   * Language codes must be those from id_language column of k_lu_languages table.
+   * @return boolean <b>true</b> if value was added, <b>false</b> if it already existed
+   * @throws SQLException
+   * @since 7.0
+   */
+
+  public static void storeLookup (Connection oConn, String sLookupTableName,
+                                  String sGuOwner, String sIdSection, boolean bActive,
+                                  String sVlLookUp, String sTpLookUp, String sTxComments,
+                                  HashMap oTranslations)
+    throws SQLException {
+
+    if (DebugFile.trace) {
+      DebugFile.writeln("Begin DBLanguages.storeLookup([Connection], " + sLookupTableName + "," + sGuOwner + "," + sIdSection + "," + sVlLookUp + ", [HashMap])");
+      DebugFile.incIdent();
+    }
+
+    if (!addLookup(oConn, sLookupTableName, sGuOwner, sIdSection, bActive, sVlLookUp, sTpLookUp, sTxComments, oTranslations)) {
       String sSQL = "";
       Iterator oKeys = oTranslations.keySet().iterator();
       while (oKeys.hasNext()) {
