@@ -21,7 +21,11 @@ DECLARE
 
 BEGIN
   UPDATE k_sms_audit SET gu_contact=NULL WHERE gu_contact=$1;
+  DELETE FROM k_phone_calls WHERE gu_contact=$1;
+  DELETE FROM k_x_meeting_contact WHERE gu_contact=$1;
   DELETE FROM k_x_activity_audience WHERE gu_contact=$1;
+  DELETE FROM k_x_course_bookings WHERE gu_contact=$1;
+  DELETE FROM k_x_course_alumni WHERE gu_alumni=$1;  
   DELETE FROM k_contact_education WHERE gu_contact=$1;
   DELETE FROM k_contact_languages WHERE gu_contact=$1;
   DELETE FROM k_contact_computer_science WHERE gu_contact=$1;
@@ -154,6 +158,7 @@ GO;
 
 CREATE FUNCTION k_sp_del_oportunity (CHAR) RETURNS INTEGER AS '
 BEGIN
+  UPDATE k_phone_calls SET gu_oportunity=NULL WHERE gu_oportunity=$1;
   DELETE FROM k_oportunities_attachs WHERE gu_oportunity=$1;
   DELETE FROM k_oportunities_changelog WHERE gu_oportunity=$1;
   DELETE FROM k_oportunities_attrs WHERE gu_object=$1;
@@ -257,12 +262,11 @@ BEGIN
 
       DELETE FROM k_member_address WHERE gu_contact IN (SELECT gu_contact FROM k_newer_contacts);
 
-      INSERT INTO k_contacts_deduplicated (SELECT current_timestamp AS dt_dedup,GuContact AS gu_dup,* FROM k_contacts WHERE gu_contact IN (SELECT gu_contact FROM k_newer_contacts));
-    
+      INSERT INTO k_contacts_deduplicated (dt_dedup,gu_dup,gu_contact,gu_workarea,dt_created,bo_restricted,bo_private,nu_notes,nu_attachs,bo_change_pwd,tx_nickname,tx_pwd,tx_challenge,tx_reply,dt_pwd_expires,dt_modified,gu_writer,gu_company,id_batch,id_status,id_ref,id_fare,tx_name,tx_surname,de_title,id_gender,dt_birth,ny_age,id_nationality,sn_passport,tp_passport,sn_drivelic,dt_drivelic,tx_dept,tx_division,gu_geozone,gu_sales_man,tx_comments,id_bpartner,url_linkedin,url_facebook,id_persona) (SELECT current_timestamp AS dt_dedup,GuContact AS gu_dup,gu_contact,gu_workarea,dt_created,bo_restricted,bo_private,nu_notes,nu_attachs,bo_change_pwd,tx_nickname,tx_pwd,tx_challenge,tx_reply,dt_pwd_expires,dt_modified,gu_writer,gu_company,id_batch,id_status,id_ref,id_fare,tx_name,tx_surname,de_title,id_gender,dt_birth,ny_age,id_nationality,sn_passport,tp_passport,sn_drivelic,dt_drivelic,tx_dept,tx_division,gu_geozone,gu_sales_man,tx_comments,id_bpartner,url_linkedin,url_facebook,id_persona FROM k_contacts WHERE gu_contact IN (SELECT gu_contact FROM k_newer_contacts));
+
       DELETE FROM k_newer_contacts;
     END IF;
-  END LOOP;
-  CLOSE Dups;
+  
   
 
 	SELECT SUM(k_sp_del_contact(gu_contact)) INTO aCount FROM k_discard_contacts;
@@ -276,3 +280,104 @@ BEGIN
 END;
 ' LANGUAGE 'plpgsql';
 GO;
+
+CREATE FUNCTION k_sp_dedup_oportunities () RETURNS INTEGER AS '
+DECLARE
+  GuTmp CHAR(32);
+  GuOpA CHAR(32);
+  GuOpB CHAR(32);
+  GuOpK CHAR(32);
+  GuOpD CHAR(32);
+  DtOpA TIMESTAMP;
+  DtOpB TIMESTAMP;
+  MoOpA TIMESTAMP;
+  MoOpB TIMESTAMP;
+  TxOpA VARCHAR(1000);
+  TxOpB VARCHAR(1000);
+  aCount INTEGER := 0;
+  Dups NO SCROLL CURSOR FOR SELECT a.gu_oportunity,a.dt_created,a.dt_modified,a.tx_note,b.gu_oportunity,b.dt_created,b.dt_modified,b.tx_note FROM k_oportunities a, k_oportunities b WHERE a.gu_workarea=b.gu_workarea AND a.gu_contact=b.gu_contact AND a.id_objetive=b.id_objetive AND a.gu_oportunity<>b.gu_oportunity AND a.gu_contact IS NOT NULL and b.gu_contact IS NOT NULL AND a.id_objetive IS NOT NULL and b.id_objetive IS NOT NULL;
+BEGIN
+  CREATE TEMPORARY TABLE k_keep_oportunities (gu_oportunity CHAR(32));
+  OPEN Dups;
+  LOOP
+    FETCH Dups INTO GuOpA,DtOpA,MoOpA,TxOpA,GuOpB,DtOpB,MoOpB,TxOpB;
+    EXIT WHEN NOT FOUND;
+    IF MoOpA IS NOT NULL AND MoOpB IS NOT NULL THEN
+      IF MoOpA>MoOpB THEN
+        GuOpK:=GuOpA;
+        GuOpD:=GuOpB;
+      ELSE
+        GuOpK:=GuOpB;
+        GuOpD:=GuOpA;
+      END IF;
+    ELSIF MoOpA IS NOT NULL THEN
+      IF MoOpA>DtOpB THEN
+        GuOpK:=GuOpA;
+        GuOpD:=GuOpB;
+      ELSE
+        GuOpK:=GuOpB;
+        GuOpD:=GuOpA;
+      END IF;
+    ELSIF MoOpB IS NOT NULL THEN
+      IF DtOpA>MoOpB THEN
+        GuOpK:=GuOpA;
+        GuOpD:=GuOpB;
+      ELSE
+        GuOpK:=GuOpB;
+        GuOpD:=GuOpA;
+      END IF;
+    ELSE
+      IF DtOpA>DtOpB THEN
+        GuOpK:=GuOpA;
+        GuOpD:=GuOpB;
+      ELSE
+        GuOpK:=GuOpB;
+        GuOpD:=GuOpA;
+      END IF;
+    END IF;
+    SELECT gu_oportunity INTO GuTmp FROM k_keep_oportunities WHERE gu_oportunity=GuOpK;
+    IF NOT FOUND THEN
+      UPDATE k_oportunities_attrs SET gu_object=GuOpK WHERE gu_object=GuOpD;
+      UPDATE k_oportunities_attachs SET gu_oportunity=GuOpK WHERE gu_oportunity=GuOpD;
+      UPDATE k_oportunities_changelog SET gu_oportunity=GuOpK WHERE gu_oportunity=GuOpD;
+      UPDATE k_phone_calls SET gu_oportunity=GuOpK WHERE gu_oportunity=GuOpD;
+      IF TxOpA IS NOT NULL AND TxOpB IS NOT NULL THEN
+        UPDATE k_oportunities SET tx_note=substring(TxOpA||'' ''||TxOpB from 1 for 1000) WHERE gu_oportunity=GuOpK;
+      ELSIF TxOpA IS NOT NULL THEN
+        UPDATE k_oportunities SET tx_note=TxOpA WHERE gu_oportunity=GuOpK;
+      ELSIF TxOpB IS NOT NULL THEN
+        UPDATE k_oportunities SET tx_note=TxOpB WHERE gu_oportunity=GuOpK;
+      END IF;
+      PERFORM k_sp_del_oportunity (GuOpD);
+      INSERT INTO k_keep_oportunities(gu_oportunity) VALUES(GuOpK);
+      aCount:=aCount+1;
+    END IF;
+  END LOOP;
+  CLOSE Dups;
+  DROP TABLE k_keep_oportunities;
+  RETURN aCount;
+END;
+' LANGUAGE 'plpgsql';
+GO;
+
+CREATE FUNCTION k_sp_objetives_for_contact (CHAR) RETURNS VARCHAR AS '
+DECLARE
+  IdOb VARCHAR(50);
+  TxOb VARCHAR(4000) := '''';
+  Objs NO SCROLL CURSOR FOR SELECT DISTINCT(id_objetive) FROM k_oportunities WHERE gu_contact=$1;
+BEGIN
+  OPEN Objs;
+  LOOP
+    FETCH Objs INTO IdOb;
+    EXIT WHEN NOT FOUND;
+    TxOb:=TxOb||'';''||IdOb;
+  END LOOP;
+  CLOSE Objs;
+  IF length(TxOb)>0 THEN
+    TxOb:=substring(TxOb from 2);
+  END IF;
+  RETURN TxOb;
+END;
+' LANGUAGE 'plpgsql';
+   
+  

@@ -193,7 +193,7 @@ DECLARE
   GuWorkArea    CHAR(32);
   TxName        VARCHAR2(100);
   TxSurname     VARCHAR2(100);
-  DeTitle       VARCHAR2(50);
+  DeTitle       VARCHAR2(70);
   TrTitle       VARCHAR2(50);
   DtBirth	DATE;
   SnPassport    VARCHAR2(16);
@@ -235,7 +235,7 @@ CREATE OR REPLACE TRIGGER k_tr_upd_cont AFTER UPDATE ON k_contacts FOR EACH ROW
 DECLARE
   TxName        VARCHAR2(100);
   TxSurname     VARCHAR2(100);
-  DeTitle       VARCHAR2(50);
+  DeTitle       VARCHAR2(70);
   TrTitle       VARCHAR2(50);
 BEGIN
 

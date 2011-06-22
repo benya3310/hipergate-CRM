@@ -18,7 +18,11 @@ CREATE OR REPLACE PROCEDURE k_sp_del_contact (ContactId CHAR) IS
 
 BEGIN
   UPDATE k_sms_audit SET gu_contact=NULL WHERE gu_contact=ContactId;
+  DELETE k_phone_calls WHERE gu_contact=ContactId;
+  DELETE k_x_meeting_contact WHERE gu_contact=ContactId;
   DELETE k_x_activity_audience WHERE gu_contact=ContactId;
+  DELETE k_x_course_bookings WHERE gu_contact=ContactId;
+  DELETE k_x_course_alumni WHERE gu_alumni=ContactId;
   DELETE k_contact_education WHERE gu_contact=ContactId;
   DELETE k_contact_languages WHERE gu_contact=ContactId;
   DELETE k_contact_computer_science WHERE gu_contact=ContactId;

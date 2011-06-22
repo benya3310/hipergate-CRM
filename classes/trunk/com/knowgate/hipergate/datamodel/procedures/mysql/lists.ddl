@@ -170,7 +170,7 @@ BEGIN
   DECLARE GuWorkArea    CHAR(32);
   DECLARE TxName        VARCHAR(100);
   DECLARE TxSurname     VARCHAR(100);
-  DECLARE DeTitle       VARCHAR(50);
+  DECLARE DeTitle       VARCHAR(70);
   DECLARE TrTitle       VARCHAR(50);
   DECLARE DtBirth	TIMESTAMP;
   DECLARE SnPassport    VARCHAR(16);
@@ -228,7 +228,7 @@ BEGIN
   DECLARE GuWorkArea    CHAR(32);
   DECLARE TxName        VARCHAR(100);
   DECLARE TxSurname     VARCHAR(100);
-  DECLARE DeTitle       VARCHAR(50);
+  DECLARE DeTitle       VARCHAR(70);
   DECLARE TrTitle       VARCHAR(50);
   DECLARE DtBirth	TIMESTAMP;
   DECLARE SnPassport    VARCHAR(16);

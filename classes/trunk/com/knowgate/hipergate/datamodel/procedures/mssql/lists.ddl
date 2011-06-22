@@ -159,7 +159,7 @@ CREATE TRIGGER k_tr_ins_cont_addr ON k_x_contact_addr FOR INSERT AS
   DECLARE @GuWorkArea    CHAR(32)
   DECLARE @TxName        NVARCHAR(100)
   DECLARE @TxSurname     NVARCHAR(100)
-  DECLARE @DeTitle       NVARCHAR(50)
+  DECLARE @DeTitle       NVARCHAR(70)
   DECLARE @TrTitle       NVARCHAR(50)
   DECLARE @DtBirth       DATETIME
   DECLARE @SnPassport    NVARCHAR(16)
@@ -210,7 +210,7 @@ CREATE TRIGGER k_tr_upd_cont ON k_contacts FOR UPDATE AS
   DECLARE @GuWorkArea    CHAR(32)
   DECLARE @TxName        NVARCHAR(100)
   DECLARE @TxSurname     NVARCHAR(100)
-  DECLARE @DeTitle       NVARCHAR(50)
+  DECLARE @DeTitle       NVARCHAR(70)
   DECLARE @TrTitle       NVARCHAR(50)
   DECLARE @DtBirth       DATETIME
   DECLARE @SnPassport    NVARCHAR(16)

@@ -244,7 +244,7 @@ DECLARE
   GuWorkArea    CHAR(32);
   TxName        VARCHAR(100);
   TxSurname     VARCHAR(100);
-  DeTitle       VARCHAR(50);
+  DeTitle       VARCHAR(70);
   TrTitle       VARCHAR(50);
   DtBirth       TIMESTAMP;
   SnPassport    VARCHAR(16);
@@ -329,7 +329,7 @@ DECLARE
   GuWorkArea    CHAR(32);
   TxName        VARCHAR(100);
   TxSurname     VARCHAR(100);
-  DeTitle       VARCHAR(50);
+  DeTitle       VARCHAR(70);
   TrTitle       VARCHAR(50);
   DtBirth       TIMESTAMP;
   SnPassport    VARCHAR(16);
@@ -351,11 +351,11 @@ BEGIN
     SELECT tr_en INTO TrTitle FROM k_contacts_lookup WHERE gu_owner=GuWorkArea AND id_section=''de_title'' AND vl_lookup=DeTitle;
     IF NOT FOUND THEN
       UPDATE k_member_address SET gu_company=GuCompany,tx_name=TxName,tx_surname=TxSurname,
-                                  de_title=DeTitle,tr_title=NULL,dt_birth=DtBirth,sn_passport=SnPassport,id_gender=IdGender,
+                                  de_title=substring(DeTitle,1,50),tr_title=NULL,dt_birth=DtBirth,sn_passport=SnPassport,id_gender=IdGender,
                                   ny_age=NyAge,tx_dept=TxDept,tx_division=TxDivision,tx_comments=TxComments
       WHERE gu_contact=NEW.gu_contact;
     ELSE
-      UPDATE k_member_address SET gu_company=GuCompany,tx_name=TxName,tx_surname=TxSurname,de_title=DeTitle,
+      UPDATE k_member_address SET gu_company=GuCompany,tx_name=TxName,tx_surname=TxSurname,de_title=substring(DeTitle,1,50),
                                   tr_title=TrTitle,dt_birth=DtBirth,sn_passport=SnPassport,id_gender=IdGender,ny_age=NyAge,
                                   tx_dept=TxDept,tx_division=TxDivision,tx_comments=TxComments
       WHERE gu_contact=NEW.gu_contact;
@@ -464,8 +464,8 @@ BEGIN
       SELECT tr_es INTO TrTitle FROM k_contacts_lookup WHERE gu_owner=m.gu_workarea AND id_section=''de_title'' AND vl_lookup=m.de_title;
     END IF;
     BEGIN
-      INSERT INTO k_member_address (  gu_address,  ix_address,  gu_workarea,  gu_company,  gu_contact,  dt_created,  dt_modified,  bo_private,gu_writer,nm_commercial,nm_legal,id_legal,id_sector,  id_status,  tx_name,  tx_surname,  de_title,tr_title,  id_ref,  dt_birth,  id_gender,  sn_passport,  tx_comments,tp_company,nu_employees,im_revenue,  gu_sales_man,tx_franchise,  gu_geozone,  ny_age,  tx_dept,  tx_division,  tp_location,  tp_street,  nm_street,  nu_street,  tx_addr1,  tx_addr2,full_addr  ,  id_country,  nm_country,  id_state,  nm_state,  mn_city,  zipcode,  work_phone,  direct_phone,  home_phone,  mov_phone,  fax_phone,  other_phone,  po_box,  tx_email,  url_addr,  contact_person,  tx_salutation,  tx_remarks)
-      VALUES                       (m.gu_address,m.ix_address,m.gu_workarea,m.gu_company,m.gu_contact,m.dt_created,m.dt_modified,m.bo_private,m.gu_user,NmCommercial ,NmLegal ,IdLegal ,IdSector ,m.id_status,m.tx_name,m.tx_surname,m.de_title,TrTitle ,m.id_ref,m.dt_birth,m.id_gender,m.sn_passport,m.tx_comments,TpCompany ,NuEmployees ,ImRevenue ,m.gu_sales_man,TxFranchise ,m.gu_geozone,m.ny_age,m.tx_dept,m.tx_division,m.tp_location,m.tp_street,m.nm_street,m.nu_street,m.tx_addr1,m.tx_addr2,m.full_addr,m.id_country,m.nm_country,m.id_state,m.nm_state,m.mn_city,m.zipcode,m.work_phone,m.direct_phone,m.home_phone,m.mov_phone,m.fax_phone,m.other_phone,m.po_box,m.tx_email,m.url_addr,m.contact_person,m.tx_salutation,m.tx_remarks);
+      INSERT INTO k_member_address (  gu_address,  ix_address,  gu_workarea,  gu_company,  gu_contact,  dt_created,  dt_modified,  bo_private,gu_writer,nm_commercial,nm_legal,id_legal,id_sector,  id_status,  tx_name,  tx_surname,de_title               ,tr_title,  id_ref,  dt_birth,  id_gender,  sn_passport,  tx_comments,tp_company,nu_employees,im_revenue,  gu_sales_man,tx_franchise,  gu_geozone,  ny_age,  tx_dept,  tx_division,  tp_location,  tp_street,  nm_street,  nu_street,  tx_addr1,  tx_addr2,full_addr  ,  id_country,  nm_country,  id_state,  nm_state,  mn_city,  zipcode,  work_phone,  direct_phone,  home_phone,  mov_phone,  fax_phone,  other_phone,  po_box,  tx_email,  url_addr,  contact_person,  tx_salutation,  tx_remarks)
+      VALUES                       (m.gu_address,m.ix_address,m.gu_workarea,m.gu_company,m.gu_contact,m.dt_created,m.dt_modified,m.bo_private,m.gu_user,NmCommercial ,NmLegal ,IdLegal ,IdSector ,m.id_status,m.tx_name,m.tx_surname,substr(m.de_title,1,50),TrTitle ,m.id_ref,m.dt_birth,m.id_gender,m.sn_passport,m.tx_comments,TpCompany ,NuEmployees ,ImRevenue ,m.gu_sales_man,TxFranchise ,m.gu_geozone,m.ny_age,m.tx_dept,m.tx_division,m.tp_location,m.tp_street,m.nm_street,m.nu_street,m.tx_addr1,m.tx_addr2,m.full_addr,m.id_country,m.nm_country,m.id_state,m.nm_state,m.mn_city,m.zipcode,m.work_phone,m.direct_phone,m.home_phone,m.mov_phone,m.fax_phone,m.other_phone,m.po_box,m.tx_email,m.url_addr,m.contact_person,m.tx_salutation,m.tx_remarks);
       nRowCount:=nRowCount+1;
     EXCEPTION
       WHEN INTEGRITY_CONSTRAINT_VIOLATION OR UNIQUE_VIOLATION THEN
