@@ -514,6 +514,7 @@ public final class DB {
   public static final String id_section = "id_section";
   public static final String pg_lookup = "pg_lookup";
   public static final String vl_lookup = "vl_lookup";
+  public static final String tp_lookup = "tp_lookup";
   public static final String tr_ = "tr_";
 
   // k_images
