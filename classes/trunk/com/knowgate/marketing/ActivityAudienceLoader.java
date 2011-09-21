@@ -32,8 +32,6 @@
 package com.knowgate.marketing;
 
 import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.Arrays;
 
@@ -55,7 +53,6 @@ import com.knowgate.misc.Gadgets;
 import com.knowgate.crm.ContactLoader;
 import com.knowgate.crm.DistributionList;
 import com.knowgate.dataobjs.DB;
-import com.knowgate.hipergate.Address;
 import com.knowgate.hipergate.DBLanguages;
 import com.knowgate.hipergate.datamodel.ColumnList;
 import com.knowgate.hipergate.datamodel.ImportLoader;
