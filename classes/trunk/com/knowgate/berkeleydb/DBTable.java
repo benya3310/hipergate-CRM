@@ -5,8 +5,6 @@ import java.io.FileNotFoundException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
-import java.util.Collection;
-import java.util.Properties;
 
 import java.text.SimpleDateFormat;
 
@@ -47,11 +45,8 @@ import com.sleepycat.db.SecondaryConfig;
 import com.sleepycat.db.SecondaryCursor;
 import com.sleepycat.db.SecondaryDatabase;
 import com.sleepycat.db.DatabaseException;
-import com.sleepycat.db.SecondaryKeyCreator;
-import com.sleepycat.db.SecondaryMultiKeyCreator;
 
 import com.sleepycat.bind.EntryBinding;
-import com.sleepycat.bind.serial.ClassCatalog;
 import com.sleepycat.bind.serial.StoredClassCatalog;
 
 public class DBTable implements Table {
@@ -69,6 +64,7 @@ public class DBTable implements Table {
     
   private static SimpleDateFormat oTsFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+  @SuppressWarnings("unused")
   private DBTable() { }
 
   // --------------------------------------------------------------------------
@@ -92,7 +88,10 @@ public class DBTable implements Table {
     oCtg = oClassCatalog;
     oKey = oEntryBind;
     try {
-	  oTrn = oRep.isTransactional() ? oRep.getEnvironment().beginTransaction(null,null) : null;
+      if (oRep.isTransactional())
+	    oTrn = oRep.getEnvironment().beginTransaction(null,null);
+      else
+    	oTrn = null;
     } catch (DatabaseException dbe) {
       throw new StorageException(dbe.getMessage(),dbe);
     }
@@ -168,9 +167,16 @@ public class DBTable implements Table {
   public LinkedList<Column> columns() {
   	LinkedList<Column> oLst;
   	try {
+  	  if (null==getDataSource().getMetaData()) return null;
   	  oLst = getDataSource().getMetaData().getColumns(getName());
   	} catch (Exception xcpt) { oLst = null; }
     return oLst;
+  }
+
+  // --------------------------------------------------------------------------
+
+  public Database getDatabase() {
+  	return oPdb;
   }
 
   // --------------------------------------------------------------------------
@@ -613,7 +619,7 @@ public class DBTable implements Table {
 		
     if (null==sIndexColumn) throw new StorageException("DBTable.fetch() Column name may not be null");
 
-	if (!oInd.containsKey(sIndexColumn)) throw new StorageException("DBTable.fetch() Column "+sIndexColumn+" is not indexed");
+	if (!oInd.containsKey(sIndexColumn)) throw new StorageException("DBTable.fetch() Column "+sIndexColumn+" is not a secondary index");
 
     if (null==sIndexValue) sIndexValue = "";
     
@@ -629,7 +635,6 @@ public class DBTable implements Table {
 	  DBEntityBinding oDbeb = new DBEntityBinding(oCtg);
       DatabaseEntry oDbDat = new DatabaseEntry();
       DatabaseEntry oDbKey = new DatabaseEntry();
-      DatabaseEntry oPkKey;
 
 	  if (sIndexValue.equals("%") || sIndexValue.equalsIgnoreCase("IS NOT NULL")) {
 
@@ -755,14 +760,12 @@ public class DBTable implements Table {
 	  DBEntityBinding oDbeb = new DBEntityBinding(oCtg);
       DatabaseEntry oDbDat = new DatabaseEntry();
       DatabaseEntry oDbKey = new DatabaseEntry();;
-      DatabaseEntry oPkKey;
-      boolean bMinExists, bMaxExists;
+      boolean bMinExists;
 
       DBIndex oIdx = oInd.get(sIndexColumn);
 	  if (oIdx.isClosed()) openIndex(sIndexColumn);
 
       oCur = oIdx.getCursor(oTrn);
-	  int r = -1;
 
 	  if (DebugFile.trace) DebugFile.writeln("got SecondaryCursor for "+sIndexColumn);
 
@@ -775,7 +778,8 @@ public class DBTable implements Table {
 	  if (DebugFile.trace) DebugFile.writeln(sIndexColumn+" has "+(bMinExists ? "" : "not")+" a minimum value");
 
 	  if (bMinExists) {
-        oDbKey = new DatabaseEntry(sIndexValueMin.getBytes());
+		oCur = oIdx.getCursor(oTrn);
+		oDbKey = new DatabaseEntry(sIndexValueMin.getBytes());
         oOst = oCur.getSearchKey(oDbKey, oDbDat, LockMode.DEFAULT);
         while (oOst==OperationStatus.SUCCESS) {
           oDbEnt = oDbeb.entryToObject(oDbKey,oDbDat);
@@ -960,9 +964,8 @@ public class DBTable implements Table {
 	    if (oIdx.isClosed()) openIndex(sOrderByColumn);
 
         oCur = oIdx.getCursor(oTrn);
-	    int r = -1;
 
-        oOst = oOst = oCur.getLast(oDbKey, oDbDat, LockMode.DEFAULT);
+        oOst = oCur.getLast(oDbKey, oDbDat, LockMode.DEFAULT);
         while (oOst==OperationStatus.SUCCESS && iAdded<iRows) {
           if (++iFetched>iOffset) {
             oEst.add(oDbeb.entryToObject(oDbKey,oDbDat));
@@ -1016,13 +1019,16 @@ public class DBTable implements Table {
     }
 
     try {
-      if (DebugFile.trace) DebugFile.writeln("DBIndex.open("+(oTrn==null ? "null" : "[Transaction]")+","+oRep.getPath()+oPdb.getDatabaseName()+"."+oIdx.getName()+".db"+","+oPdb.getDatabaseName()+"_"+oIdx.getName()+")");
-	  oIdx.open(oRep.getEnvironment().openSecondaryDatabase(oTrn, oRep.getPath()+oPdb.getDatabaseName()+"."+oIdx.getName()+".db",
-                                                            oPdb.getDatabaseName()+"_"+oIdx.getName(), oPdb, oSec));
+      final String sSecDbPath = oRep.getPath()+oPdb.getDatabaseName()+"."+oIdx.getName()+".db";
+      final String sSecIdxName= oPdb.getDatabaseName()+"_"+oIdx.getName();
+      if (DebugFile.trace) DebugFile.writeln("DBIndex.open(openSecondaryDatabase("+oTrn+","+sSecDbPath+","+sSecIdxName+","+oPdb+","+oSec+","+String.valueOf(isReadOnly())+"))");
+	  oIdx.open(oRep.getEnvironment().openSecondaryDatabase(oTrn, sSecDbPath, sSecIdxName, oPdb, oSec));
     } catch (DatabaseException dbe) {
+      if (DebugFile.trace) DebugFile.writeln("DatabaseException "+String.valueOf(dbe.getErrno())+" whilst opening secondary database "+dbe.getMessage());
       throw new StorageException(dbe.getMessage(), dbe);
-    } catch (FileNotFoundException dbe) {
-      throw new StorageException(dbe.getMessage(), dbe);
+    } catch (FileNotFoundException fnf) {
+      if (DebugFile.trace) DebugFile.writeln("FileNotFoundException "+fnf.getMessage());
+      throw new StorageException(fnf.getMessage(), fnf);
     }
 	
   }
