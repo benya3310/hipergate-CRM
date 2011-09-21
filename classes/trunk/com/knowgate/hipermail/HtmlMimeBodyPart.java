@@ -33,7 +33,6 @@ package com.knowgate.hipermail;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.net.URL;
 
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.MatchResult;
@@ -47,7 +46,6 @@ import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Util;
 
 import org.htmlparser.Parser;
-import org.htmlparser.Node;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.NodeIterator;
 import org.htmlparser.util.ParserException;
@@ -56,7 +54,6 @@ import org.htmlparser.tags.LinkTag;
 import org.htmlparser.tags.ImageTag;
 import org.htmlparser.tags.TableTag;
 import org.htmlparser.tags.TableColumn;
-import org.htmlparser.beans.StringBean;
 import org.htmlparser.filters.TagNameFilter;
 import org.htmlparser.visitors.NodeVisitor;
 

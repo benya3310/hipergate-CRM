@@ -33,21 +33,12 @@
 package com.knowgate.hipermail;
 
 import com.knowgate.debug.DebugFile;
-import com.knowgate.debug.StackTraceUtil;
 import com.knowgate.dataobjs.DB;
 import com.knowgate.dataobjs.DBSubset;
 import com.knowgate.jdc.JDCConnection;
 import com.knowgate.misc.Gadgets;
 import com.knowgate.dfs.StreamPipe;
 import com.knowgate.dfs.ByteArrayDataSource;
-
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.PatternMatcher;
-import org.apache.oro.text.regex.PatternCompiler;
-import org.apache.oro.text.regex.Perl5Matcher;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.PatternMatcherInput;
-import org.apache.oro.text.regex.MalformedPatternException;
 
 import java.io.File;
 import java.io.IOException;
@@ -88,7 +79,6 @@ import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.Multipart;
 import javax.mail.Session;
-import javax.mail.internet.MimeUtility;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.ParseException;
@@ -798,6 +788,7 @@ public class DBMimeMessage extends MimeMessage implements MimePart,Part {
     if (oFolder instanceof DBFolder) {
       JDCConnection oConn = null;
       try {
+    	oConn = ((DBFolder) oFolder).getConnection();
         oConn.commit();
         oConn=null;
       }

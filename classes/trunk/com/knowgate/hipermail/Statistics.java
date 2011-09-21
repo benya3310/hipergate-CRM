@@ -33,8 +33,6 @@ package com.knowgate.hipermail;
 
 import java.io.PrintStream;
 
-import java.math.BigDecimal;
-
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Date;
@@ -52,7 +50,6 @@ import java.sql.Timestamp;
 import java.sql.Types;
 
 import com.knowgate.jdc.JDCConnection;
-import com.knowgate.debug.DebugFile;
 import com.knowgate.debug.StackTraceUtil;
 import com.knowgate.dataobjs.DB;
 import com.knowgate.scheduler.Atom;

@@ -64,7 +64,6 @@ import com.knowgate.dataobjs.DBCommand;
 import com.knowgate.dataobjs.DBPersist;
 import com.knowgate.dfs.FileSystem;
 import com.knowgate.hipermail.DBMimePart;
-import com.knowgate.misc.Environment;
 import com.knowgate.misc.Gadgets;
 import com.knowgate.scheduler.Job;
 import com.knowgate.scheduler.SingleThreadExecutor;
@@ -178,6 +177,7 @@ public final class SendMail {
      * @throws InstantiationException
      * @since 5.5
      */
+	@SuppressWarnings("unused")
 	public static ArrayList send(MailAccount oMacc,
 								 Properties oSessionProps,
 								 String sUserDir, // Base directory for mail inline and attached files

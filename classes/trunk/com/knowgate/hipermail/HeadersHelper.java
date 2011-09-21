@@ -52,7 +52,6 @@ import com.knowgate.misc.Gadgets;
 import com.knowgate.debug.DebugFile;
 import com.knowgate.debug.StackTraceUtil;
 import com.knowgate.misc.MD5;
-import com.knowgate.dfs.FileSystem;
 
 import org.xml.sax.helpers.DefaultHandler;
 

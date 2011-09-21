@@ -88,7 +88,6 @@ import com.knowgate.hipergate.DBLanguages;
 import com.knowgate.hipergate.Product;
 import com.knowgate.hipergate.ProductLocation;
 
-import com.knowgate.lucene.MailIndexer;
 
 /**
  * <p>A subclass of javax.mail.Folder providing storage for MimeMessages at database
@@ -802,7 +801,8 @@ public class DBFolder extends Folder {
    * @return <b>null</b>
    * @throws MessagingException
    */
-  public Message[] expunge() throws MessagingException {
+  @SuppressWarnings("unused")
+public Message[] expunge() throws MessagingException {
     Statement oStmt = null;
     CallableStatement oCall = null;
     PreparedStatement oUpdt = null;
@@ -1043,12 +1043,10 @@ public class DBFolder extends Folder {
    * Delete all messages from this folder and clear MBOX file
    * @throws MessagingException
    */
-  public void wipe() throws MessagingException {
+  @SuppressWarnings("unused")
+public void wipe() throws MessagingException {
     Statement oStmt = null;
     CallableStatement oCall = null;
-    PreparedStatement oUpdt = null;
-    PreparedStatement oPart = null;
-    PreparedStatement oAddr = null;
     ResultSet oRSet;
 
     if (DebugFile.trace) {
@@ -1234,7 +1232,8 @@ public class DBFolder extends Folder {
 
   // ---------------------------------------------------------------------------
 
-  protected Message getMessage(String sMsgId, int IdType)
+  @SuppressWarnings("unused")
+protected Message getMessage(String sMsgId, int IdType)
     throws MessagingException {
 
     if (DebugFile.trace) {

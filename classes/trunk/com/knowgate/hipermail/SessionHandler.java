@@ -62,7 +62,6 @@ import javax.mail.Transport;
 import javax.mail.Folder;
 import javax.mail.Flags;
 import javax.mail.FetchProfile;
-import javax.mail.FetchProfile.Item;
 
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
