@@ -212,6 +212,7 @@ public final class DB {
   public static final String k_microsites = "k_microsites";
   public static final String k_pagesets = "k_pagesets";
   public static final String k_pagesets_lookup = "k_pagesets_lookup";
+  public static final String k_x_pageset_list = "k_x_pageset_list";
   public static final String k_pageset_pages = "k_pageset_pages";
   public static final String k_pageset_datasheets = "k_pageset_datasheets";
   public static final String k_pageset_answers = "k_pageset_answers";

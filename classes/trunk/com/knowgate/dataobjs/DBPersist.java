@@ -33,11 +33,9 @@
 package com.knowgate.dataobjs;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.FileNotFoundException;
 import java.io.File;
 import java.io.ObjectOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import java.sql.SQLException;

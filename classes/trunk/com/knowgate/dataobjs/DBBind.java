@@ -41,6 +41,7 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.LinkedList;
 import java.util.ListIterator;
+import java.util.logging.Logger;
 
 import java.sql.DriverManager;
 import java.sql.Connection;
@@ -597,13 +598,30 @@ public class DBBind extends Beans implements DataSource {
       oTableIterator = oTableMap.values().iterator();
 
       // For each table, read its column structure and keep it in memory
-
+      int nWarnings = 0;
+  	  LinkedList<String> oUnreadableTables = new LinkedList<String>();
+      
       while (oTableIterator.hasNext()) {
         oTable = (DBTable) oTableIterator.next();
-        oTable.readColumns(oConn,oMData);
+        try {
+          oTable.readColumns(oConn,oMData);
+        } catch (SQLException sqle) {
+          if (DebugFile.trace) {
+        	DebugFile.writeln("Could not read columns of table "+oTable.getName());
+        	try { DebugFile.writeln(StackTraceUtil.getStackTrace(sqle)); } catch (Exception ignore) {}
+          }
+          nWarnings++;
+          oUnreadableTables.add(oTable.getName());
+        }
       } // wend
+      for (String t : oUnreadableTables) oTableMap.remove(t);
 
-      if (DebugFile.trace) DebugFile.writeln("Table scan : OK" );
+      if (DebugFile.trace) {
+    	if (nWarnings==0)
+      	  DebugFile.writeln("Table scan finished with "+String.valueOf(nWarnings)+" warnings");
+    	else
+    	  DebugFile.writeln("Table scan succesfully completed" );
+      }
 
       oConn.close();
       oConn=null;
@@ -1451,6 +1469,17 @@ public class DBBind extends Beans implements DataSource {
     return System.currentTimeMillis();
    }
 
+   // ----------------------------------------------------------
+   
+   /**
+    * This method is added for compatibility with Java 7 and it is not iplemented
+    * @return null
+    * @since 7.0
+    */
+   public Logger getParentLogger() {
+	   return null;
+   }
+   
   // ----------------------------------------------------------
 
   /**

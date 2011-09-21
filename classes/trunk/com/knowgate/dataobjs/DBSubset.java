@@ -55,7 +55,6 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 
-import java.util.Comparator;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.Date;
@@ -67,12 +66,10 @@ import java.util.HashMap;
 import com.knowgate.debug.DebugFile;
 import com.knowgate.debug.StackTraceUtil;
 import com.knowgate.jdc.JDCConnection;
-import com.knowgate.storage.RecordSet;
 import com.knowgate.misc.Gadgets;
 import com.knowgate.misc.Calendar;
 import com.knowgate.misc.CSVParser;
 import com.knowgate.math.Money;
-
 
 /**
  *
