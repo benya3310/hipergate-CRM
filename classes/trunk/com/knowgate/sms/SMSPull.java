@@ -31,10 +31,6 @@
 
 package com.knowgate.sms;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
-import java.util.Date;
 import java.util.Properties;
 
 import java.sql.Connection;
