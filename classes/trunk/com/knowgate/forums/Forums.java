@@ -230,7 +230,7 @@ public class Forums {
   											   Boolean bActiveOnly, String sOrderBy)
     throws SQLException,IllegalArgumentException {
     return XMLListTopLevelMessages(oConn, nMaxMsgs, iDomainId, sWorkAreaId,
-  								   bActiveOnly, "dd/MM/yyyy HH:mm", sOrderBy);
+  								   bActiveOnly, "MMM dd yyyy HH:mm", sOrderBy);
   } // XMLListTopLevelMessages
 
   // --------------------------------------------------------------------------
@@ -239,7 +239,7 @@ public class Forums {
     throws SQLException,IllegalArgumentException {
     DBSubset oDbss = getMessagesForThread(oConn, sGuThread);
     
-	return "<NewsMessages count=\""+String.valueOf(oDbss.getRowCount())+"\">\n"+oDbss.toXML("","NewsMessage","dd/MM/yyyy HH:mm", null)+"</NewsMessages>\n";
+	return "<NewsMessages count=\""+String.valueOf(oDbss.getRowCount())+"\">\n"+oDbss.toXML("","NewsMessage","MMM dd yyyy HH:mm", null)+"</NewsMessages>\n";
   } // XMLListMessagesForThread
 
 
@@ -251,7 +251,7 @@ public class Forums {
     throws SQLException,IllegalArgumentException {
     DBSubset oDbss = getMessagesForGroup(oConn, sGroupId, nMaxMsgs, nOffset, sOrderBy);
     
-	return "<NewsMessages offset=\""+String.valueOf(nOffset)+"\" eof=\""+String.valueOf(oDbss.eof())+"\" count=\""+String.valueOf(oDbss.getRowCount())+"\">\n"+oDbss.toXML("","NewsMessage","dd/MM/yyyy HH:mm", null)+"</NewsMessages>\n";
+	return "<NewsMessages offset=\""+String.valueOf(nOffset)+"\" eof=\""+String.valueOf(oDbss.eof())+"\" count=\""+String.valueOf(oDbss.getRowCount())+"\">\n"+oDbss.toXML("","NewsMessage","MMM dd yyyy HH:mm", null)+"</NewsMessages>\n";
   } // XMLListMessagesForGroup
 
   // --------------------------------------------------------------------------
@@ -274,7 +274,7 @@ public class Forums {
   											   String sGroupId, String sOrderBy)
     throws SQLException,IllegalArgumentException {
     
-    return XMLListTopLevelMessagesForGroup(oConn, dtStart, dtEnd, sGroupId, sOrderBy, "dd/MM/yyyy HH:mm");
+    return XMLListTopLevelMessagesForGroup(oConn, dtStart, dtEnd, sGroupId, sOrderBy, "MMM dd yyyy HH:mm");
   } // XMLListTopLevelMessagesForGroup
 
   // --------------------------------------------------------------------------
@@ -297,7 +297,7 @@ public class Forums {
     throws SQLException,IllegalArgumentException {
     DBSubset oDbss = getTopLevelMessagesForGroup(oConn, sGroupId, nMaxMsgs, nOffset, sOrderBy);
 
-	return "<NewsMessages offset=\""+String.valueOf(nOffset)+"\" eof=\""+String.valueOf(oDbss.eof())+"\" count=\""+String.valueOf(oDbss.getRowCount())+"\">\n"+oDbss.toXML("","NewsMessage","dd/MM/yyyy HH:mm", null)+"</NewsMessages>\n";
+	return "<NewsMessages offset=\""+String.valueOf(nOffset)+"\" eof=\""+String.valueOf(oDbss.eof())+"\" count=\""+String.valueOf(oDbss.getRowCount())+"\">\n"+oDbss.toXML("","NewsMessage","MMM dd yyyy HH:mm", null)+"</NewsMessages>\n";
   } // XMLListTopLevelMessagesForGroup
 
   // --------------------------------------------------------------------------
@@ -308,9 +308,9 @@ public class Forums {
     throws SQLException,IllegalArgumentException {
     DBSubset oDbss = getTopLevelMessagesForTag(oConn, sGroupId, sTagId, nMaxMsgs, nOffset, sOrderBy);
 
-	return "<NewsMessages offset=\""+String.valueOf(nOffset)+"\" eof=\""+String.valueOf(oDbss.eof())+"\" count=\""+String.valueOf(oDbss.getRowCount())+"\">\n"+oDbss.toXML("","NewsMessage","dd/MM/yyyy hh:mm", null)+"</NewsMessages>\n";
+	return "<NewsMessages offset=\""+String.valueOf(nOffset)+"\" eof=\""+String.valueOf(oDbss.eof())+"\" count=\""+String.valueOf(oDbss.getRowCount())+"\">\n"+oDbss.toXML("","NewsMessage","MMM dd yyyy hh:mm", null)+"</NewsMessages>\n";
   } // XMLListTopLevelMessagesForTag
-
+  
   // --------------------------------------------------------------------------
   
   public static String XMLListMonthsWithPosts(JDCConnection oConn, String sGuNewsGrp, String sLanguage)

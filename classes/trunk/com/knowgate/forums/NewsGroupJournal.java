@@ -34,25 +34,22 @@ package com.knowgate.forums;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Date;
 import java.util.Properties;
 
 import java.io.IOException;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
-import java.io.FileInputStream;
-import java.io.BufferedInputStream;
+
 
 import java.sql.SQLException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.Timestamp;
 
 import javax.xml.transform.TransformerException;
 
 import com.knowgate.jdc.JDCConnection;
-import com.knowgate.misc.Calendar;
 import com.knowgate.misc.Gadgets;
 import com.knowgate.misc.Month;
 import com.knowgate.dfs.FileSystem;
@@ -66,8 +63,9 @@ import com.knowgate.forums.NewsGroup;
 
 /**
  * <p>NewsGroupJournal</p>
+ * <p>This class must be pre-processed with JiBX and journal-def-jixb.xml</p>
  * @author Sergio Montoro Ten
- * @version 5.0
+ * @version 7.0
  */
 public class NewsGroupJournal {
 
@@ -133,14 +131,32 @@ public class NewsGroupJournal {
   	return templates;
   }
 
+  private String mergeXML(String sXMLHost, String sXMLJournal) {
+    final String sXmlProlog = "<?xml version=\"1.0\" encoding=\""+getEncoding()+"\"?>\n";
+    String sMergedXML;
+    if (sXMLHost==null) {
+      sMergedXML = sXmlProlog + sXMLJournal;
+    } else {
+      final int iJournal = sXMLHost.indexOf("&journal;");
+      if (iJournal>0)
+    	sMergedXML = sXMLHost.substring(0,iJournal) + sXMLJournal + sXMLHost.substring(iJournal+9);
+      else
+    	sMergedXML = sXMLHost;
+    }
+    return sMergedXML;
+  }
+
   // ---------------------------------------------------------------------------
 
-  public void rebuild(JDCConnection oConn, boolean bFullRebuild)
-  	throws NullPointerException,SQLException,FileNotFoundException,IOException,TransformerException {
+  /**
+   * @since 7.0
+   */
+  
+  public void rebuild(JDCConnection oConn, Map<String,String> oXMLHosts, boolean bFullRebuild)
+    throws NullPointerException,SQLException,FileNotFoundException,IOException,TransformerException {
 
 	String sMessageList;
 	String sXMLDataSource;
-	String sDaysWithPosts;
     SimpleDateFormat oFmt = new SimpleDateFormat("yyyy_MM_dd");	
 	File oOut;
 	Date dtLastModified;
@@ -171,7 +187,6 @@ public class NewsGroupJournal {
       throw new SQLException("NewsGroupJournal.rebuild() No NewsGroup with GUID "+getGuid()+" found at "+DB.k_newsgroups+" table");
 	} // fi
 	
-	String sXmlProlog = "<?xml version=\"1.0\" encoding=\""+getEncoding()+"\"?>\n";
 	String sNewsGrpXml = oNewsGrp.toXML(oConn);
 	String sMonthsWithPosts = Forums.XMLListMonthsWithPosts(oConn, getGuid(), getLanguage());
 
@@ -227,7 +242,7 @@ public class NewsGroupJournal {
 	    
 		if (bNeedsRebuild || bFullRebuild) {
 	  	  sMessageList = Forums.XMLListTopLevelMessagesForGroup(oConn, t.getLimit(), 0, getGuid(), DB.dt_published);
-	  	  sXMLDataSource = sXmlProlog + "<Journal guid=\""+getGuid()+"\">\n" + sNewsGrpXml + "\n" + sMonthsWithPosts + "\n" + sMessageList + "</Journal>";
+	  	  sXMLDataSource = mergeXML (oXMLHosts.get(t.getFilter()), "<Journal guid=\""+getGuid()+"\">\n" + sNewsGrpXml + "\n" + sMonthsWithPosts + "\n" + sMessageList + "</Journal>");
 
 		  if (DebugFile.trace) {
 		  	oFs.delete(getOutputPath()+"main.xml");
@@ -274,7 +289,7 @@ public class NewsGroupJournal {
 	  	  try {
 	  	    sMessageList = Gadgets.replace(sMessageList,"<((IMG)|img) +((SRC)|(src))=\"/", "<img src=\""+getBaseHref()+"/");
 	  	  } catch (org.apache.oro.text.regex.MalformedPatternException neverthrown) { }
-	  	  sXMLDataSource = sXmlProlog + "<Journal guid=\""+getGuid()+"\">\n" + sNewsGrpXml + "\n" + sMessageList + "</Journal>";
+	  	  sXMLDataSource = mergeXML(oXMLHosts.get(t.getFilter()), "<Journal guid=\""+getGuid()+"\">\n" + sNewsGrpXml + "\n" + sMessageList + "</Journal>");
 
 	      oFs.writefilestr(sFilePath,
 	                       StylesheetCache.transform(getBlogPath()+t.getInputFilePath(), sXMLDataSource, oProps), getEncoding());
@@ -323,7 +338,7 @@ public class NewsGroupJournal {
 			
 		    if (bNeedsRebuild || bFullRebuild) {
 			  sMessageList = Forums.XMLListTopLevelMessagesForGroup(oConn, m.firstDay(), m.lastDay(), getGuid(), DB.dt_published);
-	  	      sXMLDataSource = sXmlProlog + "<Journal guid=\""+getGuid()+"\">\n" + sNewsGrpXml + "\n" + sMonthsWithPosts + "\n" + sMessageList + "</Journal>";
+			  sXMLDataSource = mergeXML(oXMLHosts.get(t.getFilter()), "<Journal guid=\""+getGuid()+"\">\n" + sNewsGrpXml + "\n" + sMonthsWithPosts + "\n" + sMessageList + "</Journal>");
 
 		  	  if (DebugFile.trace) {
 		  	    oFs.delete(Gadgets.dechomp(sFilePath,"html")+"xml");
@@ -385,7 +400,7 @@ public class NewsGroupJournal {
 
 		        if (bNeedsRebuild || bFullRebuild) {
 			      sMessageList = Forums.XMLListTopLevelMessagesForGroup(oConn, dtDay00, dtDay23, getGuid(), DB.dt_published);
-	  	          sXMLDataSource = sXmlProlog + "<Journal guid=\""+getGuid()+"\">\n" + sNewsGrpXml + "\n" + sMonthsWithPosts + "\n" + sMessageList + "</Journal>";
+			      sXMLDataSource = mergeXML(oXMLHosts.get(t.getFilter()), "<Journal guid=\""+getGuid()+"\">\n" + sNewsGrpXml + "\n" + sMonthsWithPosts + "\n" + sMessageList + "</Journal>");
 	              oFs.writefilestr(sFilePath,
 	                               StylesheetCache.transform(getBlogPath()+t.getInputFilePath(), sXMLDataSource, oProps), getEncoding());
 		        } // fi
@@ -436,7 +451,7 @@ public class NewsGroupJournal {
 		    if (bNeedsRebuild || bFullRebuild) {
 
 			  sMessageList = Forums.XMLListMessagesForThread(oConn, oPostsModified.getString(1,p));
-	  	      sXMLDataSource = sXmlProlog + "<Journal guid=\""+getGuid()+"\">\n" + sNewsGrpXml + "\n" + sMonthsWithPosts + "\n" + sMessageList + "</Journal>";
+	  	      sXMLDataSource = mergeXML(oXMLHosts.get(t.getFilter()), "<Journal guid=\""+getGuid()+"\">\n" + sNewsGrpXml + "\n" + sMonthsWithPosts + "\n" + sMessageList + "</Journal>");
 	          oFs.writefilestr(sFilePath,
 	                           StylesheetCache.transform(getBlogPath()+t.getInputFilePath(), sXMLDataSource, oProps), getEncoding());
 		  	  if (DebugFile.trace) {
@@ -474,7 +489,7 @@ public class NewsGroupJournal {
 	        }
 
 			sMessageList = Forums.XMLListTopLevelMessagesForTag(oConn, 32767, 0, getGuid(), oTags.getString(0,g), DB.dt_published);
-	  	    sXMLDataSource = sXmlProlog + "<Journal guid=\""+getGuid()+"\">\n" + sNewsGrpXml + "\n" + sMonthsWithPosts + "\n" + sMessageList + "</Journal>";
+	  	    sXMLDataSource = mergeXML(oXMLHosts.get(t.getFilter()), "<Journal guid=\""+getGuid()+"\">\n" + sNewsGrpXml + "\n" + sMonthsWithPosts + "\n" + sMessageList + "</Journal>");
 	        oFs.writefilestr(sFilePath,
 	                         StylesheetCache.transform(getBlogPath()+t.getInputFilePath(), sXMLDataSource, oProps), getEncoding());
 
@@ -491,8 +506,14 @@ public class NewsGroupJournal {
       DebugFile.decIdent();
       DebugFile.writeln("End NewsGroupJournal.rebuild()");
     }
-
   } // rebuild
+
+  // ---------------------------------------------------------------------------
+  
+  public void rebuild(JDCConnection oConn, boolean bFullRebuild)
+    throws NullPointerException,SQLException,FileNotFoundException,IOException,TransformerException {
+	rebuild(oConn, new HashMap<String,String>(), bFullRebuild);
+  }
 }
 
 
