@@ -2,7 +2,6 @@ package com.knowgate.storage;
 
 import java.util.HashMap;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Collections;
 
 import com.knowgate.storage.RecordColumnValueComparatorAsc;

@@ -2,11 +2,7 @@ package com.knowgate.storage;
 
 import java.sql.SQLException;
 
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-
 import java.util.Date;
-import java.util.Collection;
 import java.util.LinkedList;
 
 import com.knowgate.storage.Column;

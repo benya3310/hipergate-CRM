@@ -35,7 +35,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Iterator;
-import java.util.Calendar;
 import java.util.LinkedList;
 
 import java.text.NumberFormat;
@@ -66,13 +65,17 @@ public abstract class AbstractRecord extends HashMap implements Record {
     sPkColumnName=null;
   }
 
-  public AbstractRecord(String sBaseTableName, LinkedList<Column> oColumnsList) {
-  	sTableName=sBaseTableName;
+  public AbstractRecord(String sBaseTableName, LinkedList<Column> oColumnsList)
+    throws IllegalArgumentException {
+  	boolean bHasPk = false;
+	sTableName=sBaseTableName;
   	setPrimaryKey(null);
   	oColumns = oColumnsList;
   	if (null!=oColumnsList) {
   	  for (Column c : oColumnsList) {
   	  	if (c.isPrimaryKey()) {
+  	  	  if (bHasPk) throw new IllegalArgumentException("AbstractRecord for "+sBaseTableName+" has a duplicated primary key "+sPkColumnName+" and"+c.getName());
+  	  	  bHasPk=true;
   	  	  sPkColumnName = c.getName();
   	  	  break;
   	  	} // fi

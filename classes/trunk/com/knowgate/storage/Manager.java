@@ -38,24 +38,16 @@ import javax.naming.NamingException;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 import java.beans.Beans;
 
 import java.lang.reflect.InvocationTargetException;
 
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Properties;
 
-import java.util.concurrent.ConcurrentHashMap;
-
-import com.knowgate.clocial.ModelManager;
 import com.knowgate.dataobjs.DBBind;
-import com.knowgate.dataobjs.DBPersist;
 
-import com.knowgate.berkeleydb.DBEntity;
 import com.knowgate.berkeleydb.DBEnvironment;
 
 import com.knowgate.misc.Environment;
@@ -113,7 +105,6 @@ public final class Manager extends Beans {
   	  	if (!oPackDir.exists()) throw new FileNotFoundException("Directory "+oPackDir.getAbsolutePath()+" not found");
   	  	if (!oPackDir.isDirectory()) throw new FileNotFoundException(oPackDir.getAbsolutePath()+" is not a directory");
   	  	SchemaMetaData oSmd = new SchemaMetaData();
-		File[] aFiles = oPackDir.listFiles();
 		oSmd.load(oPackDir);
   	  	oDts = new DBEnvironment(Environment.getProfilePath(sProfileName,"dbenvironment"), oSmd, bReadOnly);
   	    break;

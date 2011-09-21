@@ -1,7 +1,5 @@
 package com.knowgate.storage;
 
-import java.sql.SQLException;
-
 public class StorageException extends Exception {
 
   private ErrorCode eErrCod;

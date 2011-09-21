@@ -38,7 +38,6 @@ import javax.jms.Session;
 import javax.jms.Message;
 import javax.jms.Connection;
 import javax.jms.JMSException;
-import javax.jms.ObjectMessage;
 import javax.jms.QueueReceiver;
 import javax.jms.QueueBrowser;
 import com.sun.messaging.ConnectionFactory;
@@ -47,14 +46,11 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
 
 import com.knowgate.storage.Engine;
-
-import com.knowgate.dataobjs.DBExtranet;
 
 import com.knowgate.debug.DebugFile;
 

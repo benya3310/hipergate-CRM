@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.FileNotFoundException;
 
 import java.net.URL;
@@ -18,14 +17,11 @@ import java.text.SimpleDateFormat;
 import java.text.ParseException;
 
 import java.util.LinkedList;
-import java.util.Iterator;
 import java.util.HashMap;
-import java.util.Set;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.Parser;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.XMLReaderFactory;
@@ -37,7 +33,6 @@ import com.knowgate.debug.DebugFile;
 import com.knowgate.debug.StackTraceUtil;
 
 import com.knowgate.storage.Column;
-import com.knowgate.storage.Record;
 
 public final class SchemaMetaData extends DefaultHandler {
 

@@ -31,9 +31,6 @@
 
 package com.knowgate.storage;
 
-import java.util.Map;
-import java.util.Properties;
-
 public interface DataSource {
 
 	public void open (String sUrl, String sUser, String sPassw, boolean bReadOnly) throws StorageException;

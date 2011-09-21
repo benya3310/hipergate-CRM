@@ -39,7 +39,6 @@ import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
 import javax.jms.ObjectMessage;
-import javax.jms.QueueSession;
 import javax.jms.QueueReceiver;
 import javax.jms.QueueRequestor;
 import javax.jms.TemporaryQueue;
@@ -48,29 +47,18 @@ import javax.jms.MessageProducer;
 import com.sun.messaging.ConnectionFactory;
 
 import javax.naming.Context;
-import javax.naming.RefAddr;
-import javax.naming.Reference;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Hashtable;
 import java.util.Properties;
-import java.util.Enumeration;
 
 import com.knowgate.misc.Gadgets;
 
 import com.knowgate.debug.DebugFile;
-import com.knowgate.debug.StackTraceUtil;
-
-import com.knowgate.berkeleydb.DBEnvironment;
-
-import com.knowgate.misc.Gadgets;
-
-import com.knowgate.clocial.MetaData;
 
 import com.knowgate.dataobjs.DBPersist;
 

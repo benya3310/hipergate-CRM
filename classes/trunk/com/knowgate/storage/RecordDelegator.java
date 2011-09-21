@@ -48,7 +48,6 @@ import com.knowgate.storage.Record;
 import com.knowgate.storage.DataSource;
 import com.knowgate.storage.StorageException;
 
-import com.knowgate.debug.DebugFile;
 import com.knowgate.dataobjs.DBPersist;
 import com.knowgate.berkeleydb.DBEntity;
 

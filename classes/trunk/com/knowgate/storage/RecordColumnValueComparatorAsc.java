@@ -32,7 +32,6 @@
 package com.knowgate.storage;
 
 import java.sql.Types;
-import java.util.Date;
 import java.util.Comparator;
 
 public class RecordColumnValueComparatorAsc implements Comparator<Record> {

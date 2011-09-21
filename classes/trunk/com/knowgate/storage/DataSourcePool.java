@@ -38,7 +38,6 @@ import java.util.Date;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.knowgate.jdc.JDCConnectionPool;
 import com.knowgate.berkeleydb.DBEnvironment;
 
 public class DataSourcePool {
