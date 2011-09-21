@@ -1,6 +1,5 @@
 /*
-  Copyright (C) 2003  Know Gate S.L. All rights reserved.
-                      C/Oña, 107 1º2 28050 Madrid (Spain)
+  Copyright (C) 2003-2011  Know Gate S.L. All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
@@ -40,6 +39,7 @@ import java.util.Properties;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
@@ -55,7 +55,7 @@ import com.knowgate.misc.Gadgets;
 /**
  * Indexer subclass for hipergate contact
  * @author Alfonso Marin Lopez
- * @version 1.0
+ * @version 7.0
  */
 public class ContactIndexer extends Indexer {
 
@@ -87,17 +87,17 @@ public class ContactIndexer extends Indexer {
              NullPointerException {
 
     Document oDoc = new Document();
-    oDoc.add (new Field("workarea" , contact.getWorkarea(), Field.Store.YES, Field.Index.UN_TOKENIZED));
-    oDoc.add (new Field("guid"     , contact.getGui() , Field.Store.YES, Field.Index.UN_TOKENIZED));
-    oDoc.add (new Field("author"   , contact.getAuthor() , Field.Store.YES, Field.Index.UN_TOKENIZED));
-    oDoc.add (new Field("value"    , contact.getValue(), Field.Store.YES, Field.Index.TOKENIZED));
+    oDoc.add (new Field("workarea" , contact.getWorkarea(), Field.Store.YES, Field.Index.NOT_ANALYZED));
+    oDoc.add (new Field("guid"     , contact.getGui() , Field.Store.YES, Field.Index.NOT_ANALYZED));
+    oDoc.add (new Field("author"   , contact.getAuthor() , Field.Store.YES, Field.Index.NOT_ANALYZED));
+    oDoc.add (new Field("value"    , contact.getValue(), Field.Store.YES, Field.Index.ANALYZED));
     oIWrt.addDocument(oDoc);
   } // addBug
 
 
 
   /**
-   * Se añade un contacto por su identificador unico
+   * Add contact by his GUID
    * @param oIWrt
    * @param contact
    * @throws ClassNotFoundException
@@ -161,12 +161,12 @@ public class ContactIndexer extends Indexer {
           DebugFile.incIdent();
     	}
 
-		sDirectory = Gadgets.chomp(sDirectory, File.separator) + "k_contacts" + File.separator + sWorkArea;
-
 		if (null == sDirectory) {
 			if (DebugFile.trace) DebugFile.decIdent();
 			throw new NoSuchFieldException("Cannot find luceneindex property");
 		}
+
+		sDirectory = Gadgets.chomp(sDirectory, File.separator) + "k_contacts" + File.separator + sWorkArea;
 
 		if (DebugFile.trace)
 			DebugFile.writeln("index directory is " + sDirectory);
@@ -187,25 +187,20 @@ public class ContactIndexer extends Indexer {
 			Indexer.rebuild(oProps, "k_contacts", sWorkArea);
 		}
 		
-		if (DebugFile.trace)
-			DebugFile.writeln("Class.forName("
-					+ oProps.getProperty("analyzer", DEFAULT_ANALYZER) + ")");
+		if (DebugFile.trace) DebugFile.writeln("IndexReader.open("+sDirectory+")");
 
-		Class oAnalyzer = Class.forName(oProps.getProperty("analyzer", DEFAULT_ANALYZER));
-
-		if (DebugFile.trace)
-			DebugFile.writeln("IndexReader.open("+sDirectory+")");
-
-		IndexReader oIRdr = IndexReader.open(sDirectory);
+		Directory oFsDir = Indexer.openDirectory(sDirectory);
+		
+		IndexReader oIRdr = IndexReader.open(oFsDir);
 		oIRdr.deleteDocuments(new Term("guid", sGuid));
 		oIRdr.close();
-
-		IndexWriter oIWrt = new IndexWriter(sDirectory, (Analyzer) oAnalyzer
-				.newInstance(), bNewIndex);
+		
+		IndexWriter oIWrt = new IndexWriter(oFsDir, instantiateAnalyzer(oProps), IndexWriter.MaxFieldLength.LIMITED);
 
 		addDocument(oIWrt, sGuid, sWorkArea, oConn);
 
 		oIWrt.close();
+		oFsDir.close();
 
     	if (DebugFile.trace) {
           DebugFile.decIdent();
