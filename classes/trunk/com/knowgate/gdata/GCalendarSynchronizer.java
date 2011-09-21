@@ -60,17 +60,14 @@ import com.google.gdata.data.calendar.EventWho;
 import com.google.gdata.data.calendar.CalendarFeed;
 import com.google.gdata.data.calendar.CalendarEventFeed;
 import com.google.gdata.data.calendar.CalendarEntry;
-import com.google.gdata.data.calendar.IcalUIDProperty;
 import com.google.gdata.data.calendar.CalendarEventEntry;
 
 import com.google.gdata.client.calendar.CalendarQuery;
-import com.google.gdata.client.calendar.CalendarQuery.ExtendedPropertyMatch;
 import com.google.gdata.client.calendar.CalendarService;
 
 import com.knowgate.misc.Gadgets;
 import com.knowgate.debug.DebugFile;
 import com.knowgate.dataobjs.DB;
-import com.knowgate.dataobjs.DBBind;
 import com.knowgate.dataobjs.DBSubset;
 import com.knowgate.dataobjs.DBCommand;
 import com.knowgate.addrbook.Meeting;
