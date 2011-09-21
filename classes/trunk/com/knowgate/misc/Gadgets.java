@@ -35,7 +35,6 @@ package com.knowgate.misc;
 import java.lang.StringBuffer;
 import java.lang.System;
 
-import java.util.Arrays;
 import java.util.Random;
 import java.util.Date;
 import java.util.StringTokenizer;
@@ -50,7 +49,6 @@ import java.util.TreeMap;
 import java.math.BigDecimal;
 
 import java.text.DecimalFormat;
-import java.text.FieldPosition;
 import java.text.NumberFormat;
 
 import java.net.InetAddress;
@@ -70,7 +68,6 @@ public final class Gadgets {
   private static int iSequence = 1048576;
 
   private static DecimalFormat oFmt2 = null;
-  private static FieldPosition oFrac = null;
   private static Currency oCurr = null;
   private static String sCurr = null;
 
@@ -2391,7 +2388,7 @@ public final class Gadgets {
 	for (int c=0; c<nLen; c++) {
 	  cAt = sInput.charAt(c);
 	  if (sSpecialSet.indexOf(cAt)>=0)
-	  oOutput.append(cEsc);
+	    oOutput.append(cEsc);
 	  oOutput.append(cAt);
 	} // next
 	return oOutput.toString();
