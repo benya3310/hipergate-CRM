@@ -43,6 +43,7 @@ import java.util.Vector;
 import java.util.Enumeration;
 import java.util.Date;
 import java.util.ConcurrentModificationException;
+import java.util.logging.Logger;
 
 import java.text.SimpleDateFormat;
 
@@ -948,6 +949,16 @@ public final class JDCConnectionPool implements ConnectionPoolDataSource,DataSou
     return (PooledConnection) new JDCConnection(DriverManager.getConnection(url, sUser, sPasswd),null);
   }
 
+  // ---------------------------------------------------------------------------
+
+  /**
+   * This method is added for compatibility with Java 7 and it is not implemented
+   * @return null
+   * @since 7.0
+   */
+  public Logger getParentLogger() {
+    return null;
+  }
 
   // ---------------------------------------------------------
 
