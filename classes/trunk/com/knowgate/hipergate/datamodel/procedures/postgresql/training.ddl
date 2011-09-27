@@ -13,6 +13,7 @@ GO;
 CREATE FUNCTION k_sp_del_acourse (CHAR) RETURNS INTEGER AS '
 DECLARE
   GuAddress CHAR(32);
+  GuAddres2 CHAR(32);
 BEGIN
   SELECT gu_address INTO GuAddress FROM k_academic_courses WHERE gu_acourse=$1;
   DELETE FROM k_x_user_acourse WHERE gu_acourse=$1;
@@ -21,8 +22,11 @@ BEGIN
   DELETE FROM k_evaluations WHERE gu_acourse=$1;
   DELETE FROM k_absentisms WHERE gu_acourse=$1;
   DELETE FROM k_academic_courses WHERE gu_acourse=$1;
-  IF GuAddress IS NOT NULL THEN
-    DELETE FROM k_addresses WHERE gu_address=GuAddress;
+  SELECT gu_address INTO GuAddres2 FROM k_academic_courses;
+  IF NOT FOUND THEN
+    IF GuAddress IS NOT NULL THEN
+      DELETE FROM k_addresses WHERE gu_address=GuAddress;
+    END IF;
   END IF;
   RETURN 0;
 END;
