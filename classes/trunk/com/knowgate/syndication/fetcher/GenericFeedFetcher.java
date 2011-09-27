@@ -31,28 +31,14 @@
 
 package com.knowgate.syndication.fetcher;
 
-import java.io.IOException;
-
-import java.net.URL;
-
-import java.util.Map;
 import java.util.Properties;
 import java.util.ListIterator;
-
-import com.knowgate.misc.Gadgets;
 
 import com.knowgate.debug.DebugFile;
 import com.knowgate.debug.StackTraceUtil;
 
-import com.knowgate.dfs.FileSystem;
-
-import com.knowgate.storage.DataSource;
-
-import com.knowgate.syndication.FeedEntry;
 
 import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.feed.synd.SyndContent;
-import com.sun.syndication.feed.synd.SyndContentImpl;
 import com.sun.syndication.feed.synd.SyndEntryImpl;
 
 import com.sun.syndication.fetcher.impl.FeedFetcherCache;

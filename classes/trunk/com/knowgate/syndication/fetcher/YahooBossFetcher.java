@@ -1,28 +1,16 @@
 package com.knowgate.syndication.fetcher;
 
-import java.net.URL;
 
 import java.util.Properties;
-import java.util.Map;
 
 import java.text.SimpleDateFormat;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONException;
-
-import com.knowgate.misc.Gadgets;
 import com.knowgate.debug.DebugFile;
-import com.knowgate.storage.DataSource;
 
 import com.knowgate.yahoo.Boss;
 import com.knowgate.yahoo.Result;
 import com.knowgate.yahoo.YSearchResponse;
 
-import com.knowgate.syndication.FeedEntry;
-
-import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.feed.synd.SyndContent;
 import com.sun.syndication.feed.synd.SyndContentImpl;
 import com.sun.syndication.feed.synd.SyndEntryImpl;
 

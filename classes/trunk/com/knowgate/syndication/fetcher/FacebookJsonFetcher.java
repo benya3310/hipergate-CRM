@@ -2,9 +2,6 @@ package com.knowgate.syndication.fetcher;
 
 import com.knowgate.dfs.FileSystem;
 
-import java.util.Map;
-import java.util.Properties;
-
 import java.text.SimpleDateFormat;
 
 import org.json.JSONArray;
@@ -15,14 +12,8 @@ import org.knallgrau.utils.textcat.TextCategorizer;
 
 import com.knowgate.misc.Gadgets;
 import com.knowgate.debug.DebugFile;
-import com.knowgate.storage.DataSource;
 
-import com.knowgate.syndication.FeedEntry;
-
-import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.feed.synd.SyndContent;
 import com.sun.syndication.feed.synd.SyndContentImpl;
-import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndEntryImpl;
 
 public class FacebookJsonFetcher extends AbstractEntriesFetcher {
@@ -34,7 +25,7 @@ public class FacebookJsonFetcher extends AbstractEntriesFetcher {
   	public void run() {
       String sFB = "";
       try {
-        sFB = new FileSystem().readfilestr("https://graph.facebook.com/search?limit=100&q="+Gadgets.URLEncode(getQueryString()),"UTF-8");
+        sFB = new FileSystem().readfilestr(getURL(),"UTF-8");
         SimpleDateFormat oyyyyMMddT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
       
 	    JSONArray oData = new JSONObject(sFB).getJSONArray("data");
@@ -78,6 +69,8 @@ public class FacebookJsonFetcher extends AbstractEntriesFetcher {
       	    		 null, getQueryString(), null, "", sLanguage, getAuthor(oEntr), oEntr));
 	    } // next
 	  }	catch (Exception xcpt) {
+		if (DebugFile.trace)
+		  DebugFile.writeln("FacebookJsonFetcher.run() "+xcpt.getClass().getName()+" "+xcpt.getMessage());
       }
   	} // run
 }

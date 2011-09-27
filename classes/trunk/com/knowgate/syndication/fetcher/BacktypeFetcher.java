@@ -2,9 +2,7 @@ package com.knowgate.syndication.fetcher;
 
 import java.io.IOException;
 import java.io.StringBufferInputStream;
-import java.io.UnsupportedEncodingException;
 
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
 import java.util.ArrayList;
@@ -20,8 +18,6 @@ import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeedImpl;
 import com.sun.syndication.feed.synd.SyndImageImpl;
-import com.sun.syndication.feed.synd.SyndContent;
-import com.sun.syndication.feed.synd.SyndContentImpl;
 import com.sun.syndication.feed.synd.SyndEntryImpl;
 import com.sun.syndication.fetcher.FetcherException;
 
@@ -32,7 +28,6 @@ import com.knowgate.debug.DebugFile;
 import com.knowgate.dfs.HttpRequest;
 import com.knowgate.misc.NameValuePair;
 
-import com.knowgate.syndication.FeedEntry;
 import com.knowgate.syndication.fetcher.GenericFeedFetcher;
 
 

@@ -3,15 +3,9 @@ package com.knowgate.syndication.fetcher;
 import java.util.List;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
-import com.sun.syndication.io.FeedException;
-import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.feed.synd.SyndEntry;
-import com.sun.syndication.fetcher.FetcherException;
 import com.sun.syndication.fetcher.impl.FeedFetcherCache;
 
-import com.knowgate.debug.DebugFile;
 import com.knowgate.syndication.fetcher.AbstractEntriesFetcher;
 
 public class MeneameFetcher extends AbstractEntriesFetcher {

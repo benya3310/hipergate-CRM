@@ -31,14 +31,7 @@
 
 package com.knowgate.syndication.fetcher;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.IOException;
-import java.io.FileNotFoundException;
-import java.io.ObjectInputStream;
-import java.io.ByteArrayInputStream;
 
 import java.net.URL;
 import java.net.HttpURLConnection;
@@ -55,17 +48,12 @@ import org.knallgrau.utils.textcat.TextCategorizer;
 
 import com.knowgate.clocial.IPInfo;
 import com.knowgate.clocial.StorageManager;
-import com.knowgate.clocial.UserAccountAlias;
 
 import com.knowgate.dataobjs.DB;
 import com.knowgate.misc.Gadgets;
-import com.knowgate.dfs.FileSystem;
 import com.knowgate.dfs.HttpRequest;
 import com.knowgate.debug.DebugFile;
-import com.knowgate.debug.StackTraceUtil;
 
-import com.knowgate.dfs.HttpRequest;
-import com.knowgate.storage.Engine;
 import com.knowgate.storage.DataSource;
 import com.knowgate.storage.StorageException;
 import com.knowgate.syndication.FeedEntry;
@@ -76,6 +64,7 @@ import com.sun.syndication.io.FeedException;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndEntryImpl;
+import com.sun.syndication.feed.synd.SyndPersonImpl;
 
 import com.sun.syndication.fetcher.FetcherException;
 import com.sun.syndication.fetcher.impl.FeedFetcherCache;
@@ -197,7 +186,7 @@ public abstract class AbstractEntriesFetcher extends Thread {
      * @param eEng Engine to be used for storage
      * @param iIdDomain int Domain unique Id. to which the SyndEntry will be associated
      * @param sGuWorkArea String Work Area GUID to which the SyndEntry will be associated, may be <b>null</b>
-     * @param sIdType String Entry type or source "backtype" "twingly" etc.
+     * @param sIdType String Entry type or source "twittersearch" "twingly" etc.
      * @param sTxQuery String Optional query string passed when generating the feed
      * @param oInfluence Integer Optional user influence
      * @param oEntry SyndEntryImpl SyndEntry object to be stored
@@ -205,7 +194,7 @@ public abstract class AbstractEntriesFetcher extends Thread {
      */
     protected FeedEntry createEntry(int iIdDomain, String sGuWorkArea, String sIdType,
   				   			String sGuFeed, String sTxQuery, Integer oInfluence, String sCountryId, String sLangId,
-  				   			String sAuthor, SyndEntryImpl oEntry) throws StorageException {
+  				   		    SyndPersonImpl oAuthor, SyndEntryImpl oEntry) throws StorageException {
 
   	  DataSource oDts = null;
   	  FeedEntry oFey = null;
@@ -226,12 +215,17 @@ public abstract class AbstractEntriesFetcher extends Thread {
       if (null!=sGuFeed ) oFey.put(DB.gu_feed, sGuFeed);
       if (null!=sCountryId) oFey.put(DB.id_country, sCountryId);
       if (null!=sLangId) oFey.put(DB.id_language, sLangId);
-      if (null!=sAuthor) oFey.put(DB.nm_author, Gadgets.left(sAuthor,100));
-	  if (null!=sIdType && null!=sAuthor) {
-	    oFey.put(DB.nm_service, sIdType);
-	    oFey.put(DB.nm_alias, Gadgets.left(sAuthor,100));
-	    oFey.put(DB.id_acalias, sIdType.toLowerCase()+":"+Gadgets.left(sAuthor,100).toLowerCase());
-	  }
+      if (null!=oAuthor) {
+    	String sAuthor = oAuthor.getName();
+    	if (sAuthor!=null) oFey.put(DB.nm_author, Gadgets.left(sAuthor,100));
+    	if (null!=sIdType && null!=sAuthor) {
+    	  oFey.put(DB.nm_service, sIdType);
+    	  oFey.put(DB.nm_alias, Gadgets.left(sAuthor,100));
+    	  String sUri = oAuthor.getUri();
+    	  if (null==sUri) sUri = "";
+    	  oFey.put(DB.id_acalias, sIdType.toLowerCase()+":"+Gadgets.left(sUri.length()>0 ? sUri : sAuthor,100).toLowerCase());
+    	}
+      }
       if (null!=sTxQuery) {
         oFey.put(DB.tx_sought, sTxQuery);
 	    oFey.put(DB.tx_query , sTxQuery);

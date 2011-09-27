@@ -19,9 +19,6 @@ import com.sleepycat.db.EnvironmentConfig;
 import com.sleepycat.db.Environment;
 import com.sleepycat.db.OperationStatus;
 
-import com.sleepycat.bind.EntryBinding;
-import com.sleepycat.bind.serial.ClassCatalog;
-import com.sleepycat.bind.serial.SerialBinding;
 import com.sleepycat.bind.serial.StoredClassCatalog;
 
 import com.knowgate.debug.DebugFile;
@@ -68,6 +65,7 @@ public class BDBFeedInfoCache implements FeedFetcherCache {
 	  }
 	}
 
+	@SuppressWarnings("unused")
 	public SyndFeedInfo getFeedInfo(URL oFeedURL) {
 	  SyndFeedInfo oRetVal = null;
 	  Database oJcc = null;
@@ -136,6 +134,7 @@ public class BDBFeedInfoCache implements FeedFetcherCache {
 	 * @param parm2
 	 *
 	 */
+	@SuppressWarnings("unused")
 	public void setFeedInfo(URL oFeedURL, SyndFeedInfo oFeedInfo) {
       Database oPdb = null;
       Database oJcc = null;
@@ -218,6 +217,7 @@ public class BDBFeedInfoCache implements FeedFetcherCache {
 	 * @return
 	 *
 	 */
+	@SuppressWarnings("unused")
 	public SyndFeedInfo remove(URL oFeedURL) {
 	  SyndFeedInfo oRemoved = null;
       Database oPdb = null;

@@ -37,13 +37,12 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.HashMap;
 
+import com.knowgate.dfs.FileSystem;
 import com.knowgate.misc.Gadgets;
 import com.knowgate.debug.DebugFile;
 import com.knowgate.storage.DataSource;
 import com.knowgate.syndication.FeedEntry;
 import com.knowgate.syndication.fetcher.BDBFeedInfoCache;
-
-import com.sun.syndication.fetcher.impl.FeedFetcherCache;
 
 /**
  * A batch of parallel web searches
@@ -71,6 +70,12 @@ public class EntriesBatch {
   	}
   	else {
   	  sDir = Gadgets.chomp(oPrp.getProperty("storage"),File.separator)+"syndication";
+  	  if (!new File(sDir).exists()) {
+  		try { new FileSystem().mkdirs("file://"+sDir); }
+  		catch (Exception xcpt) {
+  		  if (DebugFile.trace) DebugFile.writeln("Could not create directory "+sDir+" "+xcpt.getClass().getName()+" "+xcpt.getMessage());
+  		}
+  	  }
   	}
   	oCache = null;
     mEntries = new HashMap<String,FeedEntry>(500);
