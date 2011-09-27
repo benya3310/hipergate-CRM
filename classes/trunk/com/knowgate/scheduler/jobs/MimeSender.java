@@ -34,8 +34,6 @@ package com.knowgate.scheduler.jobs;
 import java.io.File;
 import java.io.IOException;
 
-import java.net.MalformedURLException;
-
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -46,16 +44,13 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Properties;
-import java.util.Vector;
 
 import javax.mail.Message;
 import javax.mail.URLName;
-import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.MessagingException;
 import javax.mail.StoreClosedException;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.AddressException;
 
 import org.htmlparser.util.ParserException;
 
@@ -83,7 +78,6 @@ import com.knowgate.misc.Gadgets;
 import com.knowgate.dataobjs.DB;
 import com.knowgate.dataobjs.DBBind;
 import com.knowgate.dataobjs.DBCommand;
-import com.knowgate.dataobjs.DBPersist;
 import com.knowgate.dataobjs.DBSubset;
 import com.knowgate.dataxslt.FastStreamReplacer;
 import com.knowgate.hipermail.DBStore;
@@ -592,7 +586,8 @@ public class MimeSender extends Job {
 
   // ---------------------------------------------------------------------------
 
-  public Object process(Atom oAtm) throws SQLException, MessagingException, NullPointerException {
+  @SuppressWarnings("unused")
+public Object process(Atom oAtm) throws SQLException, MessagingException, NullPointerException {
     final String Activated = "true";
     final String Yes = "1";
     final String No = "0";
@@ -761,12 +756,14 @@ public class MimeSender extends Job {
       	  oBeforeSend = new Boolean (Event.getEvent(oConn, iDomainId, "beforesmtpmime")!=null);
       	  oConn.close("MimeSender.process");
       	}
+		if (DebugFile.trace) DebugFile.writeln("beforesmtpmime event hook is "+(oBeforeSend.booleanValue() ? "activated" : "deactivated"));
       	if (oBeforeSend.booleanValue()) {
 		  HashMap oJobParams = new HashMap(size()*2);
 		  oJobParams.putAll(this);
 		  oJobParams.putAll(oAtm.getItemMap());
 		  oJobParams.put("bin_smtpmessage", oSentMsg);
 		  oConn = getDataBaseBind().getConnection("MimeSender.process");
+		  if (DebugFile.trace) DebugFile.writeln("triggering beforesmtpmime event handler");
 		  Event.trigger(oConn, iDomainId, "beforesmtpmime", oJobParams, getProperties());
       	  oConn.close("MimeSender.process");
       	}
