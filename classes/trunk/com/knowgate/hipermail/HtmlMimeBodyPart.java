@@ -1,7 +1,7 @@
 package com.knowgate.hipermail;
 
 /*
-  Copyright (C) 2009  Know Gate S.L. All rights reserved.
+  Copyright (C) 2009-2011  Know Gate S.L. All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
@@ -34,16 +34,16 @@ package com.knowgate.hipermail;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import java.util.regex.Matcher;
+import java.util.regex.PatternSyntaxException;
+
 import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.PatternMatcher;
 import org.apache.oro.text.regex.PatternCompiler;
-import org.apache.oro.text.regex.StringSubstitution;
 import org.apache.oro.text.regex.Perl5Matcher;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.PatternMatcherInput;
 import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.Util;
 
 import org.htmlparser.Parser;
 import org.htmlparser.util.NodeList;
@@ -65,7 +65,7 @@ import com.knowgate.debug.StackTraceUtil;
 /**
  * <p>Used to perform some maipulations in HTML source code for e-mails</p>
  * @author Sergio Montoro Ten
- * @version 5.0
+ * @version 7.0
  */
 public class HtmlMimeBodyPart {
 
@@ -176,31 +176,20 @@ public class HtmlMimeBodyPart {
   	
   	if (DebugFile.trace) DebugFile.writeln("HtmlMomeBodyPart.doSubstitution(..., "+sAttributeName+","+sFormerValue+","+sNewValue);
 
-    StringSubstitution oSrcSubs = new StringSubstitution();
-
     final String sPattern = "("+sAttributeName.toLowerCase()+"|"+sAttributeName.toUpperCase()+"|"+sAttributeName+")\\s*=\\s*(\"|')?" + sFormerValue + "(\"|')?";
 
     try {
 
-      if (DebugFile.trace) DebugFile.writeln("Perl5Compiler.compile(\""+sPattern+"\", Perl5Compiler.SINGLELINE_MASK)");
-      Pattern oPattern = oCompiler.compile(sPattern, Perl5Compiler.SINGLELINE_MASK);
-
-      if (oMatcher.contains(sBase, oPattern)) {
-      	MatchResult oMtrs = oMatcher.getMatch();
-      	if (oMtrs!=null) sMatch = oMtrs.toString();
-      	if (sMatch.length()==0) {
-      	  oCompiler = new Perl5Compiler();
-      	  oMatcher = new Perl5Matcher();
-      	  oPattern = oCompiler.compile(sPattern, Perl5Compiler.SINGLELINE_MASK);
-      	  if (oMatcher.contains(sBase, oPattern)) {
-      	  	oMtrs = oMatcher.getMatch();
-      	  	if (oMtrs!=null)  sMatch = oMtrs.toString();
-      	  }
-      	} // fi
+      if (DebugFile.trace) DebugFile.writeln("Pattern.compile(\""+sPattern+"\")");
+      java.util.regex.Pattern oPattrn = java.util.regex.Pattern.compile(sPattern);
+      Matcher oMatchr = oPattrn.matcher(sBase);
+      
+      if (oMatchr.find()) {
+    	sMatch = oMatchr.group();
       	if (sMatch.length()==0)
           throw new ParserException("Match could not be retrieved for pattern " + sPattern);        
-      	int iDquote = sMatch.indexOf('"');
-      	int iSquote = sMatch.indexOf("'");
+      	final int iDquote = sMatch.indexOf('"');
+      	final int iSquote = sMatch.indexOf("'");
       	char cQuote = (char) 0;
       	if (iDquote>0 && iSquote>0)
       	  cQuote = iDquote<iSquote ? (char)34 : (char)39;
@@ -209,20 +198,18 @@ public class HtmlMimeBodyPart {
       	else if (iSquote>0)
       	  cQuote = (char)39;
 		if (cQuote==(char)0)
-          oSrcSubs.setSubstitution(sMatch.substring(0,sAttributeName.length())+"="+sNewValue);
+          return oMatchr.replaceFirst(sMatch.substring(0,sAttributeName.length())+"="+sNewValue);
         else
-          oSrcSubs.setSubstitution(sMatch.substring(0,sAttributeName.length())+"="+cQuote+sNewValue+cQuote);
-    	if (DebugFile.trace) DebugFile.writeln("Util.substitute("+sPattern+","+sMatch.substring(0,sAttributeName.length())+"="+cQuote+sNewValue+cQuote+")");
-    	return Util.substitute(oMatcher, oPattern, oSrcSubs, sBase);			
+          return oMatchr.replaceFirst(sMatch.substring(0,sAttributeName.length())+"="+cQuote+sNewValue+cQuote);
       } else {
       	return sBase;
       } // fi (oMatcher.contains())
-    } catch (MalformedPatternException mpe) {
+    } catch (PatternSyntaxException mpe) {
       if (DebugFile.trace) {
-        DebugFile.writeln("MalformedPatternException " + mpe.getMessage());
+        DebugFile.writeln("PatternSyntaxException " + mpe.getMessage());
         try { DebugFile.writeln(StackTraceUtil.getStackTrace(mpe)); } catch (Exception ignore) { }
       }
-      throw new ParserException("MalformedPatternException " + mpe.getMessage()+ " pattern " + sPattern + " substitution " + sNewValue, mpe);        
+      throw new ParserException("PatternSyntaxException " + mpe.getMessage()+ " pattern " + sPattern + " substitution " + sNewValue, mpe);        
     }
     catch (ArrayIndexOutOfBoundsException aiob) {
       String sStack = "";

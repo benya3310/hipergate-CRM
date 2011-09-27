@@ -116,7 +116,6 @@ public class Statistics {
  
   private long getIntervalMilis (Object obj)
     throws ArrayIndexOutOfBoundsException,ClassCastException {
-    String s;
    
     if (null==obj)
       return 0l;
@@ -163,21 +162,20 @@ public class Statistics {
   	Connection oConn = null;
 	PreparedStatement oPtmt = null;
 	PreparedStatement oQtmt = null;
-	PreparedStatement oDocs = null;
 	ResultSet oRSet;
 	String sJobs = "";
 	ArrayList<String> aJobs = new ArrayList<String>();
 	HashMap<String,String> mWrks = new HashMap<String,String>();
 	SimpleDateFormat oYmd = new SimpleDateFormat("yyyy-MM-dd");
-    SimpleDateFormat oFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-	// verbose ("Begin statistics collection for job group "+sGuJobGroup);
+	verbose ("Begin statistics collection for job group "+sGuJobGroup);
 
 	try {
 
-  	  Class oDriver = Class.forName(oEnvProps.getProperty("driver"));
+  	  @SuppressWarnings("unused")
+	  Class oDriver = Class.forName(oEnvProps.getProperty("driver"));
 
-	  // verbose ("Connecting to "+oEnvProps.getProperty("dburl")+" as ueser "+oEnvProps.getProperty("dbuser"));
+	  verbose ("Connecting to "+oEnvProps.getProperty("dburl")+" as user "+oEnvProps.getProperty("dbuser"));
 
   	  oConn = DriverManager.getConnection(oEnvProps.getProperty("dburl"),oEnvProps.getProperty("dbuser"),oEnvProps.getProperty("dbpassword"));
 
@@ -203,7 +201,7 @@ public class Statistics {
 	  if (sJobs.length()>0) {
 	  	sJobs += ")";
 
-	    // verbose ("Job list is "+sJobs);
+	    verbose ("Job list is "+sJobs);
 	  	
 	    // ****************************************************
 	  	// Set count of sent messages for each job of the group
@@ -214,7 +212,7 @@ public class Statistics {
           oPtmt.setInt(1, oRSet.getInt(1));
           oPtmt.setString(2, oRSet.getString(2));
           oPtmt.executeUpdate();
-          // verbose ("Atoms count for job "+oRSet.getString(2)+" set to "+String.valueOf(oRSet.getInt(1)));
+          verbose ("Atoms count for job "+oRSet.getString(2)+" set to "+String.valueOf(oRSet.getInt(1)));
         }
 	    oRSet.close();
 	    oStmt.close();
@@ -229,7 +227,7 @@ public class Statistics {
           oPtmt.setInt(1, oRSet.getInt(1));
           oPtmt.setString(2, oRSet.getString(2));
           oPtmt.executeUpdate();
-          // verbose ("Read receipts count for job "+oRSet.getString(2)+" set to "+String.valueOf(oRSet.getInt(1)));
+          verbose ("Read receipts count for job "+oRSet.getString(2)+" set to "+String.valueOf(oRSet.getInt(1)));
         }
 	    oRSet.close();
 	    oStmt.close();
@@ -247,7 +245,7 @@ public class Statistics {
 	        oPtmt.setInt(1, oRSet.getInt(1));
 	      else
 	        oPtmt.setInt(1, 0);
-          // verbose ("Unique e-mails count for job "+j+" set to "+String.valueOf(oRSet.getInt(1)));
+          verbose ("Unique e-mails count for job "+j+" set to "+String.valueOf(oRSet.getInt(1)));
 	      oPtmt.setString(2, j);
 	      oPtmt.executeUpdate();
 	      oRSet.close();
@@ -267,7 +265,7 @@ public class Statistics {
 	        oPtmt.setInt(1, oRSet.getInt(1));
 	      else
 	        oPtmt.setInt(1, 0);
-          // verbose ("Click-through count for job "+j+" set to "+String.valueOf(oRSet.getInt(1)));
+          verbose ("Click-through count for job "+j+" set to "+String.valueOf(oRSet.getInt(1)));
 	      oRSet.close();
 	      oPtmt.setString(2, j);
 	      oPtmt.executeUpdate();
@@ -322,7 +320,7 @@ public class Statistics {
             oQtmt.setObject(3, mWrks.get(j), Types.CHAR);
             oQtmt.setInt(4, oRSet.getInt(1));
             oQtmt.executeUpdate();
-            // verbose ("Sent atoms for job "+j+" at "+oYmd.format(dtTheDay)+" set to "+String.valueOf(oRSet.getInt(1)));
+            verbose ("Sent atoms for job "+j+" at "+oYmd.format(new Date(lTheDay))+" set to "+String.valueOf(oRSet.getInt(1)));
           } // wend
           oRSet.close();
 	    }
@@ -359,7 +357,7 @@ public class Statistics {
             oQtmt.setObject(3, mWrks.get(j), Types.CHAR);
             oQtmt.setInt   (4, oRSet.getInt(1));
             oQtmt.executeUpdate();          
-            // verbose ("Sent atoms for job "+j+" at time "+String.valueOf((short) oRSet.getDouble(2))+" set to "+String.valueOf(oRSet.getInt(1)));
+            verbose ("Sent atoms for job "+j+" at time "+String.valueOf((short) oRSet.getDouble(2))+" set to "+String.valueOf(oRSet.getInt(1)));
           } // wend
           oRSet.close();
 	    } // next
@@ -404,17 +402,18 @@ public class Statistics {
 	  try { verbose (StackTraceUtil.getStackTrace(xcpt));
 	  } catch (java.io.IOException ignore) {}
 	} finally {
-	  // verbose ("Closing conection");
+	  verbose ("Closing conection");
 	  try { if (oConn!=null) if (!oConn.isClosed()) oConn.close(); } catch (SQLException ignore) {}
 	}
-	// verbose ("Done!");
+	verbose ("Done!");
 	return bRetVal;
   } // collect
 
   public void collect()  {
   	Connection oConn = null;
 	try {
-  	  Class oDriver = Class.forName(oEnvProps.getProperty("driver"));	
+  	  @SuppressWarnings("unused")
+	  Class oDriver = Class.forName(oEnvProps.getProperty("driver"));	
   	  oConn = DriverManager.getConnection(oEnvProps.getProperty("dburl"),oEnvProps.getProperty("dbuser"),oEnvProps.getProperty("dbpassword"));
 	  Statement oStmt = oConn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 	  ResultSet oRSet = oStmt.executeQuery("SELECT DISTINCT("+DB.gu_job_group+") FROM "+DB.k_jobs+" WHERE "+DB.gu_job_group+" IS NOT NULL");
