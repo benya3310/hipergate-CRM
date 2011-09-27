@@ -34,10 +34,6 @@ package com.knowgate.scheduler.events;
 import java.util.Map;
 import java.util.Properties;
 
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.ResultSet;
-
 import com.knowgate.jdc.JDCConnection;
 import com.knowgate.misc.Gadgets;
 import com.knowgate.scheduler.Event;
