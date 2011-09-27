@@ -1,4 +1,7 @@
 <fetchers>
+  <fetcher id="twittersearch" enabled="true">
+  	<uri>http://search.twitter.com/search.json?q=$1</uri>
+  </fetcher>
   <fetcher id="twingly" enabled="true">
   	<uri>http://www.twingly.com/search.rss?q=link%3a$1</uri>
   </fetcher>
@@ -35,9 +38,11 @@
   <fetcher id="topsy" enabled="true">
   	<uri>http://otter.topsy.com/searchdate.rss?q=$1&amp;window=d12</uri>
   </fetcher>
+  <!--
   <fetcher id="backtype" enabled="false">
   	<uri>http://backtweets.com/search.xml</uri>
   </fetcher>
+  -->
   <!--
   <fetcher id="boardtracker" enabled="false">
   	<uri>http://www.boardtracker.com/srss/?q=$1&amp;p=1&amp;c=1&amp;o=0&amp;d=4&amp;s=&amp;a=&amp;ai=&amp;b=&amp;t=0</uri>

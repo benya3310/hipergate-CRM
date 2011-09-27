@@ -1,27 +1,19 @@
 package com.knowgate.syndication.crawler;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ByteArrayInputStream;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.TreeSet;
-import java.util.ListIterator;
 import java.text.SimpleDateFormat;
 
 import java.sql.SQLException;
 
 import javax.jms.JMSException;
-import javax.naming.NamingException;
 
-import com.knowgate.debug.DebugFile;
 import com.knowgate.dataobjs.DB;
-import com.knowgate.clocial.MetaData;
 import com.knowgate.clocial.UserAccount;
 
 import com.knowgate.storage.Table;
-import com.knowgate.storage.Engine;
 import com.knowgate.storage.Record;
 import com.knowgate.storage.Manager;
 import com.knowgate.storage.DataSource;
@@ -38,9 +30,6 @@ import com.knowgate.syndication.crawler.SearchRunner;
 
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.fetcher.FetcherException;
-import com.sun.syndication.feed.synd.SyndEntryImpl;
-import com.sun.syndication.feed.synd.SyndContent;
-import com.sun.syndication.feed.synd.SyndContentImpl;
 
 public class EntrySearcher {
 
