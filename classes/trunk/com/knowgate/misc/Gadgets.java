@@ -1,6 +1,5 @@
 /*
-  Copyright (C) 2003  Know Gate S.L. All rights reserved.
-                      C/Oña, 107 1º2 28050 Madrid (Spain)
+  Copyright (C) 2003-2011  Know Gate S.L. All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
@@ -45,6 +44,9 @@ import java.util.ArrayList;
 import java.util.Currency;
 import java.util.Locale;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.regex.PatternSyntaxException;
 
 import java.math.BigDecimal;
 
@@ -54,14 +56,21 @@ import java.text.NumberFormat;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import org.apache.oro.text.regex.*;
+import org.apache.oro.text.regex.Util;
+import org.apache.oro.text.regex.MatchResult;
+import org.apache.oro.text.regex.Perl5Compiler;
+import org.apache.oro.text.regex.Perl5Matcher;
+import org.apache.oro.text.regex.Perl5Pattern;
+import org.apache.oro.text.regex.Perl5Substitution;
+import org.apache.oro.text.regex.PatternMatcherInput;
+import org.apache.oro.text.regex.MalformedPatternException;
 
 import com.knowgate.debug.DebugFile;
 
 /**
  * Miscellaneous functions and utilities.
  * @author Sergio Montoro Ten
- * @version 6.0
+ * @version 7.0
  */
 public final class Gadgets {
 
@@ -71,10 +80,9 @@ public final class Gadgets {
   private static Currency oCurr = null;
   private static String sCurr = null;
 
-  private static PatternMatcher oMatcher = null;
-  private static PatternCompiler oCompiler = null;
-  
-  private static Pattern oXss1 = null, oXss2 = null;
+  private static Perl5Matcher oMatcher = null;
+  private static Perl5Compiler oCompiler = null;  
+  private static Perl5Pattern oXss1 = null, oXss2 = null;
 
   public Gadgets() { }
 
@@ -1566,13 +1574,17 @@ public final class Gadgets {
    * @see http://www.savarese.org/oro/docs/OROMatcher/Syntax.html
    */
   public static boolean matches (String sSource, String sRegExp) throws MalformedPatternException {
-    if (null==oMatcher) oMatcher = new Perl5Matcher();
-    if (null==oCompiler) oCompiler = new Perl5Compiler();
-
-    if (sSource==null || sRegExp==null)
+    
+    if (sSource==null || sRegExp==null) {
       return false;
-    else
-      return oMatcher.matches(sSource, oCompiler.compile(sRegExp));
+    } else {
+      try {
+        Pattern oPatt = Pattern.compile(sRegExp);
+        return oPatt.matcher(sSource).matches();
+      } catch (PatternSyntaxException pse) {
+    	throw new MalformedPatternException(sRegExp);
+      }
+    }
   } // matches
 
   // ----------------------------------------------------------
@@ -1587,13 +1599,16 @@ public final class Gadgets {
    * @see http://www.savarese.org/oro/docs/OROMatcher/Syntax.html
    */
   public static boolean contains (String sSource, String sRegExp) throws MalformedPatternException {
-    if (null==oMatcher) oMatcher = new Perl5Matcher();
-    if (null==oCompiler) oCompiler = new Perl5Compiler();
-
-    if (sSource==null || sRegExp==null)
+    if (sSource==null || sRegExp==null) {
       return false;
-    else
-      return oMatcher.contains(sSource, oCompiler.compile(sRegExp));
+    } else {
+      try {
+        Pattern oPatt = Pattern.compile(sRegExp);
+        return oPatt.matcher(sSource).find();
+      } catch (PatternSyntaxException pse) {
+        throw new MalformedPatternException(sRegExp);
+      }    	
+    }
   } // contains
 
   // ----------------------------------------------------------
@@ -1612,13 +1627,15 @@ public final class Gadgets {
     if (sSource==null || sRegExp==null)
       sRetStr=null;
     else {
-      if (null==oMatcher) oMatcher = new Perl5Matcher();
-      if (null==oCompiler) oCompiler = new Perl5Compiler();
-      if (oMatcher.contains(sSource, oCompiler.compile(sRegExp))) {
-        sRetStr=oMatcher.getMatch().group(0);
-      } else {
-        sRetStr=null;
-      }
+      try {
+        Matcher oMatchr = Pattern.compile(sRegExp).matcher(sSource);
+        if (oMatchr.find())
+          return oMatchr.group();
+        else
+          return null;
+      } catch (PatternSyntaxException pse) {
+        throw new MalformedPatternException(sRegExp);
+      }    	
     }
     return sRetStr;
   } // getFirstMatchSubStr
@@ -1638,7 +1655,7 @@ public final class Gadgets {
     if (sSource!=null && sRegExp!=null) {
       if (null==oMatcher) oMatcher = new Perl5Matcher();
       if (null==oCompiler) oCompiler = new Perl5Compiler();
-      Pattern oPatt = oCompiler.compile(sRegExp);
+      Perl5Pattern oPatt = (Perl5Pattern) oCompiler.compile(sRegExp);
       PatternMatcherInput oPmin = new PatternMatcherInput(sSource);
       while (oMatcher.contains(oPmin, oPatt)) {
         aRetVal.add(oMatcher.getMatch());
@@ -1665,8 +1682,8 @@ public final class Gadgets {
         oMatcher = new Perl5Matcher();
         oCompiler = new Perl5Compiler();
         try {
-	      oXss1 = oCompiler.compile("((\\%3C)|<)((\\%2F)|\\/)*[a-z0-9A-Z\\%]+((\\%3E)|>)");
-	      oXss2 = oCompiler.compile("((\\%3C)|<)((\\%69)|(i|I)|(\\%49))((\\%6D)|(m|M)|(\\%4D))((\\%67)|(g|G)|(\\%47))[^\\n]+((\\%3E)|>)");
+	      oXss1 = (Perl5Pattern) oCompiler.compile("((\\%3C)|<)((\\%2F)|\\/)*[a-z0-9A-Z\\%]+((\\%3E)|>)");
+	      oXss2 = (Perl5Pattern) oCompiler.compile("((\\%3C)|<)((\\%69)|(i|I)|(\\%49))((\\%6D)|(m|M)|(\\%4D))((\\%67)|(g|G)|(\\%47))[^\\n]+((\\%3E)|>)");
         } catch (MalformedPatternException neverthrown) { }
       } // fi
       bIsXss = oMatcher.matches(sSource, oXss1) || oMatcher.matches(sSource, oXss2);
@@ -1721,7 +1738,6 @@ public final class Gadgets {
    * @see http://www.savarese.org/oro/docs/OROMatcher/Syntax.html
    */
   public static String replace(String sSource, String sRegExp, String sNewVal) throws MalformedPatternException {
-    Pattern oPattern;
 
     if (null==oMatcher) oMatcher = new Perl5Matcher();
     if (null==oCompiler) oCompiler = new Perl5Compiler();
@@ -1731,9 +1747,7 @@ public final class Gadgets {
 	if (null==sRegExp) throw new NullPointerException("Gadgets.replace() pattern may not be null");
 	if (null==sNewVal) throw new NullPointerException("Gadgets.replace() new value may not be null");
 
-    oPattern = oCompiler.compile(sRegExp);
-
-    return Util.substitute(oMatcher, oPattern,
+    return Util.substitute(oMatcher, oCompiler.compile(sRegExp),
 			   new Perl5Substitution(sNewVal, Perl5Substitution.INTERPOLATE_ALL),
                            sSource, Util.SUBSTITUTE_ALL);
   } // replace
@@ -1758,13 +1772,11 @@ public final class Gadgets {
    * @see http://www.savarese.org/oro/docs/OROMatcher/Syntax.html
    */
   public static String replace(String sSource, String sRegExp, String sNewVal, int iOptions) throws MalformedPatternException {
-    Pattern oPattern;
-    if (null==oMatcher) oMatcher = new Perl5Matcher();
+
+	if (null==oMatcher) oMatcher = new Perl5Matcher();
     if (null==oCompiler) oCompiler = new Perl5Compiler();
 
-    oPattern = oCompiler.compile(sRegExp, iOptions);
-
-    return Util.substitute(oMatcher, oPattern,
+    return Util.substitute(oMatcher, oCompiler.compile(sRegExp, iOptions),
                            new Perl5Substitution(sNewVal, Perl5Substitution.INTERPOLATE_ALL),
                            sSource, Util.SUBSTITUTE_ALL);
   } // replace
