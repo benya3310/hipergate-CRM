@@ -704,7 +704,7 @@ public final class Gadgets {
   public static String HTMLDencode(String text) {
     if (text == null) return "";
 
-    char c,d;
+    char c;
     int len = text.length();
     StringBuffer results = new StringBuffer(len);
     
@@ -1380,7 +1380,6 @@ public final class Gadgets {
    public static Collection splitAsCollection(String sInputStr, char cDelimiter)
      throws NullPointerException {
      int iStrLen = sInputStr.length();
-     int iTokCount = 0;
 
      if (DebugFile.trace) {
        DebugFile.writeln("Begin Gadgets.splitAsCollection(\"" + sInputStr + "\",'" + cDelimiter+ "')");
