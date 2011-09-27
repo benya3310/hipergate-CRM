@@ -9,6 +9,7 @@ import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Map;
 
@@ -737,6 +738,36 @@ public class MultipartRequest implements HttpServletRequest {
     throw new RuntimeException("HttpServletRequest.setCharacterEncoding() method not implemented for MultipartRequest");
   }
 
+  public boolean authenticate(HttpServletResponse response) {
+	    return true;
+	  }
+
+	  public javax.servlet.http.Part getPart(String name) {
+	    return null;
+	  }
+	  
+	  public Collection<javax.servlet.http.Part> getParts() {
+	    return null;
+	  }
+	  
+	  public void login(String username, String password) { }
+	  
+	  public void logout() { }
+
+	  public AsyncContext getAsyncContext() { return null; }
+
+	  public ServletContext getServletContext() { return null; }
+
+	  public boolean isAsyncStarted() { return false; }
+
+	  public boolean isAsyncSupported() { return false; }
+
+	  public AsyncContext startAsync() { return null; }
+
+	  public AsyncContext startAsync(ServletRequest request, ServletResponse response ) { return null; }
+
+	  public DispatcherType getDispatcherType() { return null; }
+
 }
 
 
@@ -776,6 +807,6 @@ class UploadedFile {
       return new File(dir + File.separator + filename);
     }
   }
-
+  
 }
 
