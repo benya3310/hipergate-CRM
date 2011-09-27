@@ -28,6 +28,7 @@ CREATE PROCEDURE k_sp_del_list @ListId CHAR(32) AS
       DELETE k_x_list_members WHERE gu_list=@bk
       DELETE k_x_campaign_lists WHERE gu_list=@bk
       DELETE k_x_adhoc_mailing_list WHERE gu_list=@bk
+      DELETE k_x_pageset_list WHERE gu_list=@bk
       DELETE k_lists WHERE gu_list=@bk
     END
     
@@ -41,6 +42,8 @@ CREATE PROCEDURE k_sp_del_list @ListId CHAR(32) AS
 
   DELETE k_x_adhoc_mailing_list WHERE gu_list=@ListId
 
+  DELETE k_x_pageset_list WHERE gu_list=@ListId
+  
   DELETE k_x_cat_objs WHERE gu_object=@ListId
   UPDATE k_activities SET gu_list=NULL WHERE gu_list=@ListId
   UPDATE k_x_activity_audience SET gu_list=NULL WHERE gu_list=@ListId
