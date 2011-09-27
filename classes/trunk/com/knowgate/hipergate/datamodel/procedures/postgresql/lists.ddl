@@ -19,6 +19,8 @@ BEGIN
 
     DELETE FROM k_x_adhoc_mailing_list WHERE gu_list=bk;
 
+    DELETE FROM k_x_pageset_list WHERE gu_list=bk;
+
     DELETE FROM k_lists WHERE gu_list=bk;
   END IF;
 
@@ -31,6 +33,8 @@ BEGIN
   DELETE FROM k_x_campaign_lists WHERE gu_list=$1;
 
   DELETE FROM k_x_adhoc_mailing_list WHERE gu_list=$1;
+
+  DELETE FROM k_x_pageset_list WHERE gu_list=$1;
 
   DELETE FROM k_x_cat_objs WHERE gu_object=$1;
   UPDATE k_activities SET gu_list=NULL WHERE gu_list=$1;
