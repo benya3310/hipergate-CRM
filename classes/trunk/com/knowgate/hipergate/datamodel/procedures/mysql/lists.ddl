@@ -16,6 +16,7 @@ BEGIN
     DELETE FROM k_list_members WHERE gu_member IN (SELECT gu_company FROM k_x_list_members WHERE gu_list=ListId) AND gu_member NOT IN (SELECT x.gu_company FROM k_x_list_members x, k_lists l WHERE x.gu_list=l.gu_list AND l.gu_workarea=wa AND x.gu_list<>ListId);
     DELETE FROM k_x_list_members WHERE gu_list=ListId;
     DELETE FROM k_x_adhoc_mailing_list WHERE gu_list=ListId;
+    DELETE FROM k_x_pageset_list WHERE gu_list=ListId;
     DELETE FROM k_lists WHERE gu_list=ListId;
   ELSE  
     DELETE FROM k_list_members WHERE gu_member IN (SELECT gu_contact FROM k_x_list_members WHERE gu_list=bk) AND gu_member NOT IN (SELECT x.gu_contact FROM k_x_list_members x, k_lists l WHERE x.gu_list=l.gu_list AND l.gu_workarea=wa AND x.gu_list<>bk);
@@ -23,6 +24,7 @@ BEGIN
     DELETE FROM k_x_list_members WHERE gu_list=bk;
     DELETE FROM k_x_campaign_lists WHERE gu_list=bk;
     DELETE FROM k_x_adhoc_mailing_list WHERE gu_list=bk;
+    DELETE FROM k_x_pageset_list WHERE gu_list=bk;
     DELETE FROM k_lists WHERE gu_list=bk;
   END IF;
 END
