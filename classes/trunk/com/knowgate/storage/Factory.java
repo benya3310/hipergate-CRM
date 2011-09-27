@@ -31,6 +31,7 @@
 
 package com.knowgate.storage;
 
+import java.io.IOException;
 import java.util.LinkedList;
 
 import com.knowgate.dataobjs.DBBind;
@@ -43,13 +44,18 @@ import com.knowgate.misc.Environment;
 
 public final class Factory {
   
+  private static SchemaMetaData oSch = null;
+		  
   public static DataSource createDataSource(Engine eEngine, String sProfileName, boolean bReadOnly)
   	throws InstantiationException,StorageException {
   	switch (eEngine) {
   	  case JDBCRDBMS:
   	    return new DBBind(sProfileName).connectionPool();
   	  case BERKELYDB:
-  	  	return new DBEnvironment(Environment.getProfilePath(sProfileName,"dbenvironment"), bReadOnly);
+  		try {
+  		  if (null==oSch) oSch = new SchemaMetaData("/com/knowgate/clocial/");
+  		} catch (IOException ioe) { throw new StorageException(ioe.getMessage(), ioe); }
+  		return new DBEnvironment(Environment.getProfilePath(sProfileName,"dbenvironment"), oSch, bReadOnly);
   	  default:
   	  	throw new InstantiationException("Invalid ENGINE value");
   	}

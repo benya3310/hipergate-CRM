@@ -2,35 +2,22 @@ package com.knowgate.storage;
 
 import java.sql.SQLException;
 
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Properties;
 
-import java.text.SimpleDateFormat;
 
 import javax.jms.JMSException;
 import javax.naming.NamingException;
 
-import com.knowgate.berkeleydb.DBEntity;
-import com.knowgate.berkeleydb.DBEnvironment;
-
 import com.knowgate.clocial.*;
 
-import com.knowgate.berkeleydb.DBErrorLog;
 import com.knowgate.berkeleydb.DBEnvironment;
+import com.knowgate.berkeleydb.DBErrorLog;
 
 import com.knowgate.storage.Manager;
-import com.knowgate.storage.RecordQueueProducer;
-import com.knowgate.storage.RecordQueueConsumer;
-
-import com.knowgate.syndication.FeedEntry;
 import com.knowgate.syndication.SyndSearch;
 import com.knowgate.syndication.crawler.SearchDaemon;
 import com.knowgate.syndication.crawler.SearchRunner;
 import com.knowgate.syndication.crawler.EntrySearcher;
 
-import com.knowgate.debug.DebugFile;
 import com.knowgate.misc.Gadgets;
 
 public final class TestSuite {
@@ -41,17 +28,10 @@ public final class TestSuite {
   public static boolean test01_WriteErrorLog() throws StorageException,InstantiationException,SQLException {
   	DataSource oDs = DataSourcePool.get(NOSQL,PROFILE,false);
 
-    Record oELog = new DBErrorLog();
+  	DBErrorLog oELog = new DBErrorLog();
 
-	Table oCn = oDs.openTable("k_errors_log", new String[]{"gu_error"});
-
-	oCn.truncate();
-
-	String sGuError = ((DBErrorLog)oELog).log(oDs, ErrorCode.SUCCESS, "UUIDGUID", "Prueba ELog");
+	oELog.log(oDs, ErrorCode.SUCCESS, "UUIDGUID", "Prueba ELog");
 	
-	oELog = oCn.load(sGuError);
-	
-	oCn.close();
 	oDs.close();  
 
 	System.out.println("Write/Read ErrorLog test returned "+String.valueOf(oELog!=null));
@@ -75,10 +55,10 @@ public final class TestSuite {
 
 	System.out.println("Fetch domain by name returned "+String.valueOf(oRec!=null));
 
-	oCl = oCn.fetch("id_domain", oDom.getString("id_domain"), 1);
+	oCl = oCn.fetch("nm_domain", "DirectWriteTest02", 1);
 	oRec = oCl.get(0);
 
-	System.out.println("Fetch domain by id returned "+String.valueOf(oRec!=null));
+	System.out.println("Fetch domain by name returned "+String.valueOf(oRec!=null));
 
 	oRec = oCn.load(oDom.getString("id_domain"));
 	
@@ -186,15 +166,15 @@ public final class TestSuite {
   
   public static void main (String[] args) throws Exception {
 	
-	// DBEnvironment.runRecovery("C:\\Temp\\sleepycat");
+	System.out.println("Begin Test Suite");
 	
-    // test01_WriteErrorLog();
-    // test02_WriteDomain();
+    //test01_WriteErrorLog();
+    //test02_WriteDomain();
     // test03_WriteDomainAsync();
-    // test04_WriteUserAccount();
+    //test04_WriteUserAccount();
     // test05_WebSearch("www.eoi.es");
-    // test05_WebSearch("www.lapastillaroja.net");
-    test05_WebSearch("lapastillaroja.net");
+    test05_WebSearch("www.lapastillaroja.net");
+    // test05_WebSearch("lapastillaroja.net");
     // test05_WebSearch("clay shirky");
     // test11_refreshSearchresults();
     // test05_WebSearch("inncorpora");	
@@ -203,5 +183,8 @@ public final class TestSuite {
 	// test09_rebuildIndexes();	
 	// test10_shortenURL();
     // test12_delete_UserAccounts();
+
+	System.out.println("End Test Suite");
+    
   }
 }
