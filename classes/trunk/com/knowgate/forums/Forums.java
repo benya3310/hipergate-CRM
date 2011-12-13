@@ -193,7 +193,6 @@ public class Forums {
     throws SQLException {
   	
     DBSubset oTags = getNewsGroupTags(oConn, sGuNewsGroup);
-    int nTags = oTags.getRowCount();
 
     if (DebugFile.trace) {
       DebugFile.writeln("Begin Forums.XMLListTags([JDCConnection]," + sGuNewsGroup + ")");
@@ -223,6 +222,17 @@ public class Forums {
     return "<NewsMessages count=\""+String.valueOf(oDbss.getRowCount())+"\">\n"+oDbss.toXML("","NewsMessage", sDateTimeFormat, null)+"</NewsMessages>";
   } // XMLListTopLevelMessages
 
+  // --------------------------------------------------------------------------
+
+  public static String XMLListTopLevelMessages(JDCConnection oConn, int nMaxMsgs, int nOffset,
+  											   int iDomainId, String sWorkAreaId,
+  											   Boolean bActiveOnly, String sDateTimeFormat,
+  											   String sOrderBy)
+    throws SQLException,IllegalArgumentException {
+	DBSubset oDbss = getTopLevelMessages(oConn, nMaxMsgs, nOffset, sWorkAreaId, bActiveOnly, sOrderBy);
+    return "<NewsMessages count=\""+String.valueOf(oDbss.getRowCount())+"\">\n"+oDbss.toXML("","NewsMessage", sDateTimeFormat, null)+"</NewsMessages>";
+  } // XMLListTopLevelMessages
+  
   // --------------------------------------------------------------------------
 
   public static String XMLListTopLevelMessages(JDCConnection oConn, int nMaxMsgs,
@@ -473,7 +483,6 @@ public class Forums {
     oReplies.load (oConn, new Object[]{sGuThread});
 
 	if (oReplies.getRowCount()>0) oPosts.union(oReplies);
-    int nPosts = oPosts.getRowCount();
 
     return oPosts;
   } // getMessagesForThread
@@ -615,7 +624,7 @@ public class Forums {
     	      "m." + DB.gu_parent_msg + " IS NULL AND "+
     	      "m." + DB.gu_msg + "=x." + DB.gu_object + " AND g." + DB.gu_newsgrp + "=? ORDER BY "+sOrderBy+" DESC", nMaxMsgs);
     oPosts.setMaxRows(nMaxMsgs);    
-    int nPosts = oPosts.load (oConn, new Object[]{sGuTag,sGuNewsGroup}, nOffset);
+    oPosts.load (oConn, new Object[]{sGuTag,sGuNewsGroup}, nOffset);
     return oPosts;
   } // getTopLevelMessagesForTag
 
@@ -625,6 +634,7 @@ public class Forums {
    * <p>Get top level messages from all groups of a WorkArea</p>
    * @param oConn Database Connection 
    * @param nMaxMsgs Maximum number of messages to get
+   * @param nOffset Zero based offset from which to start reading
    * @param sOrderBy Attribute to sort messages. By default it is dt_published which corresponds to publishing date. Can be also nu_votes to sort messages by number of votes or nm_author to sort by author.
    * @param sGuWorkArea WorkArea GUID
    * @param sOrderBy
@@ -632,7 +642,7 @@ public class Forums {
    * @throws SQLException
    * @throws IllegalArgumentException If nMaxMsgs<=0
    */
-  public static DBSubset getTopLevelMessages(JDCConnection oConn, int nMaxMsgs,
+  public static DBSubset getTopLevelMessages(JDCConnection oConn, int nMaxMsgs, int nOffset,
   											 String sGuWorkArea, Boolean bActive,
   											 String sOrderBy)
   throws SQLException,IllegalArgumentException {
@@ -652,11 +662,31 @@ public class Forums {
     	      "c." + DB.gu_category + "=g." + DB.gu_newsgrp + " AND " +
     	      "m." + DB.gu_msg + "=x." + DB.gu_object + " AND m." + DB.gu_parent_msg + " IS NULL AND g." + DB.gu_workarea +
     	      "=? ORDER BY "+sOrderBy+(sOrderBy.equalsIgnoreCase(DB.dt_published) || sOrderBy.equalsIgnoreCase(DB.nu_votes) ? " DESC" : ""), nMaxMsgs);
-    oPosts.setMaxRows(nMaxMsgs);    
-    int nPosts = oPosts.load (oConn, new Object[]{sGuWorkArea});
+    oPosts.setMaxRows(nMaxMsgs);
+    oPosts.load (oConn, new Object[]{sGuWorkArea}, nOffset);
     return oPosts;
   } // getTopLevelMessages
 
+  // --------------------------------------------------------------------------
+  
+  /**
+   * <p>Get top level messages from all groups of a WorkArea</p>
+   * @param oConn Database Connection 
+   * @param nMaxMsgs Maximum number of messages to get
+   * @param sOrderBy Attribute to sort messages. By default it is dt_published which corresponds to publishing date. Can be also nu_votes to sort messages by number of votes or nm_author to sort by author.
+   * @param sGuWorkArea WorkArea GUID
+   * @param sOrderBy
+   * @return DBSubset containing the following columns: gu_category,gu_msg,gu_product,nm_author,tx_subject,dt_published,tx_email,nu_thread_msgs,gu_thread_msg,nu_votes,tx_permalink,tx_msg
+   * @throws SQLException
+   * @throws IllegalArgumentException If nMaxMsgs<=0
+   */
+  public static DBSubset getTopLevelMessages(JDCConnection oConn, int nMaxMsgs,
+  											 String sGuWorkArea, Boolean bActive,
+  											 String sOrderBy)
+    throws SQLException,IllegalArgumentException {
+    return getTopLevelMessages(oConn, nMaxMsgs, 0, sGuWorkArea, bActive, sOrderBy);
+  }
+  
   // --------------------------------------------------------------------------
   
   public static ArrayList<Boolean> getDaysWithPosts(JDCConnection oConn, String sGuNewsGrp,
