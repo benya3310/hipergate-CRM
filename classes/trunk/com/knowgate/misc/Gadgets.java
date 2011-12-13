@@ -1694,6 +1694,34 @@ public final class Gadgets {
   // ----------------------------------------------------------
 
   /**
+   * Convert each letter after space to Upper Case and all others to Lower Case
+   * @param sSource Source String
+   * @return Replaced string or <b>null</b> if sSource if <b>null</b>
+   * @since 7.0
+   */
+  
+  public static String capitalizeFirst(String sSource) {
+    if (null==sSource) {
+      return null;
+    } else {
+      char[] aChars = sSource.toLowerCase().toCharArray();
+      int nChars = aChars.length;
+	  boolean bFound = false;
+	  for (int i = 0; i < nChars; i++) {
+	    if (!bFound && Character.isLetter(aChars[i])) {
+	      aChars[i] = Character.toUpperCase(aChars[i]);
+	      bFound = true;
+	    } else if (Character.isWhitespace(aChars[i])) {
+	      bFound = false;
+	    }
+	  } // next
+	  return String.valueOf(aChars);
+    }
+  } // capitalizeFirst
+
+  // ----------------------------------------------------------
+  
+  /**
    * Replace a single character with one or more other characters
    * @param sSource Source String
    * @param cSought Character to be sought
