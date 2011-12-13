@@ -1357,7 +1357,7 @@ public class DBPersist extends AbstractRecord {
   public void put(String sKey, int iVal) {
     AllVals.put(sKey, new Integer(iVal));
   }
-
+  
   /**
    * <p>Set value at internal collection</p>
    * @param sKey Field Name

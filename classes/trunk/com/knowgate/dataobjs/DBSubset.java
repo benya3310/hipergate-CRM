@@ -60,7 +60,6 @@ import java.util.Vector;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.HashMap;
 
 import com.knowgate.debug.DebugFile;
@@ -1378,17 +1377,17 @@ public final class DBSubset extends Vector<Vector<Object>> {
   /**
    * Get DBSubset row as a Map interface
    * @param iRow int Row position [0..getRowCount()-1]
-   * @return Map
+   * @return HashMap<String,Object>
    * @throws ArrayIndexOutOfBoundsException
    * @throws IllegalStateException if DBSubset has not been loaded
    */
-  public Map getRowAsMap (int iRow)
+  public HashMap<String,Object> getRowAsMap (int iRow)
     throws ArrayIndexOutOfBoundsException,IllegalStateException {
     if (super.isEmpty())
       throw new IllegalStateException("DBSubset.getRowAsMap("+String.valueOf(iRow)+") DBSubset not loaded");
 
     Vector oRow = (Vector) super.get(iRow);
-    HashMap oRetVal = new HashMap(iColCount*2);
+    HashMap<String,Object> oRetVal = new HashMap(iColCount*2);
 
     for (int iCol=0; iCol<iColCount; iCol++) {
       oRetVal.put(ColNames[iCol], oRow.get(iCol));
