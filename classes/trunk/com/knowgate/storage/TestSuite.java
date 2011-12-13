@@ -9,7 +9,6 @@ import javax.naming.NamingException;
 
 import com.knowgate.clocial.*;
 
-import com.knowgate.berkeleydb.DBEnvironment;
 import com.knowgate.berkeleydb.DBErrorLog;
 
 import com.knowgate.storage.Manager;
@@ -173,8 +172,8 @@ public final class TestSuite {
     // test03_WriteDomainAsync();
     //test04_WriteUserAccount();
     // test05_WebSearch("www.eoi.es");
-    test05_WebSearch("www.lapastillaroja.net");
-    // test05_WebSearch("lapastillaroja.net");
+    // test05_WebSearch("www.lapastillaroja.net");
+    test05_WebSearch("nuevaeconomia2020");
     // test05_WebSearch("clay shirky");
     // test11_refreshSearchresults();
     // test05_WebSearch("inncorpora");	

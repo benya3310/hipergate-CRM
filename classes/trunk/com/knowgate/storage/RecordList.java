@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import com.knowgate.storage.RecordColumnValueComparatorAsc;
+import com.knowgate.storage.RecordColumnValueComparatorDesc;
 
 public class RecordList extends ArrayList<Record> implements RecordSet {
 
@@ -41,6 +42,12 @@ public class RecordList extends ArrayList<Record> implements RecordSet {
     if (size()>0) {
 	  Collections.sort(this, new RecordColumnValueComparatorAsc(sColumnName));
     }
+  }
+
+  public void sortDesc(String sColumnName) throws ArrayIndexOutOfBoundsException {
+    if (size()>0) {
+	   Collections.sort(this, new RecordColumnValueComparatorDesc(sColumnName));
+	}
   }
 
   private static String rpl(String s) {
