@@ -7,6 +7,7 @@ import java.util.Collections;
 import com.knowgate.storage.Record;
 import com.knowgate.storage.RecordSet;
 import com.knowgate.storage.RecordColumnValueComparatorAsc;
+import com.knowgate.storage.RecordColumnValueComparatorDesc;
 
 public class DBEntitySet extends ArrayList<Record> implements RecordSet {
 
@@ -26,6 +27,12 @@ public class DBEntitySet extends ArrayList<Record> implements RecordSet {
     }
   }
 
+  public void sortDesc(String sColumnName) throws ArrayIndexOutOfBoundsException {
+    if (size()>0) {
+	  Collections.sort(this, new RecordColumnValueComparatorDesc(sColumnName));
+	}
+  }
+  
   public int find (String sColumnName, Object oValue) {
   	if (oValue==null) return -1;
   	if (mIndexes==null) mIndexes = new HashMap<String,HashMap<Object,Integer>>(size()*2);
