@@ -180,18 +180,18 @@ public final class SendMail {
 	@SuppressWarnings("unused")
 	public static ArrayList send(MailAccount oMacc,
 								 Properties oSessionProps,
-								 String sUserDir, // Base directory for mail inline and attached files
-					   	         String sTextHtml, // Mail HTML body
-					   	         String sTextPlain, // Mail Plain Text body
-							     String sEncoding, // Character encoding for body
-							     String aAttachments[],
-							     String sSubject, // Subject,
-							     String sFromAddr,
-							     String sFromPersonal, // Mail From display name
+								 final String sUserDir, // Base directory for mail inline and attached files
+								 final String sTextHtml, // Mail HTML body
+								 final String sTextPlain, // Mail Plain Text body
+								 String sEncoding, // Character encoding for body
+								 final String aAttachments[],
+							     final String sSubject, // Subject,
+							     final String sFromAddr,
+							     final String sFromPersonal, // Mail From display name
 							     String sReplyAddr,
-							     String aRecipients[],
+							     final String aRecipients[],
 							     String sRecipientType,
-						         String sId,
+							     String sId,
 							     String sEnvCnfFileName,
 							     String sJobTl,
 							     boolean bAutoRunJob,
@@ -203,6 +203,9 @@ public final class SendMail {
 	        MessagingException,FTPException,SQLException,
 	        ClassNotFoundException,InstantiationException {
 	  	
+	  if (null==aRecipients) throw new IllegalArgumentException("No recipients list was supplied");
+	  if (0==aRecipients.length) throw new IllegalArgumentException("Recipients list is empty");
+
 	  if (DebugFile.trace) {
 	    DebugFile.writeln("Begin SendMail.send("+oMacc.getString(DB.gu_account)+","+
 	    				  "{mail.smtp.host="+oSessionProps.getProperty("mail.smtp.host","")+","+
@@ -212,7 +215,7 @@ public final class SendMail {
 	    	              "mail.transport.protocol="+oSessionProps.getProperty("mail.transport.protocol","")+"}, "+
 	    				  sUserDir+",text/html, text/plain"+","+
 	    	              sEncoding+",String[],\""+sSubject+"\",<"+sFromAddr+">,"+sFromPersonal+",<"+
-	    	              sReplyAddr+">,"+(aRecipients==null ? null : "{"+Gadgets.join(aRecipients,";")+"}")+","+
+	    	              sReplyAddr+">,{"+Gadgets.join(aRecipients,";")+"},"+
 	    	              sRecipientType+","+sId+","+sEnvCnfFileName+","+sJobTl+",[DBbind])");
 	    DebugFile.incIdent();
 	  } // fi (trace)
@@ -343,8 +346,10 @@ public final class SendMail {
     								 oUsr.getString(DB.gu_workarea),
     								 oMsg.getMessageGuid(), sMsgId,
                              	     sFromAddr,sReplyAddr,sFromPersonal,
-                             	     sSubject, "text/"+(sTextHtml==null ? "plain" : "html")+";charset="+sEncoding,
-                             	    (sTextHtml==null ? sTextPlain : sTextHtml), null, null, null);
+                             	     sSubject,
+                             	     "text/"+(sTextHtml==null ? "plain" : "html")+";charset="+sEncoding,
+                             	     sTextHtml==null ? sTextPlain : sTextHtml,
+                             	     null, null, null);
 
 			if (aAttachments!=null) {
     		  Integer oPart = DBCommand.queryMaxInt(oCon, DB.id_part, DB.k_mime_parts, DB.gu_mimemsg+"='"+oMsg.getMessageGuid()+"'");
@@ -518,8 +523,8 @@ public final class SendMail {
 	public static ArrayList send(MailAccount oMacc,
 								 Properties oSessionProps,
 								 String sUserDir, // Base directory for mail inline and attached files
-					   	         String sTextHtml, // Mail HTML body
-					   	         String sTextPlain, // Mail Plain Text body
+					   	         final String sTextHtml, // Mail HTML body
+					   	         final String sTextPlain, // Mail Plain Text body
 							     String sEncoding, // Character encoding for body
 							     String aAttachments[],
 							     String sSubject, // Subject,
@@ -599,9 +604,9 @@ public final class SendMail {
      * @throws InstantiationException
      */
 	public static ArrayList send(Properties oSessionProps,
-								 String sUserDir, // Base directory for mail inline and attached files
-					   	         String sTextHtml, // Mail HTML body
-					   	         String sTextPlain, // Mail Plain Text body
+								 final String sUserDir, // Base directory for mail inline and attached files
+					   	         final String sTextHtml, // Mail HTML body
+					   	         final String sTextPlain, // Mail Plain Text body
 							     String sEncoding, // Character encoding for body
 							     String aAttachments[],
 							     String sSubject, // Subject,
@@ -678,9 +683,9 @@ public final class SendMail {
     // ------------------------------------------------------------------------
 
 	public static ArrayList send(Properties oSessionProps,
-								 String sUserDir,
-					   	         String sTextHtml,
-					   	         String sTextPlain,
+								 final String sUserDir,
+					   	         final String sTextHtml,
+					   	         final String sTextPlain,
 							     String sEncoding,
 							     String aAttachments[],
 							     String sSubject,
@@ -703,9 +708,9 @@ public final class SendMail {
     // ------------------------------------------------------------------------
 
 	public static ArrayList send(Properties oSessionProps,
-								 String sUserDir, // Base directory for mail inline and attached files
-					   	         String sTextHtml, // Mail HTML body
-					   	         String sTextPlain, // Mail Plain Text body
+								 final String sUserDir, // Base directory for mail inline and attached files
+					   	         final String sTextHtml, // Mail HTML body
+					   	         final String sTextPlain, // Mail Plain Text body
 							     String sEncoding, // Character encoding for body
 							     String aAttachments[],
 							     String sSubject, // Subject,
