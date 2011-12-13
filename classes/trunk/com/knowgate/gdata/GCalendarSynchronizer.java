@@ -49,8 +49,6 @@ import java.util.ArrayList;
 import com.google.gdata.data.DateTime;
 import com.google.gdata.data.PlainTextConstruct;
 import com.google.gdata.data.extensions.When;
-import com.google.gdata.data.extensions.Where;
-import com.google.gdata.data.extensions.ExtendedProperty;
 import com.google.gdata.data.extensions.BaseEventEntry.Visibility;
 
 import com.google.gdata.util.AuthenticationException;
