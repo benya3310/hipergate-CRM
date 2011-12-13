@@ -41,18 +41,14 @@ import java.sql.SQLException;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.document.DateTools;
-import org.apache.lucene.document.DateTools.Resolution;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.document.Field.Store;
 
 import com.knowgate.jdc.JDCConnection;
 import com.knowgate.dataobjs.DB;
 import com.knowgate.projtrack.Bug;
 import com.knowgate.misc.Gadgets;
 import com.knowgate.dfs.FileSystem;
-import org.apache.lucene.analysis.Analyzer;
 import java.io.File;
 
 /**

@@ -66,16 +66,75 @@ public class NewsMessageSearcher {
   }
 
   /**
-   * Compose a Lucene query based on given parameters
+   * Find out if a given NewsMessage is already indexed
    * @param sLuceneIndexPath String Base path for Lucene indexes excluding WorkArea and table name
-   * @param sWorkArea String GUID of WorkArea to be searched, cannot be null
-   * @param sGroup String GUID of NewsGroup to which message belongs (optional, may be null)
+   * @param sWorkArea String GUID of WorkArea to be searched (optional, may be null)
+   * @param sNewsGroupCategoryName String GUID or Category Name of NewsGroup to which message belongs (optional, may be null)
    * @param sAuthor String
    * @param sTitle String
    * @param sText String
    * @param iLimit int
    * @param oSortBy Comparator
-   * @return BugRecord[]
+   * @return NewsMessageRecord[] An Array of NewsMessageRecord objects or <b>null</b> if no messages where found matching the given criteria
+   * @throws ParseException
+   * @throws IOException
+   * @throws NullPointerException
+   */  
+  public static boolean isIndexed(String sLuceneIndexPath, String sWorkArea, String sNewsGroupCategoryName, String sMsgId)
+    throws ParseException, IOException, NullPointerException {
+
+	boolean bIsIndexed = false;
+	
+	if (null==sLuceneIndexPath)
+	  throw new NullPointerException("NewsMessageSearcher.search() luceneindex parameter cannot be null");
+
+    if (DebugFile.trace) {
+	  DebugFile.writeln("Begin NewsMessageSearcher.isIndexed("+sLuceneIndexPath+","+
+		                sWorkArea+","+sNewsGroupCategoryName+","+sMsgId+")");
+      DebugFile.incIdent();
+	}
+			
+	BooleanQuery oQrx = new BooleanQuery();
+	oQrx.add(new TermQuery(new Term("guid",sMsgId)),BooleanClause.Occur.MUST);
+	
+    if (null!=sWorkArea)
+	  oQrx.add(new TermQuery(new Term("workarea",sWorkArea)),BooleanClause.Occur.MUST);
+
+    if (null!=sNewsGroupCategoryName)
+	  oQrx.add(new TermQuery(new Term("container",sNewsGroupCategoryName)),BooleanClause.Occur.MUST);
+    
+	String sSegments = Gadgets.chomp(sLuceneIndexPath,File.separator)+"k_newsmsgs"+File.separator+sWorkArea;	
+    if (DebugFile.trace) DebugFile.writeln("new IndexSearcher("+sSegments+")");
+	Directory oDir = Indexer.openDirectory(sSegments);
+	IndexSearcher oSearch = new IndexSearcher(oDir);
+
+    if (DebugFile.trace) DebugFile.writeln("IndexSearcher.search("+oQrx.toString()+")");
+	  TopDocs oTopSet = oSearch.search(oQrx, null, 1);
+	  if (oTopSet.scoreDocs!=null) {
+		ScoreDoc[] oTopDoc = oTopSet.scoreDocs;
+		bIsIndexed = (oTopDoc.length>0);
+	}
+    oSearch.close();
+	oDir.close();
+
+	if (DebugFile.trace) {
+      DebugFile.decIdent();
+	  DebugFile.writeln("End NewsMessageSearcher.isIndexed() : "+String.valueOf(bIsIndexed));
+    }
+	return bIsIndexed;
+  } // isIndexed
+  
+  /**
+   * Compose a Lucene query based on given parameters
+   * @param sLuceneIndexPath String Base path for Lucene indexes excluding WorkArea and table name
+   * @param sWorkArea String GUID of WorkArea to be searched, cannot be null
+   * @param sGroup sNewsGroupCategoryName String GUID or Category Name of NewsGroup to which message belongs (optional, may be null)
+   * @param sAuthor String
+   * @param sTitle String
+   * @param sText String
+   * @param iLimit int
+   * @param oSortBy Comparator
+   * @return NewsMessageRecord[] An Array of NewsMessageRecord objects or <b>null</b> if no messages where found matching the given criteria
    * @throws ParseException
    * @throws IOException
    * @throws NullPointerException
@@ -139,12 +198,11 @@ public class NewsMessageSearcher {
 
     Document oDoc;
 
-      System.out.println("IndexSearcher.search("+oQrx.toString()+")");
       if (DebugFile.trace) DebugFile.writeln("IndexSearcher.search("+oQrx.toString()+")");
       TopDocs oTopSet = oSearch.search(oQrx, null, iLimit>0 ? iLimit : 2147483647);
       if (oTopSet.scoreDocs!=null) {
         ScoreDoc[] oTopDoc = oTopSet.scoreDocs;
-        int iDocCount = oTopDoc.length;
+        final int iDocCount = oTopDoc.length<=iLimit ? oTopDoc.length : iLimit;
         aRetArr = new NewsMessageRecord[iDocCount];
         for (int d=0; d<iDocCount; d++) {
           oDoc = oSearch.doc(oTopDoc[d].doc);

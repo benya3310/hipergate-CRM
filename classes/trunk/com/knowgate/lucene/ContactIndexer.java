@@ -43,7 +43,6 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
@@ -92,7 +91,7 @@ public class ContactIndexer extends Indexer {
     oDoc.add (new Field("author"   , contact.getAuthor() , Field.Store.YES, Field.Index.NOT_ANALYZED));
     oDoc.add (new Field("value"    , contact.getValue(), Field.Store.YES, Field.Index.ANALYZED));
     oIWrt.addDocument(oDoc);
-  } // addBug
+  } // addDocument
 
 
 
@@ -125,6 +124,7 @@ public class ContactIndexer extends Indexer {
   	Statement oStmt = oConn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
   	ResultSet oRSet;
   	ContactRecord contact = null;
+ 
   	for(int i=0;i<consultas.length;i++){
           if (DebugFile.trace)
               DebugFile.writeln("Statement.executeQuery(" + consultas[i] + ")");
