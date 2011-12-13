@@ -861,6 +861,7 @@ public final class DB {
   public static final String id_nationality = "id_nationality";
   public static final String url_facebook = "url_facebook";
   public static final String url_linkedin = "url_linkedin";
+  public static final String url_twitter = "url_twitter";
 
   // k_sales_men
   public static final String gu_sales_man = "gu_sales_man";
