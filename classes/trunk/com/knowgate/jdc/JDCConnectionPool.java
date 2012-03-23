@@ -151,7 +151,7 @@ final class ConnectionReaper extends Thread {
 
 public final class JDCConnectionPool implements ConnectionPoolDataSource,DataSource {
 
-   private Object binding;
+   private javax.sql.DataSource binding;
    private Vector<JDCConnection> connections;
    private int openconns;
    private HashMap callers;
@@ -223,7 +223,7 @@ public final class JDCConnectionPool implements ConnectionPoolDataSource,DataSou
                             int maxpoolsize, int maxconnections,
                             int logintimeout, long connectiontimeout) {
 
-      binding = bind;
+      binding = (javax.sql.DataSource) bind;
 
       if (null==url)
         throw new IllegalArgumentException("JDCConnectionPool : url cannot be null");
@@ -823,7 +823,7 @@ public final class JDCConnectionPool implements ConnectionPoolDataSource,DataSou
     * Get the DBbind object owner of this conenction pool
     * @return DBBind instance or <b>null</b> if this connection pool has no owner
     */
-   public Object getDatabaseBinding()  {
+   public javax.sql.DataSource getDatabaseBinding()  {
      return binding;
    }
 
