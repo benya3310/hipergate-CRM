@@ -1771,7 +1771,7 @@ public final class Gadgets {
     if (null==oCompiler) oCompiler = new Perl5Compiler();
 
 	if (null==sSource) return null;
-	
+
 	if (null==sRegExp) throw new NullPointerException("Gadgets.replace() pattern may not be null");
 	if (null==sNewVal) throw new NullPointerException("Gadgets.replace() new value may not be null");
 
@@ -2285,7 +2285,7 @@ public final class Gadgets {
   public static boolean checkEMail(String sEMailAddr) {
 	boolean b = false;
 	try {
-      b = matches (sEMailAddr, "[\\w\\x2E_-]+@[\\w\\x2E_-]+\\x2E\\D{2,4}");
+      b = matches (sEMailAddr, "[\\w\\x2B\\x2E_-]+@[\\w\\x2E_-]+\\x2E\\D{2,4}");
     } catch (MalformedPatternException neverthrown) { }	
     return b;
   } // checkEMail
