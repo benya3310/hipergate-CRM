@@ -203,7 +203,7 @@ public class DBMimeMessage extends MimeMessage implements MimePart,Part {
     super(((DBStore)oFldr.getStore()).getSession());
     sGuid = sMsgGuid;
     setFolder(oFldr);
-    oHeaders = null;
+    oHeaders = null;    
   }
 
   // ---------------------------------------------------------------------------
@@ -479,18 +479,18 @@ public class DBMimeMessage extends MimeMessage implements MimePart,Part {
 
   // ---------------------------------------------------------------------------
 
-  private void cacheHeaders()
+  private void cacheHeaders(JDCConnection oConn)
     throws SQLException,MessagingException {
 
     if (DebugFile.trace) {
-      DebugFile.writeln("Begin DBMimeMessage.cacheHeaders()");
+      DebugFile.writeln("Begin DBMimeMessage.cacheHeaders([JDCConnection])");
       DebugFile.incIdent();
     }
 
     PreparedStatement oStmt = null;
     ResultSet oRSet = null;
 
-        oStmt = ((DBFolder) oFolder).getConnection().prepareStatement( "SELECT "+
+        oStmt = oConn.prepareStatement( "SELECT "+
           DB.id_type+","+DB.tx_subject+","+DB.id_message+","+
           DB.len_mimemsg+","+DB.tx_md5+","+DB.de_mimemsg+","+DB.tx_encoding+","+
           DB.dt_sent+","+DB.dt_received+","+DB.dt_readed+","+
@@ -523,11 +523,11 @@ public class DBMimeMessage extends MimeMessage implements MimePart,Part {
 
   // ---------------------------------------------------------------------------
 
-  public String getContentType()
+  public String getMessageContentType()
     throws MessagingException {
 
     if (DebugFile.trace) {
-      DebugFile.writeln("Begin DBMimeMessage.getContentType()");
+      DebugFile.writeln("Begin DBMimeMessage.getMessageContentType()");
       DebugFile.incIdent();
     }
 
@@ -541,7 +541,7 @@ public class DBMimeMessage extends MimeMessage implements MimePart,Part {
     }
     else {
       try {
-        if (null==oHeaders) cacheHeaders();
+        if (null==oHeaders) cacheHeaders(((DBFolder) oFolder).getConnection());
         if (null==oHeaders)
           sRetVal = super.getContentType();
         else
@@ -554,10 +554,10 @@ public class DBMimeMessage extends MimeMessage implements MimePart,Part {
 
     if (DebugFile.trace) {
       DebugFile.decIdent();
-      DebugFile.writeln("End DBMimeMessage.getContentType() : " + sRetVal);
+      DebugFile.writeln("End DBMimeMessage.getMessageContentType() : " + sRetVal);
     }
     return sRetVal;
-  }
+  } // getMessageContentType
 
   // ---------------------------------------------------------------------------
 
@@ -579,7 +579,7 @@ public class DBMimeMessage extends MimeMessage implements MimePart,Part {
     }
     else {
       try {
-        if (null==oHeaders) cacheHeaders();
+        if (null==oHeaders) cacheHeaders(((DBFolder) oFolder).getConnection());
         if (null==oHeaders)
           dtRetVal = super.getSentDate();
         else
@@ -620,7 +620,7 @@ public class DBMimeMessage extends MimeMessage implements MimePart,Part {
     }
     else {
       try {
-        if (null==oHeaders) cacheHeaders();
+        if (null==oHeaders) cacheHeaders(((DBFolder) oFolder).getConnection());
         if (null==oHeaders)
           sRetVal = super.getSubject();
         else
@@ -1103,9 +1103,12 @@ public class DBMimeMessage extends MimeMessage implements MimePart,Part {
       DebugFile.writeln("Begin DBMimeMessage.getTextPlain()");
       DebugFile.incIdent();
     }
+    final String sContentType = getContentType();
     boolean bHasPlainTextVersion = false;
+    
+    if (DebugFile.trace) DebugFile.writeln("content-type="+sContentType);
 
-    if (getContentType().startsWith("text/plain")) {
+    if (sContentType.startsWith("text/plain")) {
       getText(oBuffer);
     }
     else if (getContentType().startsWith("text/html")) {
@@ -1129,6 +1132,8 @@ public class DBMimeMessage extends MimeMessage implements MimePart,Part {
 
       final int iParts = oParts.getCount();
 
+      if (DebugFile.trace) DebugFile.writeln(String.valueOf(iParts)+" parts found");
+      
       MimePart oPart;
 
       int p;
@@ -1558,7 +1563,7 @@ public class DBMimeMessage extends MimeMessage implements MimePart,Part {
         // *****************************************
         // Iterate images from HTML and replace CIDs
 
-		if (bAttachInlineImages) {
+		if (bAttachInlineImages && sBody.length()>0) {
 		  sBody = oHtmBdy.addPreffixToImgSrc("cid:");          
 		} // fi (bAttachInlineImages)
       }
@@ -1575,6 +1580,7 @@ public class DBMimeMessage extends MimeMessage implements MimePart,Part {
       // ************************************************************************
       // Some defensive programming: ensure that all src="..." attributes point
       // either to an absolute http:// URL or to a cid:
+
       oHtmBdy.setHtml (sBody);
       ArrayList<String> aLocalUrls = oHtmBdy.extractLocalUrls();
       if (aLocalUrls.size()>0) {
@@ -1587,7 +1593,6 @@ public class DBMimeMessage extends MimeMessage implements MimePart,Part {
         }
       	throw new MessagingException("HTML body part "+(sId==null ? "" : "of message"+sId)+" contains local references to external resources such as "+aLocalUrls.get(0));
       } // aLocalUrls != {}
-
       
       // ************************************************************************
       // Add HTML related images

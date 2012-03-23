@@ -824,8 +824,6 @@ public class DBMimePart extends BodyPart implements MimePart {
                                    MimePart oPart, int nPart)
     throws MessagingException, IOException, UnsupportedEncodingException {
 
-    MimeBodyPart oNext = null;
-    MimeMultipart oAlt;
     String sType;
     int iRetVal;
     String sContent;

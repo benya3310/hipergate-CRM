@@ -31,6 +31,7 @@ package com.knowgate.hipermail;
   if not, visit http://www.hipergate.org or mail to info@hipergate.org
 */
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -169,12 +170,13 @@ public class HtmlMimeBodyPart {
     return oImgs;
   }
 
-  private String doSubstitution(final String sBase, final String sAttributeName, final String sFormerValue, final String sNewValue)
+  private String doSubstitution(final String sBase, final String sAttributeName,
+		                        final String sFormerValue, final String sNewValue)
   	throws ParserException {
   	
   	String sMatch = "";
   	
-  	if (DebugFile.trace) DebugFile.writeln("HtmlMomeBodyPart.doSubstitution(..., "+sAttributeName+","+sFormerValue+","+sNewValue);
+  	if (DebugFile.trace) DebugFile.writeln("HtmlMomeBodyPart.doSubstitution(..., "+sAttributeName+","+sFormerValue+","+sNewValue+")");
 
     final String sPattern = "("+sAttributeName.toLowerCase()+"|"+sAttributeName.toUpperCase()+"|"+sAttributeName+")\\s*=\\s*(\"|')?" + sFormerValue + "(\"|')?";
 
@@ -186,9 +188,11 @@ public class HtmlMimeBodyPart {
       
       if (oMatchr.find()) {
     	sMatch = oMatchr.group();
-      	if (sMatch.length()==0)
-          throw new ParserException("Match could not be retrieved for pattern " + sPattern);        
-      	final int iDquote = sMatch.indexOf('"');
+
+    	if (sMatch.length()==0) throw new ParserException("Match could not be retrieved for pattern " + sPattern);
+      	else if (DebugFile.trace) DebugFile.writeln("match found "+sMatch);
+      	
+    	final int iDquote = sMatch.indexOf('"');
       	final int iSquote = sMatch.indexOf("'");
       	char cQuote = (char) 0;
       	if (iDquote>0 && iSquote>0)
@@ -197,10 +201,15 @@ public class HtmlMimeBodyPart {
       	  cQuote = (char)34;
       	else if (iSquote>0)
       	  cQuote = (char)39;
-		if (cQuote==(char)0)
-          return oMatchr.replaceFirst(sMatch.substring(0,sAttributeName.length())+"="+sNewValue);
-        else
-          return oMatchr.replaceFirst(sMatch.substring(0,sAttributeName.length())+"="+cQuote+sNewValue+cQuote);
+		try {
+          if (cQuote==(char)0) {
+		    if (DebugFile.trace) DebugFile.writeln("Matcher.replaceAll("+sMatch.substring(0,sAttributeName.length())+"="+sNewValue+")");
+		    return oMatchr.replaceAll(sMatch.substring(0,sAttributeName.length())+"="+sNewValue);
+		  } else {
+	        if (DebugFile.trace) DebugFile.writeln("Matcher.replaceAll("+sMatch.substring(0,sAttributeName.length())+"="+cQuote+sNewValue+cQuote+")");            
+	        return oMatchr.replaceAll(sMatch.substring(0,sAttributeName.length())+"="+cQuote+sNewValue+cQuote);
+		  }
+      	} catch (Exception xcpt) { throw new ParserException(xcpt.getMessage()); }
       } else {
       	return sBase;
       } // fi (oMatcher.contains())
@@ -270,6 +279,8 @@ public class HtmlMimeBodyPart {
 		ImageTag oImgTag = (ImageTag) oCollectionList.elementAt(i);
 			
         sSrc = oImgTag.extractImageLocn().replace('\\','/');
+        
+        if (sSrc.length()==0) throw new ParserException("image src is empty for tag "+oImgTag.toHtml());
 		
 		if (DebugFile.trace) DebugFile.writeln("Processing image location "+sSrc);
 		
@@ -289,10 +300,11 @@ public class HtmlMimeBodyPart {
           }
           if (DebugFile.trace) DebugFile.writeln("HashMap.put("+sSrc+","+sCid+")");
 
-          oImgs.put(sSrc, sCid);
+          if  (sCid.length()>0) {
+            oImgs.put(sSrc, sCid);
+            sBodyCid = doSubstitution (sBodyCid, "Src", Gadgets.replace(Gadgets.replace(oImgTag.extractImageLocn(),'\\',"\\\\"),'.',"\\x2E"), sPreffix+oImgs.get(sSrc));        
+          }
         } // fi (!oImgs.containsKey(sSrc))
-        
-        sBodyCid = doSubstitution (sBodyCid, "Src", Gadgets.replace(Gadgets.replace(oImgTag.extractImageLocn(),'\\',"\\\\"),'.',"\\x2E"), sPreffix+oImgs.get(sSrc));
     } // next
 
 	// **********************************************************************
@@ -556,13 +568,12 @@ public class HtmlMimeBodyPart {
             if (DebugFile.trace) DebugFile.writeln("HashMap.put("+sSrc+","+sCid+")");
 
             oImgs.put(sSrc, sCid);
+
+            String sTdBckg = ((TableColumn) oCollectionList.elementAt(i)).getAttribute("background");
+            if (sTdBckg.startsWith(sPreffix)) {
+              sBodyCid = doSubstitution(sBodyCid, "Background", Gadgets.replace(Gadgets.replace(sTdBckg,'\\',"\\\\"),'.',"\\x2E"), sTdBckg.substring(sPreffix.length()));
+            }          
           } // fi (!oImgs.containsKey(sSrc))
-
-          String sTdBckg = ((TableColumn) oCollectionList.elementAt(i)).getAttribute("background");
-          if (sTdBckg.startsWith(sPreffix)) {
-            sBodyCid = doSubstitution(sBodyCid, "Background", Gadgets.replace(Gadgets.replace(sTdBckg,'\\',"\\\\"),'.',"\\x2E"), sTdBckg.substring(sPreffix.length()));
-          }
-
         } // fi
       } // fi
     } // next

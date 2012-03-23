@@ -222,11 +222,17 @@ public final class SendMail {
 
 	  if (dtExecution!=null) {
 	    if (bAutoRunJob) {
-	      if (DebugFile.trace) DebugFile.decIdent();
+	      if (DebugFile.trace) {
+	    	DebugFile.writeln("SendMail.send() execution date must be null if auto run job is true");
+	    	DebugFile.decIdent();
+	      }
 	      throw new IllegalArgumentException("SendMail.send() execution date must be null if auto run job is true");
 	    }
 	    if (dtExecution.compareTo(new Date())<0) {
-	      if (DebugFile.trace) DebugFile.decIdent();
+	      if (DebugFile.trace) {
+		    DebugFile.writeln("SendMail.send() execution date must be after current date");
+	    	DebugFile.decIdent();
+	      }
 	      throw new IllegalArgumentException("SendMail.send() execution date must be after current date");
 	    }
 	  } // fi (dtExecution)
@@ -241,12 +247,18 @@ public final class SendMail {
 	  boolean bClickThrough = oSessionProps.getProperty("clickthrough","no").equalsIgnoreCase("yes") || oSessionProps.getProperty("clickthrough","false").equalsIgnoreCase("true") || oSessionProps.getProperty("clickthrough","0").equalsIgnoreCase("1");
 
 	  if (bWebBeacon && oSessionProps.getProperty("webserver")==null) {
-	    if (DebugFile.trace) DebugFile.decIdent();
+	    if (DebugFile.trace) {
+		  DebugFile.writeln("SendMail.send() If webbeacon property is true then webserver property is required");
+	      DebugFile.decIdent();
+	    }
 	    throw new NullPointerException("SendMail.send() If webbeacon property is true then webserver property is required");
 	  }
 
 	  if (bClickThrough && oSessionProps.getProperty("webserver")==null) {
-	    if (DebugFile.trace) DebugFile.decIdent();
+	    if (DebugFile.trace) {
+		  DebugFile.writeln("SendMail.send() If webbeacon property is true then webserver property is required");
+	      DebugFile.decIdent();
+	    }
 	    throw new NullPointerException("SendMail.send() If clickthrough property is true then webserver property is required");
 	  }
 
@@ -300,6 +312,8 @@ public final class SendMail {
 	  	throw new MessagingException(sRecipientType+" is not a valid recipient type");
 
 	  if (sJobTl.length()>0) {
+		if (DebugFile.trace) DebugFile.writeln("Processing job "+sJobTl);
+
 		if (null==oGlobalDbb)
 		  oDbb = new DBBind(sEnvCnfFileName);
 		else
@@ -308,7 +322,9 @@ public final class SendMail {
 		JDCConnection oCon = null;
 		try {
 
-		  Job oSnd;
+	      if (DebugFile.trace) DebugFile.writeln("getting JDCConnection from pool");
+
+	      Job oSnd;
 		  DBPersist oJob = new DBPersist(DB.k_jobs,"Job");
 		  oCon = oDbb.getConnection("SendMail",false);
 		  oCon.setAutoCommit(false);
@@ -333,6 +349,8 @@ public final class SendMail {
     		DBStore oRDBMS = DBStore.open(oHndl.getSession(), oDbb.getProfileName(), sMBoxDir, oUsr.getString(DB.gu_user), oUsr.getString(DB.tx_pwd));
 			DBFolder oOutbox = oRDBMS.openDBFolder("outbox",DBFolder.READ_WRITE);
 
+			if (DebugFile.trace) DebugFile.writeln("creating draft");
+			
 			DBMimeMessage oMsg = DraftsHelper.draftMessage(oOutbox, oMacc.getString(DB.outgoing_server),
 														   oUsr.getString(DB.gu_workarea),
 														   oUsr.getString(DB.gu_user),
@@ -352,6 +370,7 @@ public final class SendMail {
                              	     null, null, null);
 
 			if (aAttachments!=null) {
+			  if (DebugFile.trace) DebugFile.writeln("adding attachments");
     		  Integer oPart = DBCommand.queryMaxInt(oCon, DB.id_part, DB.k_mime_parts, DB.gu_mimemsg+"='"+oMsg.getMessageGuid()+"'");
     		  if (oPart==null) oPart = new Integer(1);
     		  PreparedStatement oStm = oCon.prepareStatement("INSERT INTO " + DB.k_mime_parts + "("+DB.gu_mimemsg+","+DB.id_message+","+DB.id_part+","+DB.id_disposition+","+DB.id_content+","+DB.id_type+","+DB.len_part+","+DB.de_part+","+DB.file_name+") VALUES ('"+oMsg.getMessageGuid()+"',?,?,'reference',?,?,?,?,?)");
@@ -366,6 +385,7 @@ public final class SendMail {
         		  oStm.setInt(5, (int) oAttach.length());
 	      		  oStm.setString(6, aAttachments[p]);
 	      		  oStm.setString(7, sFilePath);	
+	  			  if (DebugFile.trace) DebugFile.writeln("INSERT INTO " + DB.k_mime_parts + "("+DB.gu_mimemsg+","+DB.id_message+","+DB.id_part+","+DB.id_disposition+","+DB.id_content+","+DB.id_type+","+DB.len_part+","+DB.de_part+","+DB.file_name+") VALUES ('"+oMsg.getMessageGuid()+"','"+sMsgId+"',"+String.valueOf(oPart.intValue()+p)+",'reference',?,?,?,?,'"+sFilePath+"')");
 	      		  oStm.executeUpdate();
 	      	    } // fi
 			  } // next
@@ -391,13 +411,22 @@ public final class SendMail {
 		    	                       "webserver:"+oSessionProps.getProperty("webserver")+","+
 		    	                       "encoding:"+sEncoding);
 		    if (dtExecution!=null) oJob.put(DB.dt_execution, dtExecution);
+			if (DebugFile.trace) DebugFile.writeln("storing job "+sJobId+" "+oJob.getString(DB.tx_parameters));
 		    oJob.store(oCon);
 
 			DBCommand.executeUpdate(oCon, "UPDATE "+DB.k_mime_msgs+" SET "+DB.gu_job+"='"+sJobId+"' WHERE "+DB.gu_mimemsg+"='"+oMsg.getMessageGuid()+"'");
 
-		    oSnd = Job.instantiate(oCon, sJobId, oDbb.getProperties());
+			if (DebugFile.trace) DebugFile.writeln("instantiating job "+sJobId);
+
+			oSnd = Job.instantiate(oCon, sJobId, oDbb.getProperties());
 		    
-		    oSnd.insertRecipients(oCon, aRecipients, sRecipientType,
+			if (DebugFile.trace)
+			  if (null==aRecipients)
+				DebugFile.writeln("ERROR recipients list is null");
+			  else
+			    DebugFile.writeln("inserting "+String.valueOf(aRecipients)+" recipients ");
+
+			oSnd.insertRecipients(oCon, aRecipients, sRecipientType,
 		                          sTextHtml==null ? "text" : "html",
 		                          Job.STATUS_PENDING);
 			
@@ -405,12 +434,19 @@ public final class SendMail {
 
 		    if (DebugFile.trace) DebugFile.writeln("Job "+sJobTl+" found with GUID "+sJobId);
 
-		    oSnd = Job.instantiate(oCon, sJobId, oDbb.getProperties());		    		  	
+			if (DebugFile.trace) DebugFile.writeln("instantiating job "+sJobId);
 
-		    oSnd.insertRecipients(oCon, aRecipients, sRecipientType,
+			oSnd = Job.instantiate(oCon, sJobId, oDbb.getProperties());		    		  	
+
+			if (DebugFile.trace)
+				  if (null==aRecipients)
+					DebugFile.writeln("ERROR recipients list is null");
+				  else
+				    DebugFile.writeln("inserting "+String.valueOf(aRecipients)+" recipients ");
+
+			oSnd.insertRecipients(oCon, aRecipients, sRecipientType,
 		                          sTextHtml==null ? "text" : "html",
 		                          Job.STATUS_PENDING);
-
 		  }
 		  oCon.commit();
 		  oCon.close("SendMail");

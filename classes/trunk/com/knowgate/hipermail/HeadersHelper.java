@@ -220,6 +220,20 @@ public class HeadersHelper extends DefaultHandler {
 
   // ---------------------------------------------------------------------------
 
+  public static String getMessageID(MimeMessage oMsg)
+    throws UnsupportedEncodingException,MessagingException {
+    return decodeMessageId(oMsg);
+  }
+
+  // ---------------------------------------------------------------------------
+
+  public String getMessageID()
+    throws UnsupportedEncodingException,MessagingException {
+    return HeadersHelper.getMessageID(oMsg);
+  }
+  
+  // ---------------------------------------------------------------------------
+
   public static String getDisposition(MimeMessage oMsg)
     throws UnsupportedEncodingException,MessagingException {
     String sRetVal = oMsg.getDisposition();
