@@ -334,6 +334,8 @@ public class Column implements Serializable {
         return "VARBINARY";
       case Types.VARCHAR:
         return "VARCHAR";
+      case Types.ARRAY:
+          return "ARRAY";
       default:
         return "OTHER";
     }
