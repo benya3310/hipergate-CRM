@@ -33,7 +33,7 @@ package com.knowgate.dataobjs;
 
 /**
  * <p>Static final variables for table and field names</p>
- * @version 6.0
+ * @version 7.0
  */
 
 public final class DB {
@@ -202,6 +202,7 @@ public final class DB {
   public static final String k_x_activity_audience = "k_x_activity_audience";
   public static final String k_activity_audience_lookup = "k_activity_audience_lookup";
   public static final String k_activity_attachs = "k_activity_attachs";
+  public static final String k_activity_tags = "k_activity_tags";
   public static final String k_syndfeeds = "k_syndfeeds";
   public static final String k_syndentries = "k_syndentries";
   public static final String k_syndreferers = "k_syndreferers";
@@ -901,6 +902,7 @@ public final class DB {
   public static final String im_cost = "im_cost";
   public static final String nu_elapsed = "nu_elapsed";
   public static final String lv_interest = "lv_interest";
+  public static final String nu_oportunities = "nu_oportunities";
 
   // k_contact_notes
   public static final String gu_note = "gu_note";
@@ -940,8 +942,10 @@ public final class DB {
   public static final String bo_reminder = "bo_reminder";
   public static final String gu_mailing = "gu_mailing";
   public static final String dt_mailing = "dt_mailing";
-  public static final String url_activity = "url_activity";
-  	
+  public static final String url_activity = "url_activity";  	
+  public static final String tp_tag = "tp_tag";
+  public static final String nm_tag = "nm_tag";
+  
   // k_microsites
   public static final String gu_microsite = "gu_microsite";
   public static final String id_app = "id_app";
@@ -967,6 +971,7 @@ public final class DB {
   // k_events
   public static final String id_event = "id_event";
   public static final String de_event = "de_event";
+  public static final String fixed_rate = "fixed_rate";
 
   // k_jobs
   public static final String gu_job = "gu_job";
@@ -1237,6 +1242,7 @@ public final class DB {
   
   /**i2e 20-01-2010**/
   //k_admission
+  public static final String gu_admission = "gu_admission";
   public static final String id_objetive_1 = "id_objetive_1";
   public static final String id_objetive_2 = "id_objetive_2";
   public static final String id_objetive_3 = "id_objetive_3";

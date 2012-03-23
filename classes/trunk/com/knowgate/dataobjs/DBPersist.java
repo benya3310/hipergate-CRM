@@ -43,6 +43,7 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Time;
+import java.sql.Array;
 import java.sql.Timestamp;
 
 import java.lang.ClassNotFoundException;
@@ -927,6 +928,47 @@ public class DBPersist extends AbstractRecord {
   } // getTimestamp
 
   /**
+   * <p>Get value for an _int4[] field<p>
+   * @param sKey Field Name
+   * @throws SQLException
+   * @return Field value or <b>null</b>.
+   * @since 7.0
+   */
+
+  public Integer[] getIntegerArray(String sKey) throws SQLException {
+    Array oArr = (Array) getItemMap().get(sKey);
+
+    if (null!=oArr) {
+      return (Integer[]) oArr.getArray();
+    } else {
+      return null;    	
+    }
+  } // getIntegerArray
+
+  /**
+   * <p>Get value for an _int4[] field<p>
+   * @param sKey Field Name
+   * @throws SQLException
+   * @return Field value or <b>null</b>.
+   * @since 7.0
+   */
+
+  public int[] getIntArray(String sKey) throws SQLException {
+    Array oArr = (Array) getItemMap().get(sKey);
+
+    if (null!=oArr) {
+      Integer[] aArr = (Integer[]) oArr.getArray();
+      final int l = aArr.length;
+      int[] aRetVal = new int[l];
+      for (int a=0; a<l; a++)
+        aRetVal[a] = aArr[a].intValue();
+      return aRetVal;
+    } else {
+      return null;    	
+    }
+  } // getIntegerArray
+  
+  /**
    * @return Field Names Set
    * @deprecated Use keySet() instead
    */
@@ -1435,7 +1477,7 @@ public class DBPersist extends AbstractRecord {
   }
 
   /**
-   * <p>Set value at internal collection</p>
+   * <p>Put float value at internal collection</p>
    * @param sKey Field Name
    * @param fVal Field Value
    */
@@ -1445,7 +1487,7 @@ public class DBPersist extends AbstractRecord {
   }
 
   /**
-   * <p>Set value at internal collection</p>
+   * <p>Put Money value at internal collection</p>
    * @param sKey Field Name
    * @param mVal Field Value
    * @since 3.0
@@ -1509,6 +1551,16 @@ public class DBPersist extends AbstractRecord {
     bHasLongVarBinaryData = true;
   } // put
 
+  /**
+   * <p>Put Array value at internal collection</p>
+   * @param sKey Field Name
+   * @param aVal Field Value
+   * @since 7.0
+   */
+  public void put(String sKey, Array aVal) {    
+	AllVals.put(sKey, aVal);
+  }
+  
   /**
    * <p>Set value at internal collection</p>
    * @param sKey Field Name
