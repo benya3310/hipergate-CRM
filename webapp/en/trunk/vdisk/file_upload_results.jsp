@@ -1,1 +1,0 @@
-<% out.write (request.getParameter("response")); %>

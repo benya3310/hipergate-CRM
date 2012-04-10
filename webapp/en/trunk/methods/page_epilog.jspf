@@ -1,9 +1,0 @@
-<%
-
-  if (com.knowgate.debug.DebugFile.trace) {
-      
-    com.knowgate.dataobjs.DBAudit.log ((short)0, "CJSP", sUserIdCookiePrologValue, request.getServletPath(), "", 0, request.getRemoteAddr(), "", "");
-  }
-  
-
-%>
