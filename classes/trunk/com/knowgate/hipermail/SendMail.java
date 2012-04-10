@@ -937,6 +937,88 @@ public final class SendMail {
     // ------------------------------------------------------------------------
 
     /**
+     * <p>Send a plain text message to a given recipients list</p>
+     * The message will be sent inmediately indipendently to each recipient
+     * @param oDbb DBBind Session properties will be taken from the .cnf file of this DBBind
+     * @param sTextPlain Plain text message part
+     * @param sSubject Message subject
+     * @param sFromAddr Recipient From address
+     * @param sFromPersonal Recipient From Display Name
+     * @param sReplyAddr Reply-To address
+     * @param aRecipients List of recipient addresses
+	 * @return ArrayList of Strings with status messages about each message sent
+	 * @throws IOException
+	 * @throws IllegalAccessException
+	 * @throws NullPointerException
+	 * @throws MessagingException
+	 * @throws SQLException
+	 * @throws ClassNotFoundException
+	 * @throws InstantiationException
+     * @since 7.0
+     */
+ 
+	public static ArrayList send(DBBind oDbb,
+								 String sTextPlain,
+								 String sSubject,
+							     String sFromAddr,
+							     String sFromPersonal, 
+							     String sReplyAddr,
+							     String aRecipients[])
+      throws IOException,IllegalAccessException,NullPointerException,
+             MessagingException,SQLException,ClassNotFoundException,InstantiationException {
+
+	  if (DebugFile.trace) {
+	    DebugFile.writeln("SendMail.send({mail.smtp.host="+oDbb.getProperty("mail.smtp.host","")+","+
+	    	                             "mail.user="+oDbb.getProperty("mail.user","")+","+
+	    	                             "mail.account="+oDbb.getProperty("mail.account","")+","+
+	    	                             "mail.outgoing="+oDbb.getProperty("mail.outgoing","")+"},"+
+	    	                             "mail.transport.protocol="+oDbb.getProperty("mail.transport.protocol","")+","+
+	    	                             "\""+Gadgets.left(sTextPlain,80).replace('\n',' ')+"\", \""+sSubject+"\", "+
+	    	                             sFromAddr+", \""+sFromPersonal+"\", "+sReplyAddr+", {"+
+	    	                             Gadgets.join(aRecipients,",")+"})");
+        DebugFile.incIdent();
+	  }
+
+	  final String StrNull = null;
+	  final String ArrNull[] = null;
+
+	  if (null==sSubject) sSubject = "";
+	  if (null==sTextPlain) sTextPlain = "";
+	  if (null==sFromPersonal) sFromPersonal = sFromAddr;
+	  if (null==sReplyAddr) sReplyAddr = sFromAddr;
+	  ArrayList oRetMsgs = null;
+	  JDCConnection oConn = null;
+	  
+	  try {
+
+		oConn = oDbb.getConnection("SendMail.send",true);		
+		String sUser = ACLUser.getIdFromEmail(oConn, sFromAddr);
+	    if (null==sUser) {
+	      oConn.close("SendMail.send");
+		  oConn=null;
+		  throw new SQLException(sFromAddr+" e-mail address was not found at k_users table");
+		} else {
+		  MailAccount oMacc = MailAccount.forUser(oConn, sUser, oDbb.getProperties());		
+	      oConn.close("SendMail.send");
+		  oConn=null;
+		  oRetMsgs = send(oMacc, oMacc.getProperties(), StrNull, StrNull, sTextPlain, "UTF-8", ArrNull, sSubject, sFromAddr, sFromPersonal, sReplyAddr, aRecipients, "to", StrNull, oDbb.getProfileName(), StrNull, false, oDbb);
+		}
+	  } catch (FileNotFoundException neverthrown) {}
+	    catch (FTPException neverthrown) {	    	
+	  } finally {
+		if (oConn!=null) { try { if (!oConn.isClosed()) oConn.close(); } catch (SQLException ignore) {} }
+	  }
+	  if (DebugFile.trace) {
+        DebugFile.decIdent();
+        DebugFile.writeln("End SendMail.send()");
+	  }
+
+      return oRetMsgs;
+    } // send
+	
+    // ------------------------------------------------------------------------
+
+    /**
      * <p>Send a dual plain text and HTML message to a given recipients list</p>
      * The message will be sent inmediately indipendently to each recipient
      * @param oSessionProps Properties
