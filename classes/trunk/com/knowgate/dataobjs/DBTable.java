@@ -57,8 +57,10 @@ import java.util.ListIterator;
 
 import com.knowgate.debug.*;
 import com.knowgate.jdc.*;
+import com.knowgate.misc.Gadgets;
 
 import com.knowgate.storage.Column;
+import com.knowgate.storage.RDBMS;
 
 /**
  * <p>A database table as a Java Object</p>
@@ -251,7 +253,8 @@ public class DBTable {
     DBColumn oCol;
     String sCol;
     String sSQL = "";
-    ListIterator oColIterator;
+    ListIterator<DBColumn> oColIterator;
+    ListIterator<String> oKeyIterator;
     int iAffected = 0;
     PreparedStatement oStmt = null;
 
@@ -283,7 +286,7 @@ public class DBTable {
         oColIterator = oColumns.listIterator();
 
         while (oColIterator.hasNext()) {
-          oCol = (DBColumn) oColIterator.next();
+          oCol = oColIterator.next();
           sCol = oCol.getName().toLowerCase();
 
           if (!oPrimaryKeys.contains(sCol) &&
@@ -316,9 +319,9 @@ public class DBTable {
             } // endif (!oPrimaryKeys.contains(sCol))
           } // wend
 
-        oColIterator = oPrimaryKeys.listIterator();
-        while (oColIterator.hasNext()) {
-          sCol = (String) oColIterator.next();
+        oKeyIterator = oPrimaryKeys.listIterator();
+        while (oKeyIterator.hasNext()) {
+          sCol = oKeyIterator.next();
           oCol = getColumnByName(sCol);
 
           if (DebugFile.trace) DebugFile.writeln("PreparedStatement.setObject (" + String.valueOf(c) + "," + AllValues.get(sCol) + "," + oCol.getSqlTypeName() + ")");
@@ -821,7 +824,9 @@ public class DBTable {
    */
 
   public LinkedList<Column> getColumns() {
-    return oColumns;
+	LinkedList<Column> oCols = new LinkedList<Column>();
+	oCols.addAll(oColumns);
+	return oCols;
   }
 
   // ---------------------------------------------------------------------------
@@ -996,7 +1001,7 @@ public class DBTable {
       String sSetAllCols = "";
       String sSetNoPKCols = "";
 
-      oColumns = new LinkedList<Column>();
+      oColumns = new LinkedList<DBColumn>();
 	  oIndexes = new LinkedList<DBIndex>();
       oPrimaryKeys = new LinkedList<String>();
 
@@ -1275,13 +1280,39 @@ public class DBTable {
       }
 
   } // readColumns
+  
   // ----------------------------------------------------------
 
+  /**
+   * Get SQL DDL creation script for this table
+   * @param eRDBMS
+   * @return String like "CREATE TABLE table_name ( ... ) "
+   * @since 7.0
+   */
+  public String sqlScriptDef(RDBMS eRDBMS)  {
+    String sDDL = "CREATE TABLE "+getName()+"(";
+    for (DBColumn c : oColumns)
+      sDDL += c.sqlScriptDef(eRDBMS)+",";
+    if (getPrimaryKey().size()>0)
+      sDDL += "CONSTRAINT pk_"+getName()+" PRIMARY KEY ("+Gadgets.join(getPrimaryKey(), ",")+"),";
+    for (int c=0; c<oColumns.size(); c++) {
+      if (oColumns.get(c).getForeignKey()!=null)
+        sDDL += "CONSTRAINT f"+String.valueOf(c+1)+"_"+getName()+" "+oColumns.get(c).getForeignKey()+",";
+      else if (oColumns.get(c).getConstraint()!=null)
+        sDDL += "CONSTRAINT c"+String.valueOf(c+1)+"_"+getName()+" CHECK ("+oColumns.get(c).getForeignKey()+"),";
+    }    
+    sDDL = Gadgets.dechomp(sDDL, ',');
+    sDDL += ")";
+    return sDDL;
+  } // sqlScriptDef
+
+  // ----------------------------------------------------------
+  
   private String sCatalog;
   private String sSchema;
   private String sName;
   private int iHashCode;
-  private LinkedList<Column> oColumns;
+  private LinkedList<DBColumn> oColumns;
   private LinkedList<DBIndex> oIndexes;
   private LinkedList<String> oPrimaryKeys;
 
