@@ -1,0 +1,7 @@
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarClient\HipergateCalendarClient\bin\Release\HipergateCalendarClient.dll
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarClient\HipergateCalendarClient\bin\Release\HipergateCalendarClient.xml
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarClient\HipergateCalendarClient\obj\Release\ResolveAssemblyReference.cache
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarClient\HipergateCalendarClient\obj\Release\Hipergate.Resources.resources
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarClient\HipergateCalendarClient\obj\Release\Hipergate.vbproj.GenerateResource.Cache
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarClient\HipergateCalendarClient\obj\Release\HipergateCalendarClient.dll
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarClient\HipergateCalendarClient\obj\Release\HipergateCalendarClient.xml
