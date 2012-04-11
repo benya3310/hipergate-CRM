@@ -1,1 +1,0 @@
-DROP PROCEDURE k_get_term_from_text;
