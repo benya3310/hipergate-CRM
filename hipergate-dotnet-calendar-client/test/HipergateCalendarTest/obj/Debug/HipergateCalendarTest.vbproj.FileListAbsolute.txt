@@ -1,0 +1,12 @@
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\bin\Debug\HipergateCalendarTest.exe
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\bin\Debug\HipergateCalendarTest.pdb
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\bin\Debug\HipergateCalendarTest.xml
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\bin\Debug\HipergateCalendarClient.dll
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\bin\Debug\HipergateCalendarClient.pdb
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\bin\Debug\HipergateCalendarClient.xml
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\obj\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\obj\Debug\HipergateCalendarTest.Resources.resources
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\obj\Debug\HipergateCalendarTest.vbproj.GenerateResource.Cache
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\obj\Debug\HipergateCalendarTest.exe
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\obj\Debug\HipergateCalendarTest.xml
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\obj\Debug\HipergateCalendarTest.pdb

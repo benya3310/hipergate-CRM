@@ -1,0 +1,202 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+HipergateCalendarClient
+</name>
+</assembly>
+<members>
+<member name="P:Hipergate.CalendarAttendant.id">
+	<summary>Attendant iCalendar Id.</summary>
+	<remarks>The attendant id may not exceed 50 characters</remarks>
+	<exception cref="T:System.ArgumentOutOfRangeException">If id is longer than 50 characters</exception>
+</member><member name="P:Hipergate.CalendarAttendant.guid">
+	<summary>Attendant Global Unique Identifier</summary>
+	<remarks>The attendant GUID may not exceed 32 characters</remarks>
+	<exception cref="T:System.ArgumentOutOfRangeException">If guid is longer than 32 characters</exception>
+</member><member name="P:Hipergate.CalendarAttendant.name">
+	<summary>Attendant First Name</summary>
+	<remarks>The attendant name may not exceed 100 characters</remarks>
+	<exception cref="T:System.ArgumentOutOfRangeException">If name is longer than 100 characters</exception>
+</member><member name="P:Hipergate.CalendarAttendant.surname">
+	<summary>Attendant Surname</summary>
+	<remarks>The attendant surname may not exceed 100 characters</remarks>
+	<exception cref="T:System.ArgumentOutOfRangeException">If surname is longer than 100 characters</exception>
+</member><member name="P:Hipergate.CalendarAttendant.email">
+	<summary>Attendant e-mail address</summary>
+	<remarks>The attendant e-mail may not exceed 100 characters</remarks>
+	<exception cref="T:System.ArgumentException">If email has an invalid syntax</exception>
+	<exception cref="T:System.ArgumentOutOfRangeException">If email is longer than 100 characters</exception>
+</member><member name="P:Hipergate.CalendarAttendant.timezone">
+	<summary>Attendant timezone</summary>
+	<value>[+|-]hh:mm</value>
+	<exception cref="T:System.ArgumentException">If timezone has an invalid syntax</exception>
+</member><member name="P:Hipergate.My.Resources.Resources.ResourceManager">
+	<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member><member name="P:Hipergate.My.Resources.Resources.Culture">
+	<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member><member name="T:Hipergate.My.Resources.Resources">
+	<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member><member name="P:Hipergate.CalendarMeeting.id">
+	<summary>iCalendar Unique Identifier of Meeting</summary>
+	<remarks>The iCalendar Identifier may not exceed 254 characters</remarks>
+	<exception cref="T:System.ArgumentOutOfRangeException">If id is longer than 254 characters</exception>
+</member><member name="P:Hipergate.CalendarMeeting.guid">
+	<summary>Global Unique Identifier of Meeting</summary>
+	<remarks>The Global Unique Identifier may not exceed 32 characters</remarks>
+	<exception cref="T:System.ArgumentOutOfRangeException">If guid is longer than 32 characters</exception>
+</member><member name="P:Hipergate.CalendarMeeting.type">
+	<summary>Meeting type</summary>
+	<value>One of: { meeting,call,followup,breakfast,lunch,,course,demo,workshop,congress,tradeshow }</value>
+	<remarks>The meeting type may not exceed 16 characters</remarks>
+	<exception cref="T:System.ArgumentOutOfRangeException">If type is longer than 16 characters</exception>
+</member><member name="P:Hipergate.CalendarMeeting.title">
+	<summary>Meeting Title</summary>
+	<remarks>The meeting title may not exceed 100 characters</remarks>
+	<exception cref="T:System.ArgumentOutOfRangeException">If title is longer than 100 characters</exception>
+</member><member name="P:Hipergate.CalendarMeeting.description">
+	<summary>Meeting Description</summary>
+	<remarks>The meeting description may not exceed 1000 characters</remarks>
+	<exception cref="T:System.ArgumentOutOfRangeException">If description is longer than 1000 characters</exception>
+</member><member name="P:Hipergate.CalendarMeeting.organizer">
+	<summary>Person who organized the meeting</summary>
+	<returns></returns>
+	<remarks>This property is read-only because when writting new meetings the organizer is always the user connected to the service</remarks>
+</member><member name="P:Hipergate.CalendarMeeting.attendants">
+	<summary>Array of people attendint to the meeting</summary>
+	<remarks>The organizer is always among the array of attendants</remarks>
+</member><member name="P:Hipergate.CalendarMeeting.rooms">
+	<summary>Array of resources used by the meeting</summary>
+</member><member name="P:Hipergate.CalendarMeeting.IsPrivate">
+	<summary>Get whether this meeting is only visible to its attendants</summary>
+</member><member name="M:Hipergate.CalendarMeeting.AddRoom(Hipergate.CalendarRoom@)">
+	<summary>Add resource to meeting</summary>
+	<remarks>The added resource must already exist at server side</remarks>
+</member><member name="M:Hipergate.CalendarMeeting.AddRoom(System.String,System.String,System.String)">
+	<summary>Add resource to meeting</summary>
+	<param name="sRoomName">Resource Name</param>
+	<param name="sType">Resource Type</param>
+	<param name="sComments">Resource Comments</param>
+	<remarks>The added resource must already exist at server side</remarks>
+</member><member name="M:Hipergate.CalendarMeeting.AddAttendant(Hipergate.CalendarAttendant@)">
+	<summary>Add attendant to meeting</summary>
+	<remarks>The added attendant must already exist at server side</remarks>
+</member><member name="M:Hipergate.CalendarMeeting.AddAttendant(System.String,System.String,System.String,System.String,System.String,System.String)">
+	<summary>Add attendant to meeting</summary>
+	<param name="sEmail">e-mail</param>
+	<param name="sName">Name</param>
+	<param name="sSurName">Surname</param>
+	<param name="sId">iCalendar Idenfier of the attendant</param>
+	<param name="sGuid">Global Unique Identifier of the attendant</param>
+	<param name="sTimezone">Time zone with format [+|-]HH:MM</param>
+	<remarks></remarks>
+</member><member name="M:Hipergate.CalendarMeeting.UsesRoom(System.String)">
+	<summary>Check whether this meeting uses a given resource</summary>
+	<remarks>This is a client-side only method, no connection to the server is performed</remarks>
+</member><member name="M:Hipergate.CalendarMeeting.HasAttendant(System.String)">
+	<summary>Check whether a given attendant is scheduled for this meeting</summary>
+	<remarks>This is a client-side only method, no connection to the server is performed</remarks>
+</member><member name="M:Hipergate.CalendarMeeting.RoomsList">
+	<summary>Get resources used by this meeting as 
+ </summary>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="P:Hipergate.CalendarRoom.active">
+	<summary>Is resource allocatable for a meeting</summary>
+	<remarks>Only active resource can be added as resources to a meeting</remarks>
+</member><member name="P:Hipergate.CalendarRoom.type">
+	<summary>Resource type</summary>
+	<exception cref="T:System.ArgumentOutOfRangeException">If type is longer then 16 characters</exception>
+</member><member name="P:Hipergate.CalendarRoom.name">
+	<exception cref="T:System.ArgumentOutOfRangeException">If name is longer then 50 characters</exception>
+</member><member name="P:Hipergate.CalendarRoom.comments">
+	<exception cref="T:System.ArgumentOutOfRangeException">If comments is longer then 254 characters</exception>
+</member><member name="P:Hipergate.CalendarClient.errorCode">
+	<summary>Error code number for last operation</summary>
+	<returns>Zero if last operation was successfull</returns>
+</member><member name="P:Hipergate.CalendarClient.errorMessage">
+	<summary>Error message for last operation</summary>
+	<returns>Empty String if last operation was successfull</returns>
+	<remarks></remarks>
+</member><member name="M:Hipergate.CalendarClient.Connect(System.String,System.String,System.String)">
+	<summary>Connect to calendar service</summary>
+	<param name="sServiceUrl">http://hostname.com/hipergate/servlet/HttpCalendarServlet</param>
+	<param name="sUserEmail">user@hipergate.org</param>
+	<param name="sPassword">******</param>
+	<returns>True if connection was sucessfull</returns>
+	<exception cref="T:System.Net.WebException"></exception>
+</member><member name="M:Hipergate.CalendarClient.Disconnect">
+	<summary>Connect to calendar service</summary>
+	<returns>True if connection was sucessfull</returns>
+	<exception cref="T:System.Net.WebException">If not already connected to calendar service</exception>
+</member><member name="M:Hipergate.CalendarClient.IsAvailable(System.String,System.DateTime,System.DateTime)">
+	<summary>Check whether a given room is available between two dates</summary>
+	<param name="sRoom">Room Name</param>
+	<param name="dtStart">Start Date</param>
+	<param name="dtEnd">End Date</param>
+	<returns>True if room is is available between the given dates</returns>
+	<exception cref="T:System.Net.WebException"></exception>
+</member><member name="M:Hipergate.CalendarClient.GetAvailableRooms(System.DateTime,System.DateTime)">
+	<summary>Get all available rooms</summary>
+	<returns>Array of CalendarRoom objects or Nothing if no rooms where found</returns>
+	<remarks>This method returns all active rooms</remarks>
+	<exception cref="T:System.Net.WebException"></exception>
+</member><member name="M:Hipergate.CalendarClient.GetAvailableRooms(System.String,System.DateTime,System.DateTime)">
+	<summary>Get all available rooms of a given type</summary>
+	<returns>Array of CalendarRoom objects or Nothing if no rooms where found</returns>
+	<remarks>This method returns all active rooms of a given type</remarks>
+	<exception cref="T:System.Net.WebException"></exception>
+</member><member name="M:Hipergate.CalendarClient.GetRooms">
+	<summary>Get all rooms</summary>
+	<returns>Array of CalendarRoom objects or Nothing if no rooms where found</returns>
+	<remarks>This method returns all active and inactive rooms</remarks>
+	<exception cref="T:System.Net.WebException"></exception>
+</member><member name="M:Hipergate.CalendarClient.GetRooms(System.String)">
+	<summary>Get all rooms of a given type</summary>
+	<param name="sType">If it is an empty String then rooms of all types are returned.</param>
+	<returns>Array of CalendarRoom objects or Nothing if no rooms where found</returns>
+	<remarks>This method returns all active and inactive rooms</remarks>
+	<exception cref="T:System.Net.WebException"></exception>
+</member><member name="M:Hipergate.CalendarClient.GetMeeting(System.String)">
+	<summary>Get a single meeting</summary>
+	<param name="sMeetingId">Meeting unique identifier, either iCalendar Id. or GUID</param>
+	<returns>CalendarMeeting instance or Nothing if no meeting with such Id. was found</returns>
+	<exception cref="T:System.Net.WebException"></exception>
+</member><member name="M:Hipergate.CalendarClient.GetMeetings(System.DateTime,System.DateTime)">
+	<summary>Get list of meetings between two dates</summary>
+	<param name="dtStart">Start Date</param>
+	<param name="dtEnd">End Date</param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:Hipergate.CalendarClient.GetMeetingsOfType(System.DateTime,System.DateTime,System.String)">
+	<summary>Get list of meetings of a given type between two dates</summary>
+	<param name="dtStart">Start Date</param>
+	<param name="dtEnd">End Date</param>
+	<param name="sType">Meeting type</param>
+	<exception cref="T:System.Net.WebException"></exception>
+</member><member name="M:Hipergate.CalendarClient.GetMeetingsForRoom(System.DateTime,System.DateTime,System.String)">
+	<summary>Get list of meeting using a given room between two dates</summary>
+	<param name="dtStart">Start Date</param>
+	<param name="dtEnd">End Date</param>
+	<param name="sRoom">Room Name</param>
+	<exception cref="T:System.Net.WebException"></exception>
+</member><member name="M:Hipergate.CalendarClient.DeleteMeeting(System.String)">
+	<summary>Delete a meeting</summary>
+	<param name="sMeetingId">iCalendar identifier of meeting</param>
+	<exception cref="T:System.Net.WebException"></exception>
+</member><member name="M:Hipergate.CalendarClient.ToXML(Hipergate.CalendarRoom[]@)">
+	<summary>Print an array of rooms as XML</summary>
+	<param name="aRooms">Array of CalendarRoom</param>
+</member><member name="M:Hipergate.CalendarClient.ToXML(Hipergate.CalendarMeeting[]@)">
+	<summary>Print an array of meetings as XML</summary>
+	<param name="aMeetings">Array of CalendarMeeting</param>
+</member>
+</members>
+</doc>

@@ -1,0 +1,14 @@
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\obj\Release\ResolveAssemblyReference.cache
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\obj\Release\HipergateCalendarTest.Resources.resources
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\obj\Release\HipergateCalendarTest.vbproj.GenerateResource.Cache
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\bin\Release\HipergateCalendarTest.exe
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\bin\Release\HipergateCalendarTest.pdb
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\bin\Release\HipergateCalendarTest.xml
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\bin\Release\HipergateCalendarClient.dll
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\bin\Release\HipergateCalendarClient.xml
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\obj\Release\HipergateCalendarTest.exe
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\obj\Release\HipergateCalendarTest.xml
+C:\Documents and Settings\Sergio Montoro Ten\Mis documentos\Visual Studio 2008\Projects\HipergateCalendarTest\HipergateCalendarTest\obj\Release\HipergateCalendarTest.pdb
+C:\Users\Sergio Montoro Ten\Documents\Workspace\HipergateCalendarTest\HipergateCalendarTest\obj\Release\HipergateCalendarTest.exe
+C:\Users\Sergio Montoro Ten\Documents\Workspace\HipergateCalendarTest\HipergateCalendarTest\obj\Release\HipergateCalendarTest.xml
+C:\Users\Sergio Montoro Ten\Documents\Workspace\HipergateCalendarTest\HipergateCalendarTest\obj\Release\HipergateCalendarTest.pdb
