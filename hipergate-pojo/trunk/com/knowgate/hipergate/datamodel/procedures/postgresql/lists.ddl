@@ -255,6 +255,7 @@ DECLARE
   SnPassport    VARCHAR(16);
   IdGender      CHAR(1);
   NyAge         SMALLINT;
+  IdNationality CHAR(3);
   TxDept        VARCHAR(70);
   TxDivision    VARCHAR(70);
   NmLegal       VARCHAR(70);
@@ -270,8 +271,8 @@ BEGIN
   SELECT gu_contact,gu_company,gu_workarea,gu_geozone,
          CASE WHEN char_length(tx_name)=0 THEN NULL ELSE tx_name END,
          CASE WHEN char_length(tx_surname)=0 THEN NULL ELSE tx_surname END,
-         de_title,dt_birth,sn_passport,id_gender,ny_age,tx_dept,tx_division,tx_comments,url_linkedin,url_facebook,url_twitter
-  INTO   GuContact,GuCompany,GuWorkArea,GuGeoZone,TxName,TxSurname,DeTitle,DtBirth,SnPassport,IdGender,NyAge,TxDept,TxDivision,TxComments,UrlLinkedIn,UrlFacebook,UrlTwitter
+         de_title,dt_birth,sn_passport,id_gender,ny_age,id_nationality,tx_dept,tx_division,tx_comments,url_linkedin,url_facebook,url_twitter
+  INTO   GuContact,GuCompany,GuWorkArea,GuGeoZone,TxName,TxSurname,DeTitle,DtBirth,SnPassport,IdGender,NyAge,IdNationality,TxDept,TxDivision,TxComments,UrlLinkedIn,UrlFacebook,UrlTwitter
   FROM k_contacts WHERE gu_contact=NEW.gu_contact;
   
   IF GuCompany IS NOT NULL THEN
@@ -288,21 +289,22 @@ BEGIN
     IF NOT FOUND THEN
       UPDATE k_member_address SET gu_contact=GuContact,gu_company=GuCompany,gu_geozone=GuGeoZone,tx_name=TxName,tx_surname=TxSurname,
                                   nm_legal=NmLegal,nm_commercial=NmCommercial,id_legal=IdLegal,id_sector=IdSector,
-                                  de_title=DeTitle,tr_title=NULL,dt_birth=DtBirth,sn_passport=SnPassport,id_gender=IdGender,
+                                  de_title=DeTitle,tr_title=NULL,dt_birth=DtBirth,sn_passport=SnPassport,id_gender=IdGender,id_nationality=IdNationality,
                                   ny_age=NyAge,tx_dept=TxDept,tx_division=TxDivision,tx_comments=TxComments,url_linkedin=UrlLinkedIn,url_facebook=UrlFacebook,url_twitter=UrlTwitter
       WHERE gu_address=NEW.gu_address;
     ELSE
       UPDATE k_member_address SET gu_contact=GuContact,gu_company=GuCompany,gu_geozone=GuGeoZone,tx_name=TxName,tx_surname=TxSurname,de_title=DeTitle,
                                   nm_legal=NmLegal,nm_commercial=NmCommercial,id_legal=IdLegal,id_sector=IdSector,
-                                  tr_title=TrTitle,dt_birth=DtBirth,sn_passport=SnPassport,id_gender=IdGender,ny_age=NyAge,
+                                  tr_title=TrTitle,dt_birth=DtBirth,sn_passport=SnPassport,id_gender=IdGender,ny_age=NyAge,id_nationality=IdNationality,
                                   tx_dept=TxDept,tx_division=TxDivision,tx_comments=TxComments,url_linkedin=UrlLinkedIn,url_facebook=UrlFacebook,url_twitter=UrlTwitter
       WHERE gu_address=NEW.gu_address;
     END IF;
   ELSE
       UPDATE k_member_address SET gu_contact=GuContact,gu_company=GuCompany,gu_geozone=GuGeoZone,tx_name=TxName,tx_surname=TxSurname,
                                   nm_legal=NmLegal,nm_commercial=NmCommercial,id_legal=IdLegal,id_sector=IdSector,
-                                  de_title=NULL,tr_title=NULL,dt_birth=DtBirth,sn_passport=SnPassport,id_gender=IdGender,
-                                  ny_age=NyAge,tx_dept=TxDept,tx_division=TxDivision,tx_comments=TxComments,url_linkedin=UrlLinkedIn,url_facebook=UrlFacebook,url_twitter=UrlTwitter
+                                  de_title=NULL,tr_title=NULL,dt_birth=DtBirth,sn_passport=SnPassport,id_gender=IdGender,ny_age=NyAge,
+																	id_nationality=IdNationality,tx_dept=TxDept,tx_division=TxDivision,tx_comments=TxComments,
+																	url_linkedin=UrlLinkedIn,url_facebook=UrlFacebook,url_twitter=UrlTwitter
       WHERE gu_address=NEW.gu_address;
   END IF;
 
@@ -359,6 +361,7 @@ DECLARE
   DtBirth       TIMESTAMP;
   SnPassport    VARCHAR(16);
   IdGender      CHAR(1);
+  IdNationality CHAR(3);
   NyAge         SMALLINT;
   TxDept        VARCHAR(70);
   TxDivision    VARCHAR(70);
@@ -375,8 +378,8 @@ BEGIN
   SELECT gu_company,gu_workarea,gu_geozone,
          CASE WHEN char_length(tx_name)=0 THEN NULL ELSE tx_name END,
          CASE WHEN char_length(tx_surname)=0 THEN NULL ELSE tx_surname END,
-         de_title,dt_birth,sn_passport,id_gender,ny_age,tx_dept,tx_division,tx_comments,url_linkedin,url_facebook,url_twitter
-  INTO   GuCompany,GuWorkArea,GuGeoZone,TxName,TxSurname,DeTitle,DtBirth,SnPassport,IdGender,NyAge,TxDept,TxDivision,TxComments,UrlLinkedIn,UrlFacebook,UrlTwitter
+         de_title,dt_birth,sn_passport,id_gender,ny_age,id_nationality,tx_dept,tx_division,tx_comments,url_linkedin,url_facebook,url_twitter
+  INTO   GuCompany,GuWorkArea,GuGeoZone,TxName,TxSurname,DeTitle,DtBirth,SnPassport,IdGender,NyAge,IdNationality,TxDept,TxDivision,TxComments,UrlLinkedIn,UrlFacebook,UrlTwitter
   FROM k_contacts WHERE gu_contact=NEW.gu_contact;
 
   IF GuCompany IS NOT NULL THEN
@@ -393,20 +396,20 @@ BEGIN
     IF NOT FOUND THEN
       UPDATE k_member_address SET gu_company=GuCompany,gu_geozone=GuGeoZone,tx_name=TxName,tx_surname=TxSurname,
                                   nm_legal=NmLegal,nm_commercial=NmCommercial,id_legal=IdLegal,id_sector=IdSector,
-                                  de_title=substring(DeTitle,1,50),tr_title=NULL,dt_birth=DtBirth,sn_passport=SnPassport,id_gender=IdGender,
+                                  de_title=substring(DeTitle,1,50),tr_title=NULL,dt_birth=DtBirth,sn_passport=SnPassport,id_gender=IdGender,id_nationality=IdNationality,
                                   ny_age=NyAge,tx_dept=TxDept,tx_division=TxDivision,tx_comments=TxComments,url_linkedin=UrlLinkedIn,url_facebook=UrlFacebook,url_twitter=UrlTwitter
       WHERE gu_contact=NEW.gu_contact;
     ELSE
       UPDATE k_member_address SET gu_company=GuCompany,gu_geozone=GuGeoZone,tx_name=TxName,tx_surname=TxSurname,de_title=substring(DeTitle,1,50),
                                   nm_legal=NmLegal,nm_commercial=NmCommercial,id_legal=IdLegal,id_sector=IdSector,
-                                  tr_title=TrTitle,dt_birth=DtBirth,sn_passport=SnPassport,id_gender=IdGender,ny_age=NyAge,
+                                  tr_title=TrTitle,dt_birth=DtBirth,sn_passport=SnPassport,id_gender=IdGender,ny_age=NyAge,id_nationality=IdNationality,
                                   tx_dept=TxDept,tx_division=TxDivision,tx_comments=TxComments,url_linkedin=UrlLinkedIn,url_facebook=UrlFacebook,url_twitter=UrlTwitter
       WHERE gu_contact=NEW.gu_contact;
     END IF;
   ELSE
       UPDATE k_member_address SET gu_company=GuCompany,gu_geozone=GuGeoZone,tx_name=TxName,tx_surname=TxSurname,
                                   nm_legal=NmLegal,nm_commercial=NmCommercial,id_legal=IdLegal,id_sector=IdSector,
-                                  de_title=NULL,tr_title=NULL,dt_birth=DtBirth,sn_passport=SnPassport,id_gender=IdGender,
+                                  de_title=NULL,tr_title=NULL,dt_birth=DtBirth,sn_passport=SnPassport,id_gender=IdGender,id_nationality=IdNationality,
                                   ny_age=NyAge,tx_dept=TxDept,tx_division=TxDivision,tx_comments=TxComments,url_linkedin=UrlLinkedIn,url_facebook=UrlFacebook,url_twitter=UrlTwitter
       WHERE gu_contact=NEW.gu_contact;
   END IF;

@@ -118,7 +118,7 @@ public class NewsMessageIndexer extends Indexer {
 			
 	oIWrt.close();
 	oFsDir.close();			
-  } // addOrReplaceNewsMessage
+  } // addNewsMessage
 
   public static void addOrReplaceNewsMessage(Properties oProps, String sGuid, String sThread, String sWorkArea, String sContainer, String sTitle, String sAuthor, Date dtCreated, String sText)
     throws ClassNotFoundException, IOException, IllegalArgumentException, 

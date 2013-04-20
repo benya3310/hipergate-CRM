@@ -79,7 +79,7 @@ public class DBLanguages {
    * @since 4.0
    */
   public static final String[] SupportedLanguages = new String[] {"en","es","fr","de","it","pt","ca","ja","cn","tw","fi","ru","pl","nl","th","ko","sk","cs","uk","no"};
-
+  
   public DBLanguages() {
     oTranslations = null;
     oCountries = null;
@@ -285,7 +285,7 @@ public class DBLanguages {
    * <p>Get country translated name given its 2 letter ISO code.</p>
    * @param oConn Database Connection
    * @param sCountryId 2 characters code of country as at k_lu_countries table
-   * @param sIdLanguage 2 characters code of derired language for displaying
+   * @param sIdLanguage 2 characters code of desired language for displaying
    * @return Country name for the given language or <b>null</b> if no country with such code is found
    * @throws SQLException
    * @since 4.0
@@ -1367,4 +1367,5 @@ public class DBLanguages {
   private WeakHashMap oStateCacheText;
   private boolean bLoaded;
   private boolean bCountries;
+
 }

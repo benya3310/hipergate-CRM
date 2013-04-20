@@ -497,6 +497,17 @@ CONSTRAINT pk_oportunities_attachs PRIMARY KEY (gu_oportunity,pg_product)
 )
 GO;
 
+CREATE TABLE k_x_oportunity_contacts
+(
+gu_contact    CHAR(32) NOT NULL,
+gu_oportunity CHAR(32) NOT NULL,
+dt_created    DATETIME DEFAULT CURRENT_TIMESTAMP,
+tp_relation   VARCHAR(30)  NULL,
+
+CONSTRAINT pk_x_oportunity_contacts PRIMARY KEY(gu_contact,gu_oportunity)
+)
+GO;
+
 CREATE TABLE k_member_address
 (
 gu_address      CHAR(32) NOT NULL,
@@ -529,6 +540,7 @@ gu_sales_man    CHAR(32) NULL,
 tx_franchise    VARCHAR(100) NULL,
 gu_geozone      CHAR(32) NULL,
 ny_age          SMALLINT NULL,
+id_nationality  CHAR(3)      NULL,
 tx_dept         VARCHAR(70)  NULL,
 tx_division     VARCHAR(70)  NULL,
 tp_location     VARCHAR(16)  NULL,

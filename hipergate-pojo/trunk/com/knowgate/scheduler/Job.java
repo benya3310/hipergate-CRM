@@ -845,7 +845,6 @@ public abstract class Job extends DBPersist {
 	final int nCols = aAddrCols.length;
 	String[] aAddrVals = new String[nCols];
     String sSQL;
-    String sMailAddr;
 
 	String[] aBlackList = GlobalBlackList.forWorkArea(oConn, getString(DB.gu_workarea));
 	if (null!=aBlackList) Arrays.sort(aBlackList, String.CASE_INSENSITIVE_ORDER);

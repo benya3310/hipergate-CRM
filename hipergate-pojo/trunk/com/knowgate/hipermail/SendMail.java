@@ -177,7 +177,6 @@ public final class SendMail {
      * @throws InstantiationException
      * @since 5.5
      */
-	@SuppressWarnings("unused")
 	public static ArrayList send(MailAccount oMacc,
 								 Properties oSessionProps,
 								 final String sUserDir, // Base directory for mail inline and attached files
@@ -684,12 +683,14 @@ public final class SendMail {
 
 	  JDCConnection oCon = oDbb.getConnection("SendMail_RO1", false);
 	  
-	  ACLUser oUsr = new ACLUser(oCon, ACLUser.getIdFromEmail(oCon,sFromAddr));
-	  if (!oUsr.exists(oCon)) {
+	  String sUserId = ACLUser.getIdFromEmail(oCon,sFromAddr);
+	  if (sUserId==null) {
 	  	oCon.close("SendMail_RO1");
 	    if (DebugFile.trace) DebugFile.decIdent();
 		throw new SQLException(sFromAddr+" e-mail address not found at k_users table","01S06");
 	  }
+
+	  ACLUser oUsr = new ACLUser(oCon, sUserId);
 
 	  MailAccount oMacc = MailAccount.forUser(oCon, oUsr.getString(DB.gu_user), oDbb.getProperties());
 	  if (null==oMacc) {

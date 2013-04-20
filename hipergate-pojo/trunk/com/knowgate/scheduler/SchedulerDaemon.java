@@ -646,7 +646,6 @@ public class SchedulerDaemon extends Thread {
   public static void main(String[] argv)
     throws ClassNotFoundException, SQLException, IOException {
 
-    DBBind oGlobalDBBind = new DBBind();
     SchedulerDaemon TheDaemon;
 
     if (argv.length<1 || argv.length>2)
@@ -657,12 +656,16 @@ public class SchedulerDaemon extends Thread {
 
     else {
 
+      DBBind oGlobalDBBind = new DBBind();
+    	
       TheDaemon = new SchedulerDaemon(argv[0]);
 
       if (argv.length==2)
         TheDaemon.registerCallback(new SystemOutNotify());
 
       TheDaemon.start();
+      
+      oGlobalDBBind.close();
     }
   }
 } // SchedulerDaemon

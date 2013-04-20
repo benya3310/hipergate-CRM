@@ -78,6 +78,7 @@ import com.knowgate.scheduler.Job;
  * @author Sergio Montoro Ten
  * @version 7.0
  */
+@SuppressWarnings("serial")
 public class WorkArea extends DBPersist {
 
   private static WeakHashMap oParams;
@@ -1245,8 +1246,38 @@ public class WorkArea extends DBPersist {
 		return false;
 	  }
     } 
-  } // allowDuplicatedIdentityDocuments
+  } // autoNumericContactReferences
 
+  // ----------------------------------------------------------
+
+  /**
+   * Whether academic courses must be added to objetives lookup of opportunities
+   * @param oConn Connection
+   * @param sWorkArea String WorkArea GUID
+   * @throws SQLException
+   * @since 7.0
+   */
+  public static boolean saveAcademicCoursesAsOportunityObjetives(Connection oConn, String sWorkArea) throws SQLException {
+	String sKey = sWorkArea+":"+DB.bo_acrs_oprt;
+	if (oParams==null) oParams = new WeakHashMap();
+	if (oParams.containsKey(sKey)) {
+	  return ((Boolean) oParams.get(sKey)).booleanValue();
+	} else {
+      Short oAcrsOprt = DBCommand.queryShort(oConn, "SELECT "+DB.bo_acrs_oprt+" FROM "+DB.k_workareas+" WHERE "+DB.gu_workarea+"='"+sWorkArea+"'");
+	  if (oAcrsOprt==null) {
+	  	oParams.put(sKey, new Boolean(false));
+	    return false;
+	  }
+	  else if (oAcrsOprt.shortValue()!=(short)0) {
+	  	oParams.put(sKey, new Boolean(true));
+		return true;
+	  } else {
+	  	oParams.put(sKey, new Boolean(false));
+		return false;
+	  }
+    } 
+  } // saveAcademicCoursesAsOportunityObjetives
+  
   // ----------------------------------------------------------
 
   /**

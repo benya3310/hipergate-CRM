@@ -271,3 +271,11 @@ tr_vn      VARCHAR(50)  NULL,
 CONSTRAINT pk_lu_meta_attrs PRIMARY KEY (gu_owner,nm_table,id_section)
 )
 GO;
+
+CREATE TABLE k_lu_first_names
+(
+tx_name VARCHAR(100) NOT NULL,
+id_gender CHAR(1)    NOT NULL,
+CONSTRAINT pk_lu_first_names PRIMARY KEY (tx_name)
+)
+GO;

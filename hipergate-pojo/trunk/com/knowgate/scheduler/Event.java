@@ -241,6 +241,7 @@ public abstract class Event extends DBPersist implements Runnable {
   private static void cacheEventsActions(JDCConnection oConn) throws SQLException {
 	ResultSet oRSet;
 	Statement oStmt;
+	@SuppressWarnings("unused")
 	int nCmmds = 0;
 
     if (DebugFile.trace) {
@@ -257,7 +258,7 @@ public abstract class Event extends DBPersist implements Runnable {
       while (oRSet.next()) {
       	if (DebugFile.trace) DebugFile.writeln("Caching "+oRSet.getString(1)+" "+oRSet.getString(2));
         try {
-          oCmmdClasses.put(oRSet.getString(1), Class.forName(oRSet.getString(2)));  
+          oCmmdClasses.put(oRSet.getString(1).toLowerCase(), Class.forName(oRSet.getString(2)));  
           nCmmds++;
         } catch (ClassNotFoundException cnfe) {
 	      if (DebugFile.trace) DebugFile.writeln("Class "+oRSet.getString(2)+" not found for command "+oRSet.getString(1));
@@ -266,9 +267,8 @@ public abstract class Event extends DBPersist implements Runnable {
       } // wend
       oRSet.close();
       oStmt.close();
+      if (DebugFile.trace) DebugFile.writeln(String.valueOf(nCmmds)+" commands found at "+DB.k_lu_job_commands+" table");
     } // fi
-
-    if (DebugFile.trace) DebugFile.writeln(String.valueOf(nCmmds)+" commands found at "+DB.k_lu_job_commands+" table");
 
     if (null==oEventsPerDomain) {
       if (DebugFile.trace) DebugFile.writeln("cache miss events per domain");
@@ -281,7 +281,7 @@ public abstract class Event extends DBPersist implements Runnable {
 	  	Integer oIdDomain = new Integer(oRSet.getInt(1));
 		if (!oEventsPerDomain.containsKey(oIdDomain))
 		  oEventsPerDomain.put(oIdDomain, new HashMap<String,String>());
-		oEventsPerDomain.get(oIdDomain).put(oRSet.getString(2), oRSet.getString(3));
+		oEventsPerDomain.get(oIdDomain).put(oRSet.getString(2).toLowerCase(), oRSet.getString(3).toLowerCase());
 	  } // wend
       oRSet.close();
       oStmt.close();
@@ -328,8 +328,8 @@ public abstract class Event extends DBPersist implements Runnable {
 	if (oEventsPerDomain.containsKey(oIdDomain)) {
 	  if (oEventsPerDomain.get(oIdDomain).containsKey(sLCaseEvent)) {
 	    sIdCmmd = oEventsPerDomain.get(oIdDomain).get(sLCaseEvent);
-		if (oCmmdClasses.containsKey(sIdCmmd)) {
-	      Class oEvntClss = (Class) oCmmdClasses.get(sIdCmmd);
+		if (oCmmdClasses.containsKey(sIdCmmd.toLowerCase())) {
+	      Class oEvntClss = (Class) oCmmdClasses.get(sIdCmmd.toLowerCase());
 
 	      if (null!=oEvntClss) {
 	        if (null==oEventCache) oEventCache = new DistributedCachePeer();

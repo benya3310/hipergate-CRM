@@ -4,17 +4,19 @@ import org.w3c.tidy.*;
 import org.htmlparser.beans.StringBean;
 import org.json.*;
 
+
 import com.knowgate.debug.*;
 import com.knowgate.jdc.*;
 import com.knowgate.dataobjs.*;
 import com.knowgate.dataxslt.*;
 import com.knowgate.acl.*;
+import com.knowgate.bing.Item;
+import com.knowgate.bing.Search;
 
 import com.knowgate.crm.*;
 import com.knowgate.dfs.*;
 import com.knowgate.ldap.*;
 import com.knowgate.misc.*;
-import com.knowgate.misc.NameValuePair;
 import com.knowgate.forums.*;
 import com.knowgate.hipergate.*;
 import com.knowgate.hipergate.datamodel.ModelManager;
@@ -56,6 +58,11 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
 
+import java.security.Security;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.MessageDigest;
+import com.knowgate.syndication.crawler.SearchRunner;
 
 @SuppressWarnings("unused")
 public class HEQUELInterpreter  {
@@ -71,95 +78,27 @@ public class HEQUELInterpreter  {
   // ----------------------------------------------------------
 
   public static void main(String[] argv) throws Exception {
-   
-  com.knowgate.misc.NameValuePair[] aParams = new com.knowgate.misc.NameValuePair[] {
-		  					new com.knowgate.misc.NameValuePair("redirect", "/centro/solicitudes/versolicitud?media=print&idSolic=40949995"),
-		  					new com.knowgate.misc.NameValuePair("pag","1"),
-		                    new com.knowgate.misc.NameValuePair("login","EOI"),
-		                    new com.knowgate.misc.NameValuePair("password","032010")};
-  com.knowgate.dfs.HttpRequest oReq = new com.knowgate.dfs.HttpRequest("http://www.emagister.com.co/centro/index/login", null, "post", aParams);
-  String sBdy = new String((byte[]) oReq.post(), "UTF-8");
-  System.out.println(sBdy);
-  ArrayList<NameValuePair> aCookies = oReq.getCookies();
-  oReq = new com.knowgate.dfs.HttpRequest("http://www.emagister.com.co/centro/solicitudes/versolicitud?media=print&idSolic=40949995", null, "get", null);
-  oReq.setCookies(aCookies);
-  sBdy = new String((byte[]) oReq.get(), "UTF-8");
-  org.htmlparser.Parser oPrsr = org.htmlparser.Parser.createParser(sBdy, "UTF-8");
-  StringBean oStrBn = new StringBean();
-  oPrsr.visitAllNodesWith (oStrBn);
-  sBdy = oStrBn.getStrings();
-  System.out.println(sBdy);  
 
-  /*
-  String sCookie = oReq.getCookie();
-  System.out.println(sCookie);
-  oReq = new com.knowgate.dfs.HttpRequest("http://www.emagister.com.co/centro/solicitudes/versolicitud?media=print&idSolic=40949995", null, "get", null);
-  oReq.setCookie(sCookie);
-  sBdy = new String((byte[]) oReq.get(), "UTF-8");
-  System.out.println(sBdy);
-  */
-  
-  /*
-  BasicHttpParams oParams = new BasicHttpParams();
-  oParams.setParameter("redirect", "/centro/solicitudes/versolicitud?media=print&idSolic=40949995");
-  oParams.setParameter("pag","1");
-  oParams.setParameter("login","EOI");
-  oParams.setParameter("password","032010");
-  HttpPost oPost = new HttpPost("http://www.emagister.com.co/centro/index/login");
-  oPost.setParams(oParams);
-  DefaultHttpClient oHttpCli = new DefaultHttpClient();
-  HttpResponse oResp = oHttpCli.execute(oPost);
-  HttpEntity oEnty = oResp.getEntity();
-  int nLen = (int) oEnty.getContentLength();
-  byte[] aRetVal = new byte[nLen];
-  InputStream oBody = oEnty.getContent();
-  oBody.read(aRetVal,0,nLen);
-  oBody.close();
-  System.out.println(new String(aRetVal, "UTF-8"));
-  oHttpCli.getConnectionManager().shutdown();
-  */
-  
-  /*
-  System.out.println("Start"); 
-  DBBind oDbb = new DBBind();
-  JDCConnection oCon = oDbb.getConnection("c");
-  oCon.setAutoCommit(true);
-  DBPersist oDbp = new DBPersist("testarr","testarr");
-  oDbp.put("mid", 4);
-  oDbp.put("sections", oCon.createArrayOf("INTEGER", new Integer[]{new Integer(5),new Integer(6),new Integer(7)}));
-  oDbp.store(oCon);
-  oDbp = new DBPersist("testarr","testarr");
-  oDbp.load(oCon, new Integer[]{new Integer(4)});
-  int[] a = oDbp.getIntArray("sections");
-  oCon.close("c");
-  oDbb.close();
-  System.out.println("Finish "+a);
-  if (true) return;
-  */
-
-	  // new com.knowgate.dfs.FileSystem().writefilestr("C:\\Temp\\Tutorias\\EMAILS.txt", oSalidaDirecciones.toString(), "ISO8859_1");
-  
-  /*
-  DBBind oDbb = new DBBind();
-  JDCConnection oCon = oDbb.getConnection("");
-  NewsGroup oGrp = new NewsGroup(oCon, "c0a8012213193241336100021ba0a3b1");
-  System.out.println(oGrp.toXML(oCon));
-  // NewsGroupJournal oJour = new NewsGroup(oCon, "c0a8012213193241336100021ba0a3b1").getJournal();
-  // if (null!=oJour) oJour.rebuild(oCon, true);
-  oCon.close("");
-  oDbb.close();
-  
-  if (true) return;
-  
-  final String ROOT_PATH = "C:\\ARCHIV~1\\Tomcat\\webapps\\portal\\";
-  
-  FileInputStream oXml = new FileInputStream(ROOT_PATH+"\\es\\whats.xml");
-  FileInputStream oXsl = new FileInputStream(ROOT_PATH+"index.xsl");
-  
-  System.out.println(StylesheetCache.transform (oXsl, oXml, "UTF-8", null));
-  
-  oXsl.close();
-  oXml.close();
+	 Manager oStr = new Manager();
+	 
+	 SearchRunner oRun = new SearchRunner("eoi", oStr.getProperties());
+	 DataSource oDts = oStr.getDataSource();	  
+     oRun.run(oDts);
+     oStr.free(oDts);
+	 oDts=null;
+	 // RecordSet oRst = oStr.fetch("k_syndentries", "tx_sought", "eoi");
+	 System.out.println("Done!");
+	 
+	  /*
+	  Search s = new Search();
+	  Item[] a = s.query("sergio montoro ten", "linkedin.com");
+	  if (a==null) {
+		  System.out.println("No results found");
+	  } else {
+		  for (int i=0; i<a.length; i++) {
+			  System.out.println(a[i].title+" "+a[i].pubdate+"\n"+a[i].url+"\n"+a[i].abstrct+"\n\n");
+		  }
+	  }
     */
 
    /*
@@ -212,7 +151,7 @@ public class HEQUELInterpreter  {
   						  "http://www.hipergate.org/servlet/HttpDataObjsServlet",
                           "7f000001f864e38597100007cc08fd28", "",
                           "", "login.html", "work");
-*/
+  */
 	//ShoppingBasket oBsk = new ShoppingBasket();
 	//oBsk.parse("<ShoppingBasket><Address><gu>123456</gu><ix>1</ix></Address></ShoppingBasket>");
 	

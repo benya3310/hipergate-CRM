@@ -54,10 +54,7 @@ CREATE PROCEDURE k_sp_del_contact @ContactId CHAR(32) AS
   DELETE k_bank_accounts WHERE nu_bank_acc IN (SELECT nu_bank_acc FROM #k_tmp_del_bank) AND gu_workarea=@GuWorkArea
   DROP TABLE #k_tmp_del_bank
 
-  /* Los productos que contienen la referencia a los ficheros adjuntos no se borran desde aqu�,
-     hay que llamar al m�todo Java de borrado de Product para eliminar tambi�n los ficheros f�sicos,
-     de este modo la foreign key de la base de datos actua como protecci�n para que no se queden ficheros basura */
-
+  DELETE k_x_oportunity_contacts WHERE gu_oportunity IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_contact=@ContactId)
   DELETE k_oportunities_attachs WHERE gu_oportunity IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_contact=@ContactId)
   DELETE k_oportunities_changelog WHERE gu_oportunity IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_contact=@ContactId)
   DELETE k_oportunities_attrs WHERE gu_object IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_contact=@ContactId)
@@ -104,6 +101,7 @@ CREATE PROCEDURE k_sp_del_company @CompanyId CHAR(32) AS
   DROP TABLE #k_tmp_del_bank
 
   /* Borrar las oportunidades */
+  DELETE k_x_oportunity_contacts WHERE gu_oportunity IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_company=@CompanyId)
   DELETE k_oportunities_attachs WHERE gu_oportunity IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_company=@CompanyId)
   DELETE k_oportunities_changelog WHERE gu_oportunity IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_company=@CompanyId)
   DELETE k_oportunities_attrs WHERE gu_object IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_company=@CompanyId)
@@ -124,6 +122,7 @@ CREATE PROCEDURE k_sp_del_oportunity @OportunityId CHAR(32) AS
   DECLARE @GuContact CHAR(32)
   SELECT @GuContact=gu_contact FROM k_oportunities WHERE gu_oportunity=@OportunityId
   UPDATE k_phone_calls SET gu_oportunity=NULL WHERE gu_oportunity=@OportunityId
+  DELETE k_x_oportunity_contacts WHERE gu_oportunity=@OportunityId
   DELETE k_oportunities_attachs WHERE gu_oportunity=@OportunityId
   DELETE k_oportunities_changelog WHERE gu_oportunity=@OportunityId
   DELETE k_oportunities_attrs WHERE gu_object=@OportunityId

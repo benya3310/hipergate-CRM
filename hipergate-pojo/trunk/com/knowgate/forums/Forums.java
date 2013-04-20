@@ -747,7 +747,7 @@ public class Forums {
     oDay.setTime(dtFrom);
 	if (0==nDays) {
 	  while (oDay.compareTo(oTo)<=0) {
-    	if (DebugFile.trace) DebugFile.writeln("-> "+oShortDate.format(oDay.getTime())+" has no posts");
+    	// if (DebugFile.trace) DebugFile.writeln("-> "+oShortDate.format(oDay.getTime())+" has no posts");
 	  	oDaysList.add(new Boolean(false));
 	    oDay.add(Calendar.DATE,1);
 	  } // wend
@@ -759,7 +759,7 @@ public class Forums {
 
 	  while (oDay.compareTo(oTo)<=0) {
     	while (sCurrDate.compareTo(oDbs.getDateShort(0,0))<0) {
-    	  if (DebugFile.trace) DebugFile.writeln("-> "+sCurrDate+" has no posts");
+    	  // if (DebugFile.trace) DebugFile.writeln("-> "+sCurrDate+" has no posts");
 	  	  oDaysList.add(new Boolean(false));
 	      oDay.add(Calendar.DATE,1);
 	      sCurrDate = oShortDate.format(oDay.getTime());

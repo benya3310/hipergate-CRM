@@ -67,6 +67,7 @@ BEGIN
      hay que llamar al m�todo Java de borrado de Product para eliminar tambi�n los ficheros f�sicos,
      de este modo la foreign key de la base de datos actua como protecci�n para que no se queden ficheros basura */
 
+  DELETE k_x_oportunity_contacts WHERE gu_oportunity IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_contact=ContactId);
   DELETE k_oportunities_attachs WHERE gu_oportunity IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_contact=ContactId);
   DELETE k_oportunities_changelog WHERE gu_oportunity IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_contact=ContactId);
   DELETE k_oportunities_attrs WHERE gu_object IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_contact=ContactId);
@@ -127,6 +128,7 @@ BEGIN
   END LOOP;
 
   /* Borrar las oportunidades */
+  DELETE k_x_oportunity_contacts WHERE gu_oportunity IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_company=CompanyId);
   DELETE k_oportunities_attachs WHERE gu_oportunity IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_company=CompanyId);
   DELETE k_oportunities_changelog WHERE gu_oportunity IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_company=CompanyId);
   DELETE k_oportunities_attrs WHERE gu_object IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_company=CompanyId);
@@ -150,6 +152,7 @@ CREATE OR REPLACE PROCEDURE k_sp_del_oportunity (OportunityId CHAR) IS
 BEGIN
   SELECT gu_contact INTO GuContact FROM k_oportunities WHERE gu_oportunity=OportunityId;
   UPDATE k_phone_calls SET gu_oportunity=NULL WHERE gu_oportunity=OportunityId;
+  DELETE k_x_oportunity_contacts WHERE gu_oportunity=OportunityId;
   DELETE k_oportunities_attachs WHERE gu_oportunity=OportunityId;
   DELETE k_oportunities_changelog WHERE gu_oportunity=OportunityId;
   DELETE k_oportunities_attrs WHERE gu_object=OportunityId;

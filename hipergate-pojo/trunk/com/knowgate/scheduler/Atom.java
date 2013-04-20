@@ -99,12 +99,11 @@ public class Atom extends DBPersist {
 
     int iCols = oMetaData.getColumnCount();
     String sCol;
-    Object oCol;
 
     for (int c=1; c<=iCols; c++) {
 
       sCol = oMetaData.getColumnName(c);
-      oCol = oRow.getObject(c);
+      oRow.getObject(c);
 
       if (!oRow.wasNull()) {
 

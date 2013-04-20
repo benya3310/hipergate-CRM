@@ -38,6 +38,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Date;
 import java.util.Properties;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import java.io.IOException;
 import java.io.File;
@@ -413,6 +415,9 @@ public class NewsGroupJournal {
 		  	
 		  	  if (b.booleanValue()) {
 
+	            if (DebugFile.trace)
+	              DebugFile.writeln("Processing date "+dtDay00.toString());
+		  		
 			    oProps.put("year", String.valueOf(dtDay00.getYear()));
 			    oProps.put("month", String.valueOf(dtDay00.getMonth()));
 
@@ -444,16 +449,15 @@ public class NewsGroupJournal {
 	              bNeedsRebuild = (dtLastOfDay.compareTo(dtFileModified)>0);
 	              if (bNeedsRebuild || bFullRebuild) oOut.delete();
 	            } else {
-                  if (DebugFile.trace) {
+                  if (DebugFile.trace)
                     DebugFile.writeln("Output file "+sFilePath+" does not exist");
-                  }
 	              bNeedsRebuild = true;
 	            }
 
 		        if (bNeedsRebuild || bFullRebuild) {
 				  oCon = oDbb.getConnection("NewsGroupJournal.rebuild.daily", true);
 		          sXmlTopLevelMessagesBetweenDates = Forums.XMLListTopLevelMessagesForGroup(oCon, dtDay00, dtDay23, getGuid(), DB.dt_published);
-				  oCon.close("NewsGroupJournal.rebuild.daily");
+		          oCon.close("NewsGroupJournal.rebuild.daily");
 				  oCon = null;
 			      sXMLDataSource = mergeXML(oXMLHosts.get(t.getFilter()), "<Journal guid=\""+getGuid()+"\">\n" + sNewsGrpXml + "\n" + sMonthsWithPosts + "\n" + sXmlTopLevelMessagesBetweenDates + "</Journal>");
 			      sXmlTopLevelMessagesBetweenDates = null;
@@ -461,8 +465,13 @@ public class NewsGroupJournal {
 		        } // fi
 
 		      } // fi (DaysWithPosts)
-			  dtDay00 = new Date(dtDay00.getTime()+86400000l);
-			  dtDay23 = new Date(dtDay23.getTime()+86400000l);
+		  	  GregorianCalendar oCal = new GregorianCalendar();
+		  	  oCal.setTime(dtDay00);
+		  	  oCal.add(Calendar.DATE, 1);
+			  dtDay00 = oCal.getTime();
+		  	  oCal.setTime(dtDay23);
+		  	  oCal.add(Calendar.DATE, 1);
+			  dtDay23 = oCal.getTime();
 		    } // next
 		  } else {
             if (DebugFile.trace)
@@ -520,9 +529,8 @@ public class NewsGroupJournal {
 	  	      sXMLDataSource = mergeXML(oXMLHosts.get(t.getFilter()), "<Journal guid=\""+getGuid()+"\">\n" + sNewsGrpXml + "\n" + sMonthsWithPosts + "\n" + sXmlTopLevelMessagesForThread + "</Journal>");
 	  	      sXmlTopLevelMessagesForThread = null;
 	          oFs.writefilestr(sFilePath,StylesheetCache.transform(getBlogPath()+t.getInputFilePath(), sXMLDataSource, oProps), getEncoding());
-		  	  if (DebugFile.trace) {
-		  	    oFs.writefilestr(Gadgets.dechomp(sFilePath,"html")+"xml", sXMLDataSource, getEncoding());
-		      }
+		  	  // if (DebugFile.trace)
+		  	    // oFs.writefilestr(Gadgets.dechomp(sFilePath,"html")+"xml", sXMLDataSource, getEncoding());
 		    } // fi
 		    
 		  } //next

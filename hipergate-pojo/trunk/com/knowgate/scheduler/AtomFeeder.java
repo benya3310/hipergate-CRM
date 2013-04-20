@@ -344,7 +344,7 @@ public class AtomFeeder {
 
     if (DebugFile.trace) {
        DebugFile.decIdent();
-       DebugFile.writeln("End AtomFeeder.loadAtoms() : " + String.valueOf(oJobsSet.getRowCount()));
+       DebugFile.writeln("End AtomFeeder.loadAtoms() : " + String.valueOf(iLoaded));
      }
 
      return oJobsSet;
@@ -363,13 +363,9 @@ public class AtomFeeder {
    */
 
   public DBSubset loadAtoms(JDCConnection oConn, String sJobId, short iInitialStatus) throws SQLException {
-    PreparedStatement oCmdsStmt;
     PreparedStatement oJobStmt;
-    ResultSet oCmdsSet;
     DBSubset  oJobsSet;
     int iJobCount;
-    String aParams[];
-    String aVariable[];
     Properties oParams;
     DistributionList oDistribList;
     Date dtNow = new Date();
@@ -449,7 +445,7 @@ public class AtomFeeder {
 
     if (DebugFile.trace) {
        DebugFile.decIdent();
-       DebugFile.writeln("End AtomFeeder.loadAtoms() : " + sJobId);
+       DebugFile.writeln("End AtomFeeder.loadAtoms(sJobId) : " + String.valueOf(iLoaded));
      }
 
      return oJobsSet;
@@ -482,7 +478,6 @@ public class AtomFeeder {
   public void feedQueue(JDCConnection oConn, AtomQueue oQueue) throws SQLException {
     PreparedStatement oStmt;
     PreparedStatement oUpdt;
-    PreparedStatement oPgSt;
     ResultSet oRSet;
     ResultSetMetaData oMDat;
     String sJobId;

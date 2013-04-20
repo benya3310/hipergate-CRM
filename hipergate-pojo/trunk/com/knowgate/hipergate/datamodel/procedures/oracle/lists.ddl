@@ -203,6 +203,7 @@ DECLARE
   SnPassport    VARCHAR2(16);
   IdGender      CHAR(1);
   NyAge         NUMBER;
+  IdNationality CHAR(3);
   TxDept        VARCHAR2(70);
   TxDivision    VARCHAR2(70);
   TxComments	VARCHAR2(254);
@@ -211,8 +212,8 @@ DECLARE
   UrlTwitter    VARCHAR2(254);
   
 BEGIN
-  SELECT gu_contact,gu_company,gu_workarea,tx_name,tx_surname,de_title,dt_birth,sn_passport,id_gender,ny_age,tx_dept,tx_division,tx_comments,url_linkedin,url_facebook,url_twitter
-  INTO   GuContact,GuCompany,GuWorkArea,TxName,TxSurname,DeTitle,DtBirth,SnPassport,IdGender,NyAge,TxDept,TxDivision,TxComments,UrlLinkedIn,UrlFacebook,UrlTwitter FROM k_contacts 
+  SELECT gu_contact,gu_company,gu_workarea,tx_name,tx_surname,de_title,dt_birth,sn_passport,id_gender,ny_age,id_nationality,tx_dept,tx_division,tx_comments,url_linkedin,url_facebook,url_twitter
+  INTO   GuContact,GuCompany,GuWorkArea,TxName,TxSurname,DeTitle,DtBirth,SnPassport,IdGender,NyAge,IdNationality,TxDept,TxDivision,TxComments,UrlLinkedIn,UrlFacebook,UrlTwitter FROM k_contacts 
   WHERE gu_contact=:new.gu_contact;
 
   IF LENGTH(TxName)=0 THEN TxName:=NULL; END IF;
@@ -225,13 +226,13 @@ BEGIN
   END IF;
   
   UPDATE k_member_address SET gu_contact=GuContact,gu_company=GuCompany,tx_name=TxName,tx_surname=TxSurname,de_title=DeTitle,tr_title=TrTitle,dt_birth=DtBirth,sn_passport=SnPassport,
-                              id_gender=IdGender,ny_age=NyAge,tx_dept=TxDept,tx_division=TxDivision,tx_comments=TxComments,url_linkedin=UrlLinkedIn,url_facebook=UrlFacebook,url_twitter=UrlTwitter
+                              id_gender=IdGender,ny_age=NyAge,id_nationality=IdNationality,tx_dept=TxDept,tx_division=TxDivision,tx_comments=TxComments,url_linkedin=UrlLinkedIn,url_facebook=UrlFacebook,url_twitter=UrlTwitter
                               WHERE gu_address=:new.gu_address;
 EXCEPTION
   WHEN NO_DATA_FOUND THEN
 
     UPDATE k_member_address SET gu_contact=GuContact,gu_company=GuCompany,tx_name=TxName,tx_surname=TxSurname,de_title=DeTitle,tr_title=NULL,dt_birth=DtBirth,sn_passport=SnPassport,
-                                id_gender=IdGender,ny_age=NyAge,tx_dept=TxDept,tx_division=TxDivision,tx_comments=TxComments,url_linkedin=UrlLinkedIn,url_facebook=UrlFacebook,url_twitter=UrlTwitter
+                                id_gender=IdGender,ny_age=NyAge,id_nationality=IdNationality,tx_dept=TxDept,tx_division=TxDivision,tx_comments=TxComments,url_linkedin=UrlLinkedIn,url_facebook=UrlFacebook,url_twitter=UrlTwitter
                                 WHERE gu_address=:new.gu_address;
 END k_tr_ins_cont_addr;
 GO;
@@ -261,13 +262,13 @@ BEGIN
   END IF;
   
   UPDATE k_member_address SET gu_company=:new.gu_company,tx_name=TxName,tx_surname=TxSurname,de_title=DeTitle,tr_title=TrTitle,dt_birth=:new.dt_birth,sn_passport=:new.sn_passport,
-                              id_gender=:new.id_gender,ny_age=:new.ny_age,tx_dept=:new.tx_dept,tx_division=:new.tx_division,tx_comments=:new.tx_comments,
+                              id_gender=:new.id_gender,ny_age=:new.ny_age,id_nationality=:new.id_nationality,tx_dept=:new.tx_dept,tx_division=:new.tx_division,tx_comments=:new.tx_comments,
                               url_linkedin=:new.url_linkedin,url_facebook=:new.url_facebook,url_twitter=:new.url_twitter WHERE gu_contact=:new.gu_contact;
 EXCEPTION
   WHEN NO_DATA_FOUND THEN
 
     UPDATE k_member_address SET gu_company=:new.gu_company,tx_name=TxName,tx_surname=TxSurname,de_title=DeTitle,tr_title=NULL,dt_birth=:new.dt_birth,sn_passport=:new.sn_passport,
-                                id_gender=:new.id_gender,ny_age=:new.ny_age,tx_dept=:new.tx_dept,tx_division=:new.tx_division,tx_comments=:new.tx_comments,
+                                id_gender=:new.id_gender,ny_age=:new.ny_age,id_nationality=:new.id_nationality,tx_dept=:new.tx_dept,tx_division=:new.tx_division,tx_comments=:new.tx_comments,
                                 url_linkedin=:new.url_linkedin,url_facebook=:new.url_facebook,url_twitter=:new.url_twitter WHERE gu_contact=:new.gu_contact;
 END k_tr_upd_cont;
 GO;

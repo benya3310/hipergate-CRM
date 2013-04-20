@@ -31,6 +31,8 @@ CREATE INDEX i8_oportunities ON k_oportunities(gu_contact);
 
 CREATE INDEX i1_oportunities_changelog ON k_oportunities_changelog(gu_oportunity);
 
+CREATE INDEX i1_oportunity_contacts ON k_x_oportunity_contacts (gu_oportunity);
+
 CREATE INDEX i1_contacts_recent ON k_contacts_recent(gu_user);
 CREATE INDEX i2_contacts_recent ON k_contacts_recent(gu_workarea);
 

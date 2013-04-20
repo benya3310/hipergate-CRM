@@ -72,6 +72,7 @@ BEGIN
     EXECUTE ''DELETE FROM '' || quote_ident(''k_bank_accounts'') || '' WHERE nu_bank_acc IN ('' || banks || '') AND gu_workarea='' || quote_literal(GuWorkArea);
   END IF;
 
+  DELETE FROM k_x_oportunity_contacts WHERE gu_oportunity IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_contact=$1);
   DELETE FROM k_oportunities_attachs WHERE gu_oportunity IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_contact=$1);
   DELETE FROM k_oportunities_changelog WHERE gu_oportunity IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_contact=$1);
   DELETE FROM k_oportunities_attrs WHERE gu_object IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_contact=$1);
@@ -139,6 +140,7 @@ BEGIN
   END IF;
 
   /* Borrar las oportunidades */
+  DELETE FROM k_x_oportunity_contacts WHERE gu_oportunity IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_company=$1);
   DELETE FROM k_oportunities_attachs WHERE gu_oportunity IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_company=$1);
   DELETE FROM k_oportunities_changelog WHERE gu_oportunity IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_company=$1);
   DELETE FROM k_oportunities_attrs WHERE gu_object IN (SELECT gu_oportunity FROM k_oportunities WHERE gu_company=$1);
@@ -164,6 +166,7 @@ DECLARE
 BEGIN
   SELECT gu_contact INTO GuContact FROM k_oportunities WHERE gu_oportunity=$1;
   UPDATE k_phone_calls SET gu_oportunity=NULL WHERE gu_oportunity=$1;
+  DELETE FROM k_x_oportunity_contacts WHERE gu_oportunity=$1;
   DELETE FROM k_oportunities_attachs WHERE gu_oportunity=$1;
   DELETE FROM k_oportunities_changelog WHERE gu_oportunity=$1;
   DELETE FROM k_oportunities_attrs WHERE gu_object=$1;
@@ -208,7 +211,7 @@ DECLARE
   aCount INTEGER := 0;
   TxPreve VARCHAR(100);
   GuContact CHAR(32);
-  Emails VARCHAR[] := ARRAY(SELECT a.tx_email FROM k_member_address a, k_member_address b WHERE a.tx_email=b.tx_email AND a.gu_contact<>b.gu_contact AND a.gu_contact IS NOT NULL and b.gu_contact IS NOT NULL AND NOT EXISTS (SELECT i.gu_bill_addr FROM k_invoices i WHERE i.gu_bill_addr=a.gu_address OR i.gu_bill_addr=b.gu_address) AND a.gu_workarea=b.gu_workarea AND a.gu_workarea=$1 ORDER BY 1);
+  Emails VARCHAR[] := ARRAY(SELECT a.tx_email FROM k_member_address a, k_member_address b WHERE a.tx_email=b.tx_email AND a.gu_contact<>b.gu_contact AND a.gu_contact IS NOT NULL and b.gu_contact IS NOT NULL AND NOT EXISTS (SELECT i.gu_bill_addr FROM k_invoices i WHERE i.gu_bill_addr=a.gu_address OR i.gu_ship_addr=b.gu_address) AND a.gu_workarea=b.gu_workarea AND a.gu_workarea=$1 ORDER BY 1);
   NMails INTEGER := array_upper(Emails, 1);
   ActAud NO SCROLL CURSOR (gu CHAR(32)) FOR SELECT gu_activity FROM k_x_activity_audience WHERE gu_contact IN (SELECT gu_contact FROM k_newer_contacts) OR gu_contact=gu;
   GuActivity CHAR(32);
@@ -288,6 +291,8 @@ BEGIN
   END LOOP;
   END IF;
 
+  DELETE FROM k_discard_contacts d WHERE EXISTS (SELECT gu_contact FROM k_invoices i WHERE i.gu_contact=d.gu_contact);
+
   SELECT SUM(k_sp_del_contact(gu_contact)) INTO Dummy FROM k_discard_contacts;
   SELECT COUNT(*) INTO aCount FROM k_discard_contacts;
   DELETE FROM k_discard_contacts;
@@ -357,6 +362,7 @@ BEGIN
     END IF;
     SELECT gu_oportunity INTO GuTmp FROM k_keep_oportunities WHERE gu_oportunity=GuOpK;
     IF NOT FOUND THEN
+		  DELETE FROM k_oportunities_attrs WHERE gu_object=GuOpD AND nm_attr IN (SELECT nm_attr FROM k_oportunities_attrs WHERE gu_object=GuOpK);
       UPDATE k_oportunities_attrs SET gu_object=GuOpK WHERE gu_object=GuOpD;
       UPDATE k_oportunities_attachs SET gu_oportunity=GuOpK WHERE gu_oportunity=GuOpD;
       UPDATE k_oportunities_changelog SET gu_oportunity=GuOpK WHERE gu_oportunity=GuOpD;
@@ -422,5 +428,50 @@ BEGIN
   END LOOP;
   CLOSE Oprts;
   RETURN 0;
+END;
+' LANGUAGE 'plpgsql';
+
+CREATE FUNCTION k_sp_split_names () RETURNS INTEGER AS '
+DECLARE
+  NuSplitted INTEGER;
+  GuCon CHAR(32);
+  FirstName VARCHAR(100);
+  TxName VARCHAR(100);
+  TxSurName VARCHAR(100);
+  IdGender CHAR(1);
+  IdDefaultGender CHAR(1);
+  Conts NO SCROLL CURSOR FOR SELECT gu_contact,tx_name,id_gender FROM k_contacts WHERE tx_name IS NOT NULL AND tx_surname IS NULL FOR UPDATE OF k_contacts;
+	Names NO SCROLL CURSOR FOR SELECT tx_name,id_gender FROM k_lu_first_names ORDER BY length(tx_name) DESC;
+BEGIN
+  NuSplitted:=0;
+  OPEN Conts;
+  LOOP
+    FETCH Conts INTO GuCon,TxName,IdGender;
+    EXIT WHEN NOT FOUND;
+    OPEN Names;
+    LOOP
+      FETCH Names INTO FirstName,IdDefaultGender;
+      EXIT WHEN NOT FOUND OR FirstName=substring(TxName from 1 for length(FirstName));
+		END LOOP;
+    CLOSE Names;
+    IF FirstName=substring(TxName from 1 for length(FirstName)) THEN
+      TxSurName:=trim(leading from substring(TxName from length(FirstName)+1));
+      IF length(TxSurName)=0 THEN
+        TxSurName:=NULL;
+      END IF;
+		  IF IdGender IS NULL THEN
+        UPDATE k_contacts SET tx_name=substring(TxName from 1 for length(FirstName)),
+						                  tx_surname=TxSurName,
+														  id_gender=IdDefaultGender WHERE CURRENT OF Conts;
+      ELSE
+        UPDATE k_contacts SET tx_name=substring(TxName from 1 for length(FirstName)),
+						                  tx_surname=TxSurName
+														  WHERE CURRENT OF Conts;
+      END IF;
+		  NuSplitted:=NuSplitted+1;
+    END IF;
+  END LOOP;    
+  CLOSE Conts;
+  RETURN NuSplitted;
 END;
 ' LANGUAGE 'plpgsql';
