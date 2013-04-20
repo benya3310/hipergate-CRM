@@ -86,6 +86,8 @@ import com.knowgate.math.Money;
 
 public final class DBSubset extends Vector<Vector<Object>> {
 
+  private static final long serialVersionUID = 70000l;
+	
   /**
    * </p>Contructs a DBSubset.</p>
    * @param sTableName Base table or tables, ie. "k_products" or "k_products p, k_x_cat_objs x"
@@ -913,7 +915,7 @@ public final class DBSubset extends Vector<Vector<Object>> {
    * @since 7.0
    */
 
-  public Object max (int iCol) throws ArrayIndexOutOfBoundsException {
+  public Comparable max (int iCol) throws ArrayIndexOutOfBoundsException {
   	final int nCount = getRowCount();
   	Comparable oMax = null;
   	for (int iRow=0; iRow<nCount; iRow++) {
@@ -937,7 +939,7 @@ public final class DBSubset extends Vector<Vector<Object>> {
    * @since 7.0
    */
 
-  public Object min (int iCol) throws ArrayIndexOutOfBoundsException {
+  public Comparable min (int iCol) throws ArrayIndexOutOfBoundsException {
   	final int nCount = getRowCount();
   	Comparable oMin = null;
   	for (int iRow=0; iRow<nCount; iRow++) {
@@ -3468,7 +3470,7 @@ public final class DBSubset extends Vector<Vector<Object>> {
 	  dtTo = dtEnd;
 	}
 	public Date getDateFrom() {
-	  return dtFrom;
+		return dtFrom;
 	}
 	public Date getDateTo() {
 	  return dtTo;

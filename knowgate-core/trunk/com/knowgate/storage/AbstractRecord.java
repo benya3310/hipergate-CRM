@@ -37,6 +37,7 @@ import java.util.Locale;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -107,6 +108,17 @@ public abstract class AbstractRecord extends HashMap implements Record {
   	}
   } // load
 
+  public boolean load(Table oConn, Object[] aKey) throws StorageException {
+	Record oRec = oConn.load(aKey);
+	clear();
+	if (null==oRec) {
+	  return false;
+	} else {
+	  putAll(oRec);
+	  return true;
+	}
+  } // load
+  
   public String store(Table oConn) throws StorageException {
 	oConn.store(this);
 	return getPrimaryKey();
@@ -133,6 +145,9 @@ public abstract class AbstractRecord extends HashMap implements Record {
   	throw new ArrayIndexOutOfBoundsException ("Column not found "+sColName);
   }
 
+  /**
+   * @return <b>true</b> if Record does not contain the given key or its value is <b>null</b>
+   */
   public boolean isNull(String sKey) {
     if (containsKey(sKey)) {
       Object oVal = get(sKey);
@@ -145,6 +160,9 @@ public abstract class AbstractRecord extends HashMap implements Record {
     }
   }
 
+  /**
+   * @return <b>true</b> if Record does not contain the given key or its value is <b>null</b> or its value is an empty string ""
+   */
   public boolean isEmpty(String sKey) {
     if (isNull(sKey))
       return true;
@@ -166,6 +184,20 @@ public abstract class AbstractRecord extends HashMap implements Record {
     }
   }
 
+  public BigDecimal getDecimal(String sKey) {
+	 if (containsKey(sKey)) {
+	 Object oDec = get(sKey);
+	 if (oDec instanceof BigDecimal)
+	   return (BigDecimal) oDec;
+	 else if (oDec instanceof String)
+	   return new BigDecimal((String) oDec);
+	 else
+	   return new BigDecimal(oDec.toString());      
+	 } else {
+	   throw new NullPointerException("Column "+sKey+" is null");
+	 }
+  }
+ 
   public int getInt(String sKey) {
     if (containsKey(sKey)) {
       Object oInt = get(sKey);

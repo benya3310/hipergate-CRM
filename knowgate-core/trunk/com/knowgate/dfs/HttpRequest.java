@@ -60,7 +60,6 @@ import org.htmlparser.Parser;
 import org.htmlparser.util.ParserException;
 import org.htmlparser.beans.StringBean;
 
-import com.knowgate.debug.DebugFile;
 import com.knowgate.misc.Gadgets;
 import com.knowgate.misc.Base64Encoder;
 import com.knowgate.misc.NameValuePair;
@@ -90,7 +89,7 @@ public class HttpRequest extends Thread {
    * @param sUrl String
    */
   public HttpRequest(String sUrl) {
-    sUrl = sUrl;
+    this.sUrl = sUrl;
     oReferUrl = null;
     sMethod = "GET";
     aParams = null;
@@ -201,8 +200,12 @@ public class HttpRequest extends Thread {
             Date dtExpires = oDtFmt.parse(aCookieExpired[1]);
             isExpired=(dtExpires.compareTo(new Date())<=0);
           } catch (Exception ignore) { }
-          if (!isExpired) 
-        	aCookies.add(new NameValuePair(aCookieNameValue[0],aCookieNameValue[1]));
+          if (!isExpired) {
+        	if (aCookieNameValue.length>1)
+        	  aCookies.add(new NameValuePair(aCookieNameValue[0],aCookieNameValue[1]));
+        	else
+          	  aCookies.add(new NameValuePair(aCookieNameValue[0],""));        	  
+          }
         } // wend
       } // fi
     } // wend
@@ -253,6 +256,7 @@ public class HttpRequest extends Thread {
     oCon.setUseCaches(false);
     oCon.setInstanceFollowRedirects(false);
     oCon.setDoInput (true);
+	oCon.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 6.1; rv:2.2) Gecko/20110201");
 
     if (sUsr!=null && sPwd!=null)
       oCon.setRequestProperty ("Authorization", "Basic " + Base64Encoder.encode(sUsr + ":" + sPwd));
@@ -269,11 +273,17 @@ public class HttpRequest extends Thread {
 
 	responseCode = oCon.getResponseCode();
     String sLocation = oCon.getHeaderField("Location");
+    if (sLocation!=null)
+    	if (sLocation.charAt(0)=='/')
+    		sLocation = "http://centros.lectiva.com"+sLocation;
+    System.out.println("responseCode=" + String.valueOf(responseCode) + " Location="+sLocation);
     
 	if ((responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
 		responseCode == HttpURLConnection.HTTP_MOVED_TEMP) &&
 		!sUrl.equals(sLocation)) {
-      HttpRequest oMoved = new HttpRequest(sLocation, oUrl, "POST", aParams);	  
+      HttpRequest oMoved = new HttpRequest(sLocation, oUrl, "GET", null);
+      readResponseCookies(oCon);
+      oMoved.setCookies(getCookies());
 	  oRetVal = oMoved.post();
 	  sUrl = oMoved.url();
 	} else if (responseCode == HttpURLConnection.HTTP_OK ||
@@ -335,11 +345,6 @@ public class HttpRequest extends Thread {
 	    if (p<aParams.length-1) sParams += "&";
 	  } // next
 	} // fi
-
-	if (DebugFile.trace) {
-	  DebugFile.writeln("Begin Httprequest.get("+sUrl+sParams+")");
-	  DebugFile.incIdent();
-	}
     
 	if (null==oReferUrl)
 	  oUrl = new URL(sUrl+sParams);
@@ -353,6 +358,7 @@ public class HttpRequest extends Thread {
     oCon.setUseCaches(false);
     oCon.setInstanceFollowRedirects(false);
 	oCon.setRequestMethod("GET");
+	oCon.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 6.1; rv:2.2) Gecko/20110201");
 	writeRequestCookies(oCon);
 
 	responseCode = oCon.getResponseCode();
@@ -360,8 +366,9 @@ public class HttpRequest extends Thread {
 	if ((responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
 		responseCode == HttpURLConnection.HTTP_MOVED_TEMP) &&
 		!sUrl.equals(oCon.getHeaderField("Location"))) {
-      HttpRequest oMoved = new HttpRequest(oCon.getHeaderField("Location"), oUrl, "GET", aParams);
-	  
+      HttpRequest oMoved = new HttpRequest(oCon.getHeaderField("Location"), oUrl, "GET", null);
+      readResponseCookies(oCon);
+      oMoved.setCookies(getCookies());	  
 	  oRetVal = oMoved.get();
 	  sUrl = oMoved.url();
 	  oCon.disconnect();
@@ -395,11 +402,6 @@ public class HttpRequest extends Thread {
 	  } // fi (responseCode)
 	} // fi
 
-	if (DebugFile.trace) {
-	  DebugFile.decIdent();
-	  DebugFile.writeln("End Httprequest.get()");
-	}
-
 	return oRetVal;
   } // get
 
@@ -415,11 +417,6 @@ public class HttpRequest extends Thread {
   public int head ()
     throws IOException, URISyntaxException, MalformedURLException {
 
-	if (DebugFile.trace) {
-	  DebugFile.writeln("Begin Httprequest.head("+sUrl+")");
-	  DebugFile.incIdent();
-	}
-	
     oRetVal = null;
     sPageSrc = null;
 	sEncoding = null;
@@ -457,11 +454,6 @@ public class HttpRequest extends Thread {
 
 	oCon.disconnect();
 
-	if (DebugFile.trace) {
-	  DebugFile.decIdent();
-	  DebugFile.writeln("End Httprequest.head()");
-	}
-
 	return responseCode;
   } // head
 
@@ -486,10 +478,6 @@ public class HttpRequest extends Thread {
    */
   public String src() throws IOException,UnsupportedEncodingException,URISyntaxException {
 
-	if (DebugFile.trace) {
-	  DebugFile.writeln("Begin HttpRequest.src()");
-	  DebugFile.incIdent();
-	}
 
     if (sPageSrc==null) {
 	  Perl5Matcher oMatcher = new Perl5Matcher();
@@ -517,19 +505,7 @@ public class HttpRequest extends Thread {
           sEncoding = "UTF8";
         }
       } // fi
-
-	  if (DebugFile.trace) {
-	    DebugFile.writeln("content encoding is "+sEncoding);
-	  }
     } // fi
-
-	if (DebugFile.trace) {
-	  DebugFile.decIdent();
-	  if (sPageSrc==null)
-	    DebugFile.writeln("End HttpRequest.src() : null");
-	  else
-	    DebugFile.writeln("End HttpRequest.src() : "+String.valueOf(sPageSrc.length()));
-	} // fi
 
     return sPageSrc;
   } // src
@@ -560,11 +536,6 @@ public class HttpRequest extends Thread {
    */
   public String getTitle()
   	throws IOException, URISyntaxException, MalformedURLException, UnsupportedEncodingException {
-
-	if (DebugFile.trace) {
-	  DebugFile.incIdent();
-	  DebugFile.writeln("Begin HttpRequest.getTitle()");
-	}
 	
 	src();
 
@@ -579,11 +550,6 @@ public class HttpRequest extends Thread {
 		}
 	  }         
     } // fi
-
-	if (DebugFile.trace) {
-	  DebugFile.decIdent();
-	  DebugFile.writeln("End HttpRequest.getTitle() : " + sTxTitle);
-	}
 
     return sTxTitle;
   } // getTitle
@@ -601,11 +567,6 @@ public class HttpRequest extends Thread {
    */
   public String getLanguage()
   	throws IOException, URISyntaxException, MalformedURLException, UnsupportedEncodingException, ParserException {
-
-	if (DebugFile.trace) {
-	  DebugFile.incIdent();
-	  DebugFile.writeln("Begin HttpRequest.getLanguage()");
-	}
 
 	src();
 	
@@ -636,11 +597,6 @@ public class HttpRequest extends Thread {
         }
       } // fi
 	} // fi
-
-	if (DebugFile.trace) {
-	  DebugFile.decIdent();
-	  DebugFile.writeln("End HttpRequest.getLanguage() : " + sLanguage);
-	}
 
     return sLanguage;
   } // getLanguage()

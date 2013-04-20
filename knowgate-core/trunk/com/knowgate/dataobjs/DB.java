@@ -187,6 +187,7 @@ public final class DB {
   public static final String k_oportunities = "k_oportunities";
   public static final String k_oportunities_lookup = "k_oportunities_lookup";
   public static final String k_oportunities_attrs = "k_oportunities_attrs";
+  public static final String k_x_oportunity_contacts = "k_x_oportunity_contacts";
   public static final String k_welcome_packs = "k_welcome_packs";
   public static final String k_welcome_packs_lookup = "k_welcome_packs_lookup";
   public static final String k_welcome_packs_changelog = "k_welcome_packs_changelog";
@@ -204,6 +205,7 @@ public final class DB {
   public static final String k_activity_attachs = "k_activity_attachs";
   public static final String k_activity_tags = "k_activity_tags";
   public static final String k_syndfeeds = "k_syndfeeds";
+  public static final String k_syndfeeds_info_cache = "k_syndfeeds_info_cache";
   public static final String k_syndentries = "k_syndentries";
   public static final String k_syndreferers = "k_syndreferers";
   public static final String k_syndsearches = "k_syndsearches";
@@ -480,6 +482,7 @@ public final class DB {
   public static final String bo_allcaps = "bo_allcaps";
   public static final String bo_dup_id_docs = "bo_dup_id_docs";
   public static final String bo_cnt_autoref = "bo_cnt_autoref";
+  public static final String bo_acrs_oprt = "bo_acrs_oprt";
 
   // k_queries
   public static final String gu_query = "gu_query";
@@ -903,6 +906,7 @@ public final class DB {
   public static final String nu_elapsed = "nu_elapsed";
   public static final String lv_interest = "lv_interest";
   public static final String nu_oportunities = "nu_oportunities";
+  public static final String tp_relation = "tp_relation";
 
   // k_contact_notes
   public static final String gu_note = "gu_note";

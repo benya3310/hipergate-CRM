@@ -2448,7 +2448,7 @@ public final class Gadgets {
 	  oFmt2.setMaximumFractionDigits(2);
     }
     
-    return new BigDecimal (oFmt2.format(oDec.doubleValue()));
+    return new BigDecimal (oFmt2.format(oDec.doubleValue()).replace(',', '.'));
   }
 
   // ----------------------------------------------------------

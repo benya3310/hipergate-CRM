@@ -9,7 +9,6 @@ import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Map;
 
@@ -742,6 +741,11 @@ public class MultipartRequest implements HttpServletRequest {
 	    return true;
 	  }
 
+      public void login(String username, String password) { }
+  
+  	  public void logout() { }
+  
+  	  /*
 	  public javax.servlet.http.Part getPart(String name) {
 	    return null;
 	  }
@@ -750,10 +754,6 @@ public class MultipartRequest implements HttpServletRequest {
 	    return null;
 	  }
 	  
-	  public void login(String username, String password) { }
-	  
-	  public void logout() { }
-
 	  public AsyncContext getAsyncContext() { return null; }
 
 	  public ServletContext getServletContext() { return null; }
@@ -767,7 +767,7 @@ public class MultipartRequest implements HttpServletRequest {
 	  public AsyncContext startAsync(ServletRequest request, ServletResponse response ) { return null; }
 
 	  public DispatcherType getDispatcherType() { return null; }
-
+	  */
 }
 
 

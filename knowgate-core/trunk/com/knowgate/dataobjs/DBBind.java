@@ -59,6 +59,7 @@ import com.knowgate.debug.StackTraceUtil;
 import com.knowgate.misc.Environment;
 import com.knowgate.misc.Gadgets;
 import com.knowgate.storage.Column;
+import com.knowgate.storage.StorageException;
 import com.knowgate.jdc.JDCConnection;
 import com.knowgate.jdc.JDCConnectionPool;
 
@@ -284,19 +285,16 @@ public class DBBind extends Beans implements DataSource {
   private void loadDriver(Properties oProps)
     throws ClassNotFoundException, NullPointerException  {
 
-    Class oDriver;
-    String sDriver;
-
-    if (DebugFile.trace) DebugFile.writeln("Begin DBBind.loadDriver()" );
-
-    sDriver = oProps.getProperty("driver");
+	if (DebugFile.trace) DebugFile.writeln("Begin DBBind.loadDriver()" );
+	  
+    final String sDriver = oProps.getProperty("driver");
 
     if (DebugFile.trace) DebugFile.writeln("  driver=" +  sDriver);
 
     if (null==sDriver)
       throw new NullPointerException("Could not find property driver");
 
-    oDriver = Class.forName(sDriver);
+    Class.forName(sDriver);
 
     if (DebugFile.trace) DebugFile.writeln("End DBBind.loadDriver()" );
   } // loadDriver()
@@ -382,9 +380,12 @@ public class DBBind extends Beans implements DataSource {
       // **************
 
       try {
-        oConn = DriverManager.getConnection(oProfEnvProps.getProperty("dburl"),
-                                            oProfEnvProps.getProperty("dbuser"),
-                                            oProfEnvProps.getProperty("dbpassword"));
+    	if (oProfEnvProps.getProperty("dbuser")==null && oProfEnvProps.getProperty("dbpassword")==null)
+            oConn = DriverManager.getConnection(oProfEnvProps.getProperty("dburl"));
+    	else
+          oConn = DriverManager.getConnection(oProfEnvProps.getProperty("dburl"),
+                                              oProfEnvProps.getProperty("dbuser"),
+                                              oProfEnvProps.getProperty("dbpassword"));
       }
       catch (SQLException e) {
         if (DebugFile.trace) DebugFile.writeln("DriverManager.getConnection("+oProfEnvProps.getProperty("dburl")+","+oProfEnvProps.getProperty("dbuser")+", ...) SQLException [" + e.getSQLState() + "]:" + String.valueOf(e.getErrorCode()) + " " + e.getMessage());
@@ -544,8 +545,9 @@ public class DBBind extends Beans implements DataSource {
           while (oRSet.next()) {
 
             sTableName = oRSet.getString(3);
-
+            
             if (!oRSet.wasNull()) {
+              if (DebugFile.trace) DebugFile.writeln("Processing table " + sTableName);
           	  sTableSchema = oRSet.getString(2);
           	  if (oRSet.wasNull()) sTableSchema = oProfEnvProps.getProperty("schema", "dbo");
               oTable = new DBTable (sCatalog, sTableSchema, sTableName, ++i);
@@ -558,7 +560,7 @@ public class DBBind extends Beans implements DataSource {
 
                 oTableMap.put(sTableName, oTable);
 
-                if (DebugFile.trace) DebugFile.writeln("Reading table " + sSchema + "." + oTable.getName());
+                if (DebugFile.trace) DebugFile.writeln("Readed table " + sSchema + "." + oTable.getName());
               } // fi (!in(sTableName, aExclude))
             } // fi (!oRSet.wasNull())
           } // wend
@@ -572,6 +574,8 @@ public class DBBind extends Beans implements DataSource {
             sTableName = oRSet.getString(3);
 
             if (!oRSet.wasNull()) {
+              if (DebugFile.trace) DebugFile.writeln("Processing table " + sTableName);
+
               oTable = new DBTable (sCatalog, sTableSchema, sTableName, ++i);
 
               sTableName = oTable.getName().toLowerCase();
@@ -582,7 +586,7 @@ public class DBBind extends Beans implements DataSource {
 
                 oTableMap.put(sTableName, oTable);
 
-                if (DebugFile.trace) DebugFile.writeln("Reading table " + oTable.getName());
+                if (DebugFile.trace) DebugFile.writeln("Readed table " + oTable.getName());
               } // fi (!in(sTableName, aExclude))
             } // fi (!oRSet.wasNull())
          } // wend
@@ -741,7 +745,7 @@ public class DBBind extends Beans implements DataSource {
 
   /**
    * Get the name of Database Management System Connected
-   * @return one of { "Microsoft SQL Server", "Oracle", "PostgreSQL" }
+   * @return one of { "Microsoft SQL Server", "Oracle", "PostgreSQL", "MySQL" }
    * @throws SQLException
    */
 
@@ -1155,6 +1159,38 @@ public class DBBind extends Beans implements DataSource {
   // ----------------------------------------------------------
 
   /**
+   * <p>Get next value for a sequence</p>
+   * @param sSequenceName Sequence name.
+   * In MySQL and SQL Server sequences are implemented using row locks at k_sequences table.
+   * @return long Next sequence value
+   * @throws SQLException
+   * @throws UnsupportedOperationException Not all databases support sequences.
+   * On Oracle and PostgreSQL, native SEQUENCE objects are used,
+   * on Microsoft SQL Server the stored procedure k_sp_nextval simulates sequences,
+   * this function is not supported on other DataBase Management Systems.
+   * @since 7.0
+   */
+  public long nextVal(String sSequenceName) throws StorageException {
+	  long lNextVal;
+	  JDCConnection oConn = null;
+	  try {
+		  oConn = getConnection("nextVal."+sSequenceName);
+		  lNextVal = nextVal(oConn, sSequenceName);
+	  } catch (Exception xcpt) {
+		  throw new StorageException(xcpt.getClass().getName()+" "+xcpt.getMessage(), xcpt);
+	  } finally {
+		  try {
+			  if (oConn!=null)
+				  if (!oConn.isClosed())
+					  oConn.close("nextVal."+sSequenceName);
+		  } catch (SQLException sqle) { }
+	  }
+	  return lNextVal;
+  }
+  
+  // ----------------------------------------------------------
+
+  /**
    * Format Date in ODBC escape sequence style
    * @param dt Date to be formated
    * @param sFormat Format Type "d" or "ts" or "shortTime".
@@ -1396,7 +1432,10 @@ public class DBBind extends Beans implements DataSource {
         throw new SQLException(oConnectXcpt.getClass().getName()+" "+oConnectXcpt.getMessage());
     }
 
-	oConn = DriverManager.getConnection(getProperty("dburl"), sUser, sPasswd);
+    if (sUser==null && sPasswd==null)
+      oConn = DriverManager.getConnection(getProperty("dburl"));
+    else
+      oConn = DriverManager.getConnection(getProperty("dburl"), sUser, sPasswd);   
 
     if (DebugFile.trace) {
       DebugFile.decIdent();

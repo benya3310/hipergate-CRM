@@ -130,7 +130,7 @@ public class DBTable {
     boolean bFound;
     Object oVal;
     DBColumn oDBCol;
-    ListIterator oColIterator;
+    ListIterator<DBColumn> oColIterator;
     PreparedStatement oStmt = null;
     ResultSet oRSet = null;
 
@@ -181,7 +181,7 @@ public class DBTable {
         if (DebugFile.trace) DebugFile.writeln("  binding primary key " + PKValues[p] + ".");
 
         oConn.bindParameter(oStmt, p+1, PKValues[p]);
-        //oStmt.setObject(p+1, PKValues[p]);
+
       } // next
 
       if (DebugFile.trace) DebugFile.writeln("  Connection.executeQuery()");
@@ -200,9 +200,13 @@ public class DBTable {
         c = 1;
         while (oColIterator.hasNext()) {
           oVal = oRSet.getObject(c++);
-          oDBCol = (DBColumn) oColIterator.next();
-          if (null!=oVal)
+          oDBCol = oColIterator.next();
+          if (oRSet.wasNull()) {
+          	if (DebugFile.trace) DebugFile.writeln("Value of column "+oDBCol.getName()+" is NULL");
+          } else {
             AllValues.put(oDBCol.getName(), oVal);
+          	if (DebugFile.trace) DebugFile.writeln("Value of column "+oDBCol.getName()+" is "+oVal);
+          }// fi
         }
       }
 
@@ -293,7 +297,8 @@ public class DBTable {
               (sCol.compareTo(DB.dt_created)!=0)) {
 
             if (DebugFile.trace) {
-              if (oCol.getSqlType()==java.sql.Types.CHAR || oCol.getSqlType()==java.sql.Types.VARCHAR) {
+              if (oCol.getSqlType()==java.sql.Types.CHAR  || oCol.getSqlType()==java.sql.Types.VARCHAR ||
+                  oCol.getSqlType()==java.sql.Types.NCHAR || oCol.getSqlType()==java.sql.Types.NVARCHAR ) {
 
                 if (AllValues.get(sCol)!=null) {
                   DebugFile.writeln("Binding " + sCol + "=" + AllValues.get(sCol).toString());
@@ -1230,10 +1235,14 @@ public class DBTable {
         switch (iDBMS) {
       	case JDCConnection.DBMS_POSTGRESQL:
       	  oStmt = oConn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+      	  if (DebugFile.trace)
+            DebugFile.writeln("Statement.executeQuery(SELECT indexname,indexdef FROM pg_indexes WHERE tablename='"+sName+"')");
       	  oRSet = oStmt.executeQuery("SELECT indexname,indexdef FROM pg_indexes WHERE tablename='"+sName+"'");
       	  while (oRSet.next()) {
       	  	String sIndexName = oRSet.getString(1);
       	  	String sIndexDef = oRSet.getString(2);
+        	if (DebugFile.trace)
+              DebugFile.writeln("index name "+sIndexName+", index definition "+sIndexDef);
       	  	int lPar = sIndexDef.indexOf('(');
       	  	int rPar = sIndexDef.indexOf(')');
       	  	if (lPar>0 && rPar>0) {      	  	  
@@ -1247,10 +1256,14 @@ public class DBTable {
       	  break;
       	case JDCConnection.DBMS_MYSQL:
       	  oStmt = oConn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+      	  if (DebugFile.trace)
+              DebugFile.writeln("Statement.executeQuery(SELECT COLUMN_NAME,COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME ='"+sName+"' AND COLUMN_KEY!='')");
       	  oRSet = oStmt.executeQuery("SELECT COLUMN_NAME,COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME ='"+sName+"' AND COLUMN_KEY!=''");
       	  while (oRSet.next()) {
       	  	String sIndexName = oRSet.getString(1);
       	  	String sIndexType = oRSet.getString(2);
+        	if (DebugFile.trace)
+                DebugFile.writeln("index name "+sIndexName+", index type "+sIndexType);
       	  	oIndexes.add(new DBIndex(sIndexName, new String[]{sIndexName},
       	  	             sIndexType.equalsIgnoreCase("PRI") || sIndexType.equalsIgnoreCase("UNI")));
       	  } //wend

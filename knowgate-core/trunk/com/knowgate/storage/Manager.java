@@ -42,27 +42,40 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
 import com.knowgate.misc.Environment;
-import com.knowgate.storage.queue.RecordQueueProducer;
 
 public final class Manager extends Beans {
 
-  private final static String PROFILE = "extranet";
+  private final static String PROFILE = "hipergate";
 
   private Class[] aDataSourceClass;
+  private Class[] aEngineClass2;
+  private Class[] aStringClass1;
+  private Class[] aStringClass2;
   private String sPro;
   private Engine oEng;
   private RecordQueueProducer oRqp;
   private Properties oSyn = new Properties();
 
-  public Manager() throws StorageException,NamingException,InstantiationException {
+  public Manager() throws StorageException,NamingException,InstantiationException, ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
   	this(Engine.DEFAULT, PROFILE);
   }
 
+  public Manager(Engine oDBEngine) throws StorageException,NamingException,InstantiationException, ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+    this(oDBEngine, PROFILE);
+  }
+  
   public Manager(Engine oDBEngine, String sProfile)
-  	throws StorageException,NamingException,InstantiationException {
+  	throws StorageException,NamingException,InstantiationException, ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+	aStringClass1 = new Class[]{String.class};
+    aStringClass2 = new Class[]{String.class,String.class};
+    aEngineClass2 = new Class[]{Engine.class,String.class};
     oEng = oDBEngine;
     sPro = sProfile;
-	oRqp = new RecordQueueProducer(sPro);
+    String sRqp = Environment.getProfileVar(sPro, "queue", "com.knowgate.ramqueue.RAMQueueProducer");
+	if (sRqp.equals("com.knowgate.ramqueue.RAMQueueProducer"))
+	  oRqp = (RecordQueueProducer) Class.forName(sRqp).getConstructor(aEngineClass2).newInstance(new Object[]{oDBEngine, sPro});
+	else
+      oRqp = (RecordQueueProducer) Class.forName(sRqp).getConstructor(aStringClass1).newInstance(new Object[]{sPro});
 	oSyn = new Properties();
     oSyn.put("synchronous","true");
     try {
@@ -200,5 +213,5 @@ public final class Manager extends Beans {
   	}
   	return oRetVal;
   }
-  
+
 }

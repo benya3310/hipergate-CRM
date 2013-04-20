@@ -35,7 +35,10 @@ import java.util.Date;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+
+import com.knowgate.debug.DebugFile;
 
 public class DataSourcePool {
   
@@ -59,6 +62,10 @@ public class DataSourcePool {
   	  if (oLastUse.containsKey(oRetDts)) oLastUse.remove(oRetDts);
 	  oLastUse.put(oRetDts, new Date());  
 	} catch (Exception xcp) {
+		  try {
+			// if (DebugFile.trace)
+				DebugFile.writeln(com.knowgate.debug.StackTraceUtil.getStackTrace(xcp));
+		} catch (IOException ignore) { }
 	  throw new InstantiationException(xcp.getClass().getName()+" "+xcp.getMessage());	  
 	}
   	return oRetDts;

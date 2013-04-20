@@ -94,10 +94,12 @@ import com.knowgate.storage.AbstractRecord;
  * It is the programmer's responsability to pass an open database connection on each method call
  * and to commit or rollback transaction involving the usage of a DBPersist object.
  * @author Sergio Montoro Ten
- * @version 6.0
+ * @version 7.0
  */
 
 public class DBPersist extends AbstractRecord {
+
+  private static final long serialVersionUID = 70000l;
 
   /**
    * Create instance for reading and writing register from a table
@@ -1342,41 +1344,45 @@ public class DBPersist extends AbstractRecord {
 	if (null==oObj) {
       AllVals.put(sKey, null);
 	} else {
-      DBColumn oCol = getTable().getColumnByName(sKey.toString());
-      if (oCol!=null) {
-	    if (oCol.getSqlType()==java.sql.Types.BINARY || oCol.getSqlType()==java.sql.Types.VARBINARY || oCol.getSqlType()==java.sql.Types.LONGVARBINARY) {
-	      Class[] aInts = oObj.getClass().getInterfaces();
-	      if (null==aInts) {
-            AllVals.put(sKey, oObj);
+	  if (oObj instanceof String || oObj instanceof Short || oObj instanceof Integer || oObj instanceof Float || oObj instanceof Double || oObj instanceof BigDecimal || oObj instanceof Date || oObj instanceof Timestamp) {
+		  AllVals.put(sKey, oObj);  
+	  } else {
+	      DBColumn oCol = getTable().getColumnByName(sKey.toString());
+	      if (oCol!=null) {
+		    if (oCol.getSqlType()==java.sql.Types.BINARY || oCol.getSqlType()==java.sql.Types.VARBINARY || oCol.getSqlType()==java.sql.Types.LONGVARBINARY) {
+		      Class[] aInts = oObj.getClass().getInterfaces();
+		      if (null==aInts) {
+	            AllVals.put(sKey, oObj);
+		      } else {
+		      	boolean bIsSerializable = false;
+		      	for (int i=0; i<aInts.length && !bIsSerializable; i++)
+		      	  bIsSerializable |= aInts[i].getName().equals("java.io.Serializable");
+		      	if (bIsSerializable) {
+		      	  try {
+	                ByteArrayOutputStream oBOut = new ByteArrayOutputStream();
+				    ObjectOutputStream oOOut = new ObjectOutputStream(oBOut);
+				    oOOut.writeObject(oObj);
+				    byte[] aBytes = oBOut.toByteArray();
+				    if (aBytes!=null) {
+	    			  if (!bHasLongVarBinaryData) LongVarBinaryValsLen = new HashMap();
+	    			  LongVarBinaryValsLen.put(sKey, new Long(aBytes.length));
+	    			  AllVals.put(sKey, aBytes);
+	    			  bHasLongVarBinaryData = true;
+				    }
+				    oOOut.close();
+				    oBOut.close();              
+		      	  } catch (IOException neverthrown) { }
+		      	} else {
+	              AllVals.put(sKey, oObj);
+		      	}
+		      }
+		    } else {
+	          AllVals.put(sKey, oObj);
+		    }
 	      } else {
-	      	boolean bIsSerializable = false;
-	      	for (int i=0; i<aInts.length && !bIsSerializable; i++)
-	      	  bIsSerializable |= aInts[i].getName().equals("java.io.Serializable");
-	      	if (bIsSerializable) {
-	      	  try {
-                ByteArrayOutputStream oBOut = new ByteArrayOutputStream();
-			    ObjectOutputStream oOOut = new ObjectOutputStream(oBOut);
-			    oOOut.writeObject(oObj);
-			    byte[] aBytes = oBOut.toByteArray();
-			    if (aBytes!=null) {
-    			  if (!bHasLongVarBinaryData) LongVarBinaryValsLen = new HashMap();
-    			  LongVarBinaryValsLen.put(sKey, new Long(aBytes.length));
-    			  AllVals.put(sKey, aBytes);
-    			  bHasLongVarBinaryData = true;
-			    }
-			    oOOut.close();
-			    oBOut.close();              
-	      	  } catch (IOException neverthrown) { }
-	      	} else {
-              AllVals.put(sKey, oObj);
-	      	}
-	      }
-	    } else {
-          AllVals.put(sKey, oObj);
-	    }
-      } else {
-        AllVals.put(sKey, oObj);
-      }
+	        AllVals.put(sKey, oObj);
+	      } // fi		  
+	  }
 	}
     return oPrevious;
   }

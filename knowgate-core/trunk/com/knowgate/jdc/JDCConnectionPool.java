@@ -47,10 +47,12 @@ import java.util.logging.Logger;
 
 import java.text.SimpleDateFormat;
 
+import java.sql.CallableStatement;
 import java.sql.DriverManager;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import javax.sql.ConnectionPoolDataSource;
 import javax.sql.PooledConnection;
@@ -163,7 +165,7 @@ public final class JDCConnectionPool implements ConnectionPoolDataSource,DataSou
     * Staled connection threshold (10 minutes)
     * The maximum time that any SQL single statement may last.
     */
-   private long timeout=600000l;
+   private long timeout = 600000l;
 
    /**
     * Soft limit for maximum open connections
@@ -851,8 +853,10 @@ public final class JDCConnectionPool implements ConnectionPoolDataSource,DataSou
        if (hardlimit==0) {
          // If hardlimit==0 Then connection pool is turned off so return a connection
          // directly from the DriverManager
-
-         c = DriverManager.getConnection(url, user, password);
+    	 if (user==null && password==null)
+           c = DriverManager.getConnection(url);
+    	 else
+           c = DriverManager.getConnection(url, user, password);
          j = new JDCConnection(c,null);
        } else {
 
@@ -880,7 +884,10 @@ public final class JDCConnectionPool implements ConnectionPoolDataSource,DataSou
 
            if (DebugFile.trace) DebugFile.writeln("  DriverManager.getConnection(" + url + ", ...)");
 
-           c = DriverManager.getConnection(url, user, password);
+           if (user==null && password==null)
+             c = DriverManager.getConnection(url);
+           else
+             c = DriverManager.getConnection(url, user, password);
 
            if (null!=c) {
              j = new JDCConnection(c, this);
@@ -943,7 +950,10 @@ public final class JDCConnectionPool implements ConnectionPoolDataSource,DataSou
     */
 
   public synchronized PooledConnection getPooledConnection(String sUser, String sPasswd) throws SQLException {
-    return (PooledConnection) new JDCConnection(DriverManager.getConnection(url, sUser, sPasswd),null);
+    if (sUser==null && sPasswd==null)
+  	  return (PooledConnection) new JDCConnection(DriverManager.getConnection(url),null);
+    else
+	  return (PooledConnection) new JDCConnection(DriverManager.getConnection(url, sUser, sPasswd),null);
   }
 
   // ---------------------------------------------------------------------------
@@ -1044,6 +1054,75 @@ public final class JDCConnectionPool implements ConnectionPoolDataSource,DataSou
     return oInfo;
   } // getActivityInfo()
 
+  // ---------------------------------------------------------
+
+   /**
+    * <p>Get next value for a sequence</p>
+    * @param sSequenceName Sequence name.
+    * In MySQL and SQL Server sequences are implemented using row locks at k_sequences table.
+    * @return long Next sequence value
+    * @throws SQLException
+    * @throws UnsupportedOperationException Not all databases support sequences.
+    * On Oracle and PostgreSQL, native SEQUENCE objects are used,
+    * on Microsoft SQL Server the stored procedure k_sp_nextval simulates sequences,
+    * this function is not supported on other DataBase Management Systems.
+    * @since 7.0
+    */   
+  public long nextVal(String sSequenceName) throws StorageException {
+	  long iNextVal;
+	  JDCConnection oConn = null;
+	  try {
+		oConn = getConnection("nextVal."+sSequenceName);
+	    Statement oStmt;
+	    ResultSet oRSet;
+	    CallableStatement oCall;
+
+	    switch (oConn.getDataBaseProduct()) {
+
+	      case JDCConnection.DBMS_MYSQL:
+	      case JDCConnection.DBMS_MSSQL:
+	        oCall = oConn.prepareCall("{call k_sp_nextval (?,?)}");
+	        oCall.setString(1, sSequenceName);
+	        oCall.registerOutParameter(2, java.sql.Types.INTEGER);
+	        oCall.execute();
+	        iNextVal = oCall.getInt(2);
+	        oCall.close();
+	        oCall = null;
+	        break;
+
+	      case JDCConnection.DBMS_POSTGRESQL:
+	        oStmt = oConn.createStatement();
+	        oRSet = oStmt.executeQuery("SELECT nextval('" + sSequenceName + "')");
+	        oRSet.next();
+	        iNextVal = oRSet.getInt(1);
+	        oRSet.close();
+	        oStmt.close();
+	        break;
+
+	      case JDCConnection.DBMS_ORACLE:
+	        oStmt = oConn.createStatement();
+	        oRSet = oStmt.executeQuery("SELECT " + sSequenceName + ".NEXTVAL FROM dual");
+	        oRSet.next();
+	        iNextVal = oRSet.getInt(1);
+	        oRSet.close();
+	        oStmt.close();
+	        break;
+
+	      default:
+	        throw new UnsupportedOperationException("function nextVal() not supported on current DBMS");
+	    }
+	  } catch (Exception xcpt) {
+		  throw new StorageException(xcpt.getClass().getName()+" "+xcpt.getMessage(), xcpt);
+	  } finally {
+		  try {
+			  if (oConn!=null)
+				  if (!oConn.isClosed())
+					  oConn.close("nextVal."+sSequenceName);
+		  } catch (SQLException sqle) { }
+	  }
+	  return iNextVal;
+  }
+   
   // ---------------------------------------------------------
 
   /**

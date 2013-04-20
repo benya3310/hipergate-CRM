@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Collection;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.text.NumberFormat;
 
@@ -89,6 +90,10 @@ public class RecordDelegator implements Record {
 	  return impl.load(oConn, sKey);
 	}
 
+	public boolean load(Table oConn, Object[] aKey) throws StorageException {
+	  return impl.load(oConn, aKey);
+	}
+	
 	public String store(Table oConn) throws StorageException {
 	  return impl.store(oConn);
 	}
@@ -141,6 +146,10 @@ public class RecordDelegator implements Record {
 	  return impl.getDate(sKey, dtDefault);
 	}
 
+	public BigDecimal getDecimal(String sKey) {
+      return impl.getDecimal(sKey);
+	}
+	
 	public String getString(String sKey) {
 	  return impl.getString(sKey);
 	}

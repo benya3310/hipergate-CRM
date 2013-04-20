@@ -57,6 +57,10 @@ public interface Table {
 
   public Record load(String sKey) throws StorageException;
 
+  public Record load(Object[] aKey) throws StorageException;
+
+  public Record newRecord() throws StorageException;
+  
   public void store(AbstractRecord oRec) throws StorageException;
 
   public void delete(AbstractRecord oRec) throws StorageException;

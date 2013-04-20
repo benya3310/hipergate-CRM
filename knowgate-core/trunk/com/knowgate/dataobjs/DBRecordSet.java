@@ -10,6 +10,8 @@ import com.knowgate.storage.RecordColumnValueComparatorDesc;
 
 public class DBRecordSet extends ArrayList<Record> implements RecordSet {
 	
+  private static final long serialVersionUID = 70000l;
+
   public void sort(String sColumnName) throws ArrayIndexOutOfBoundsException {
     if (size()>0) {
 	  Collections.sort(this, new RecordColumnValueComparatorAsc(sColumnName));

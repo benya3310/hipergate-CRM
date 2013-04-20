@@ -266,6 +266,8 @@ public class DBEnvironment implements DataSource {
 	  // For Berkeley DB Java Only
 	  // oJcc = oEnv.openDatabase(null, CLASS_CATALOG, bReadOnly ? oDro : oDfg);
 
+	  if (DebugFile.trace) DebugFile.writeln("Environment.openDatabase("+getPath()+CLASS_CATALOG+".db"+")");
+	  
 	  oJcc = oEnv.openDatabase(null, getPath()+CLASS_CATALOG+".db", CLASS_CATALOG, oCtf);
 
       oCtg = new StoredClassCatalog(oJcc);
@@ -274,8 +276,16 @@ public class DBEnvironment implements DataSource {
 	  } catch (ClassNotFoundException neverthrown) { }
 
 	} catch (DatabaseException dbe) {
+      if (DebugFile.trace) {
+    	  DebugFile.writeln("DatabaseException "+dbe.getMessage());
+    	  DebugFile.decIdent();
+      }
 	  throw new StorageException(dbe.getMessage(), dbe);
 	} catch (FileNotFoundException fnf) {
+	  if (DebugFile.trace) {
+	    DebugFile.writeln("FileNotFoundException "+fnf.getMessage());
+	    DebugFile.decIdent();
+	  }
 	  throw new StorageException(fnf.getMessage(), fnf);
 	}
 

@@ -51,4 +51,5 @@ public interface DataSource {
 
     public Engine getEngine();
 
+    public long nextVal(String sSequenceName) throws StorageException;
 }

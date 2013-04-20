@@ -53,6 +53,8 @@ import com.knowgate.debug.DebugFile;
 
 public final class DBColumn extends Column {
 
+  private static final long serialVersionUID = 70000l;
+
   public DBColumn() {}
 
   public DBColumn(String sTable, String sColName,
@@ -78,12 +80,12 @@ public final class DBColumn extends Column {
    */
   public void setSqlType(short iType) {
     setType(iType);
-    setTypeName(DBColumn.typeName(getSqlType()));
+    setTypeName(Column.typeName(getSqlType()));
   }
 
   public void setSqlType(int iType) {
     setType(iType);
-    setTypeName(DBColumn.typeName(getSqlType()));
+    setTypeName(Column.typeName(getSqlType()));
   }
 
   /**
