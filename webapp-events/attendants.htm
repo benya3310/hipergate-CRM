@@ -1,0 +1,20 @@
+<html>
+  <body>
+    <script language="JavaScript" type="text/javascript" src="javascript/combobox.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascript/datefuncs.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascript/formutils.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascript/resources_en.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascript/webstorageutils.js"></script>
+  	<script type="text/javascript" language="JavaScript" src="javascript/inputs.js"></script>
+    <script type="text/javascript">
+    	
+    	//localStorage.removeItem("attendants");
+    	//localStorage.removeItem("record");
+    	
+      if (null!=localStorage.getItem("record")) document.write("<br><br>record<br>"+localStorage.getItem("record"));
+      if (null!=localStorage.getItem("attendants")) document.write("<br><br>attendants<br>"+localStorage.getItem("attendants"));
+
+			//readRecordIntoForm(document.forms[0]);
+    </script>
+  </body>
+</html>

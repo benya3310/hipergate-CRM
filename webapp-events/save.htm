@@ -1,0 +1,54 @@
+<html>
+	<head>
+		<title>Data Entry Forms Example</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="img/styles.css" />
+    <script language="JavaScript" type="text/javascript" src="javascript/combobox.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascript/datefuncs.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascript/formutils.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascript/httprequest.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascript/resources_en.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascript/webstorageutils.js"></script>
+		<script type="text/javascript" language="JavaScript">
+		<!--
+		  function save() {
+		  	var frm = document.forms[0];
+				if (loadSession(frm)) {
+
+				  var acts = httpCachedRequestText("activities","activity_list.jsp?gu_writer="+frm.gu_writer.value+"&tx_pwd="+frm.tx_pwd.value+"&gu_workarea="+frm.gu_workarea.value);
+          if (acts!=null) {
+            acts = acts.split("¨");          	
+          	for (var a=1; a<acts.length; a++) {
+              if (acts[a].length>0) {
+          	    var act = acts[a].split("`");	
+          	    comboPush (frm.gu_activity, act[1], act[0], false, false);
+          		} // fi
+          	} // next(a)
+					} // fi (acts)
+
+					readRecordIntoForm(frm);
+				  saveRecord(frm,"attendants");
+				  sync("attendants");
+				  clearRecord(frm);
+				  if (document.getElementById("feedback").innerHTML==Resources["msg_sync_sucessfully_completed"])
+			      document.getElementById("feedback").innerHTML = "Inscripci&oacute;n de "+frm.tx_name.value+" "+frm.tx_surname.value+"<br>confirmada para el evento "+getComboText(frm.gu_activity);
+				} else {
+				  document.location = "login.htm";
+		    }
+		  }
+		-->
+		</script>
+	</head>
+	<body onload="save()">
+		<div id="pagefields">
+		  <script type="text/javascript" language="JavaScript" src="javascript/inputs.js"></script>
+		</div>
+		<div id="cabecera">
+		</div>
+		<div id="newregbtn" style="position:absolute;top:200;left:20">
+		  <form action="page1.htm" method="post"><input type="submit" class="button" value="Nuevo registro" /></form>
+		</div>
+		<div id="pending" style="font-size:12pt;font-weight:bold;position:absolute;top:40;left:20"></div>
+		<div id="feedback" style="font-size:10pt;font-weight:bold;position:absolute;top:100;left:20"></div>
+	</body>
+</html>

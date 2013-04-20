@@ -1,0 +1,102 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title></title>
+  <meta name="robots" content="noindex,nofollow">
+	<link rel="stylesheet" type="text/css" href="img/styles.css" />
+  <script type="text/javascript" language="JavaScript" src="javascript/cookies.js"></script>
+  <script type="text/javascript" language="JavaScript" src="javascript/getparam.js"></script>
+  <script language="JavaScript" type="text/javascript" src="javascript/httprequest.js"></script>
+  <script language="JavaScript" type="text/javascript" src="javascript/resources_en.js"></script>
+  <script language="JavaScript" type="text/javascript" src="javascript/webstorageutils.js"></script>
+  <script type="text/javascript" language="JavaScript">
+
+    function getResourceString(nm,pr) {
+    	alert ("window.localStorage.getItem("+nm+")");
+    	
+      var tf = window.localStorage.getItem(nm);
+
+			if (tf.substring(0,2)=="KO") tf = null;
+
+    	alert ("window.localStorage.gotItem("+nm+") "+tf);
+      
+      
+      if (tf!=null) {
+      	return tf;
+      } else {
+      	if (navigator.onLine) {
+    			alert ("httpRequestText("+nm+".jsp?"+pr+")");
+          var tx = httpRequestText(nm+".jsp?"+pr);
+          if (tx==null) {
+        	  alert ("Recurso "+nm+" no encontrado");
+            return null;
+          } else {
+    	      alert ("window.localStorage.setItem("+nm+") "+tx);
+          	window.localStorage.setItem(nm, tx);
+            return tx;
+          }
+        } else {
+        	alert ("No fue posible recuperar el recurso "+nm+" debido a que el navegador web no esta conectado a Internet");
+          return null;
+        }
+      }
+    } // getResourceString
+
+    // ------------------------------------------------------------------------
+
+		var intervalId = false;
+		
+    // ------------------------------------------------------------------------
+
+		function synchronize() {
+      var err = false;
+      clearInterval(intervalId);
+  		try {
+  			sync("attendants");
+   		} catch (xcpt) {
+   			err = true;
+  		  document.getElementById("feedback").innerHTML = xcpt.name+" "+xcpt.message;
+   	  }
+		  if (!err) intervalId = setInterval ("sync()", 5000);
+		}
+
+    // ------------------------------------------------------------------------
+
+    function initialize() {
+    	// localStorage.removeItem("attendants");
+		  var pending = 0;
+		  var records = localStorage.getItem("attendants");
+		  sessionStorage.session = "c0a810a612ad2463c02100001e182855|c0a810a612ad2463be3100000f3d54ab|administrator@hipergate-test.com|TEST";
+	  	if (null!=records) {
+	  	  records = records.split("\n");
+    	  pending = records.length-1;
+    	}
+    	document.getElementById("pending").innerHTML = "Registros pendientes de sincronizar: "+String(pending);
+      intervalId = setInterval ("synchronize()", 5000);
+    }
+
+    // ------------------------------------------------------------------------
+
+    function executeCommand() {
+      var frm = document.forms[0];
+      var cmd = getURLParam("command");
+      
+      if (cmd=="authenticate") {
+				alert ("executing authenticate workarea="+getURLParam("workarea")+"&email="+unescape(getURLParam("email"))+"&passw="+unescape(getURLParam("passw")));
+
+      } // fi (cmd) 
+    } // executeCommand
+
+  </script>
+</head>
+<body onload="initialize()">
+		<div id="pageheader">
+			<h1>Sincronizador de Datos</h1>
+		</div>
+		<div id="pending" style="font-size:12pt;font-weight:bold;position:absolute;top:180;left:20"></div>
+		<div id="feedback" style="font-size:10pt;font-weight:bold;position:absolute;top:220;left:20"></div>
+		<script type="text/javascript" language="JavaScript">
+		// document.write(localStorage.getItem("attendants"));
+		</script>
+</body>
+</html>

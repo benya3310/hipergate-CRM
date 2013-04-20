@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>hipergate :: Login</title>
+  <link rel="stylesheet" type="text/css" href="img/styles.css" />
+  <script language="JavaScript" type="text/javascript" src="javascript/email.js"></script>
+  <script language="JavaScript" type="text/javascript" src="javascript/combobox.js"></script>
+  <script language="JavaScript" type="text/javascript" src="javascript/formutils.js"></script>
+  <script language="JavaScript" type="text/javascript" src="javascript/httprequest.js"></script>
+  <script language="JavaScript" type="text/javascript" src="javascript/webstorageutils.js"></script>
+  <script language="JavaScript" type="text/javascript" src="javascript/resources_en.js"></script>
+  <script language="JavaScript" type="text/javascript">
+  	<!--
+      
+  	  function validate() {
+  	  	var frm = document.forms[0];
+
+  	    if (!check_email(frm.tx_main_email.value)) {
+  	      alert (Resources["msg_tx_email_invalid"]);
+  	      frm.tx_main_email.focus();
+  	    } // fi
+  	    else if (frm.tx_pwd.value.length==0) {
+  	      alert (Resources["msg_empty_pwd"]);
+  	      frm.tx_pwd.focus();
+  	    } else {
+				  frm.gu_writer.value = "";
+				  frm.gu_workarea.value = "";
+				  var res = httpCachedPostForm("authenticate");
+				  if (null==res) {
+  	    	  alert("Authenticate unreachable");
+				  } else {
+				    res = res.split("¨");
+				    if (res[0]=="KO") {
+				      alert(res[1]);
+				    } else {
+				    	res = res[1].split("`");
+				    	frm.gu_writer.value = res[0];
+				    	frm.gu_workarea.value = res[3];
+				    	saveSession(frm);
+				      document.location = "page1.htm";
+				    }
+				  }
+  	    }				
+  	  }
+  	  
+  	  function paint() {
+  	  	var lbls = new Array ("lbl_app_title","lbl_email","lbl_passw");
+  	  	for (var l=0; l<lbls.length; l++) {
+  	      document.getElementById(lbls[l]).innerHTML = Resources[lbls[l]];
+  	  	}
+  	  	document.forms[0].pbutton.value = Resources["btn_enter"];
+  	  }
+  	//-->
+  </script>
+</head>
+<body onload="paint()">
+  <div id="wrapper">	
+	<div id="loginbox">
+	  <img src="img/logo.jpg" alt="Company Logo" border="0" />
+    <form>
+    	<input type="hidden" name="gu_record" />
+    	<input type="hidden" name="gu_writer" />
+    	<input type="hidden" name="gu_workarea" />
+      <table id="usrpass" summary="User and Password" onsubmit="return validate()">
+      	<tr>
+      		<td></td><td><div id="lbl_app_title"></div></td>
+        </tr>
+      	<tr>
+      		<td><div id="lbl_email"></div></td><td><input type="text" maxlength="100" size="40" name="tx_main_email" value="administrator@hipergate-test.com" /></td>
+        </tr>
+      	<tr>
+      		<td><div id="lbl_passw"></div></td><td><input type="password" maxlength="30" size="20" name="tx_pwd" value="TEST" /></td>
+        </tr>
+      	<tr>
+      		<td></td><td><input type="button" name="pbutton" onclick="validate()" /></td>
+        </tr>
+      </table>
+    </form>
+  </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<html>
+	<head>
+		<title>Data Entry Forms Example</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="img/styles.css" />
+    <script language="JavaScript" type="text/javascript" src="javascript/email.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascript/combobox.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascript/datefuncs.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascript/simplevalidations.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascript/formutils.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascript/httprequest.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascript/autosuggest20.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascript/resources_en.js"></script>
+    <script language="JavaScript" type="text/javascript" src="javascript/webstorageutils.js"></script>
+		<script type="text/javascript" language="JavaScript">
+		<!--
+
+			// Set here the name of the next page at forms chain
+			var action_target = "save.htm";
+
+		  function initialize() {
+		    var frm = document.forms[0];
+
+				if (loadSession(frm)) {
+				
+				  var acts = httpCachedRequestText("activities","activity_list.jsp?gu_writer="+frm.gu_writer.value+"&tx_pwd="+frm.tx_pwd.value+"&gu_workarea="+frm.gu_workarea.value);
+
+          if (acts==null) {
+
+					  alert ("Page not found activity_list.jsp");
+					
+          } else {
+
+            acts = acts.split("¨");
+
+            if (acts[0]=="KO") {          	
+
+              alert (acts[1]);
+            
+            } else {
+          	
+          	  for (var a=1; a<acts.length; a++) {
+          		  if (acts[a].length>0) {
+          	      var act = acts[a].split("`");	
+          	      if (act[1].length>50) act[1] = act[1].substr(0,40)+"...";
+          	      comboPush (frm.gu_activity, act[1], act[0], false, false);
+          		  }
+          	  }
+    				
+				      readRecordIntoForm(frm);
+
+      				// **********************************************************
+      				// Customize fields to be displayed here
+      				
+      				var t = top_padding;
+      				
+      				D ("gu_activity"  , t, left_padding, "ttu"); t += inter_line;
+      				D ("tx_name"      , t, left_padding, "ttu"); t += inter_line;
+      				D ("tx_surname"   , t, left_padding, "ttu"); t += inter_line;
+      				D ("mov_phone"    , t, left_padding, "ttu"); t += inter_line;
+      				D ("tx_email"     , t, left_padding, "");    t += inter_line;
+      				D ("id_country"   , t, left_padding, "");    t += inter_line;
+      				D ("id_state"     , t, left_padding, "");    t += inter_line;
+      				D ("zipcode"      , t, left_padding, "");    t += inter_line;
+      				D ("mn_city"      , t, left_padding, "");    t += inter_line;
+      				D ("bo_allows_ads", t, left_padding, "ttu"); t += inter_line;
+      
+      				B ("continue"     , t, left_padding, Resources["btn_continue"]);
+      				B ("disconnect"   , t, left_padding+200, Resources["btn_disconnect"]);
+      
+      				// **********************************************************
+            } // fi (acts==OK/KO)
+          } // fi (acts==null)
+        } else {
+					document.location = "login.htm";          	
+        }
+      } // initialize
+
+      // -----------------------------------------------------------------
+		
+		  function validate() {
+		    var frm = document.forms[0];
+		    if (check_all(frm, "es")) {
+		    	readFormIntoRecord(frm);
+		      frm.action = action_target;
+		      frm.submit();
+		      return true;
+		    } else {
+		      return false;
+		    }
+		  } // validate
+
+      // -----------------------------------------------------------------
+		
+		  function disconnect() {
+        clearRecord(document.forms[0]);
+        document.location = "login.htm";
+      }
+      
+		-->
+		</script>
+	</head>
+	<body onload="initialize()">
+		  <div id="pageheader">
+		    <img src="img/logo.jpg" alt="Company Logo" border="0" />
+		  </div>
+		  <div id="pagefields">
+		    <script type="text/javascript" language="JavaScript" src="javascript/inputs.js"></script>
+		  </div>
+	</body>
+	<script language="JavaScript" type="text/javascript">
+    <!--
+      // Activate this JavaScript for suggestions of cities in Spain based on their postal code
+      // var autosuggest = new AutoSuggest("mn_city", { varname:"mn_city", minchars:2, form:0 } );
+
+			function getNameUrl() {
+				var frm = document.forms[0];
+			  return "attendants_list.jsp?gu_activity="+getCombo(frm.gu_activity)+"&gu_workarea="+frm.gu_workarea.value+"&gu_writer="+frm.gu_writer.value+"&tx_pwd="+frm.tx_pwd.value+"&";
+			}
+
+			function getSurNameUrl() {
+				var frm = document.forms[0];
+			  return "attendants_list.jsp?gu_activity="+getCombo(frm.gu_activity)+"&gu_workarea="+frm.gu_workarea.value+"&gu_writer="+frm.gu_writer.value+"&tx_pwd="+frm.tx_pwd.value+"&";
+			}
+
+			function getPassportUrl() {
+				var frm = document.forms[0];
+			  return "attendants_list.jsp?gu_activity="+getCombo(frm.gu_activity)+"&gu_workarea="+frm.gu_workarea.value+"&gu_writer="+frm.gu_writer.value+"&tx_pwd="+frm.tx_pwd.value+"&";
+			}
+      
+      function fillAttendantData(gu) {
+      	var fld;
+      	var frm = document.forms[0];
+      	frm.reset();
+        var inf = httpRequestText("attendant_info.jsp?gu_workarea="+frm.gu_workarea.value+"&gu_writer="+frm.gu_writer.value+"&tx_pwd="+frm.tx_pwd.value+"&gu_contact="+gu).split("¨");
+        if (inf[0]=="OK") {
+        	for (var i=1; i<inf.length; i++) {
+        	  fld = inf[i].split("`");
+        	  if (fld.length>1) {
+        	  	if (fld[0]=="gu_contact") alert ("gu_contact="+fld[1]);
+        	    readParamIntoForm(frm, fld[0], fld[1]);
+        	  } // fi
+        	} // next
+        	if (frm.id_state.selectedIndex==0 && getCombo(frm.id_country)=="es") {
+        	  for (var i=1; i<inf.length; i++) {
+        	    fld = inf[i].split("`");
+        	    if (fld[0]=="zipcode") {
+        	      setCombo(frm.id_state, fld[1].substring(0,2));
+        	    } // fi
+        	  } // next
+        	}
+        } else {
+          alert ("Err "+httpRequestText("attendant_info.jsp?gu_workarea="+frm.gu_workarea.value+"&gu_writer="+frm.gu_writer.value+"&tx_pwd="+frm.tx_pwd.value+"&gu_contact="+gu));
+        }
+      }
+      
+      loadSession(document.forms[0]);
+      
+      var AutoSuggestNameOptions = { script:"getNameUrl()", varname:"tx_name",minchars:3,form:0, callback: function (obj) { fillAttendantData(obj.id); } };
+      var AutoSuggestSurNameOptions = { script:"getSurNameUrl()", varname:"tx_name",minchars:3,form:0, callback: function (obj) { fillAttendantData(obj.id); } };
+      var AutoSuggestpassportOptions = { script:"getPassportUrl()", varname:"sn_passport",minchars:3,form:0, callback: function (obj) { fillAttendantData(obj.id); } };
+
+      var AutoSuggestName = new AutoSuggest("tx_name", AutoSuggestNameOptions);
+      var AutoSuggestSurName = new AutoSuggest("tx_surname", AutoSuggestNameOptions);
+      var AutoSuggestPassport = new AutoSuggest("sn_passport", AutoSuggestNameOptions);
+
+    //-->
+  </script>
+</html>
